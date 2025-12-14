@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/auth/screens/login_page.dart';
 import 'package:flutter_app/features/auth/screens/phone_login_page.dart';
+import 'package:flutter_app/features/auth/screens/signup_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 
@@ -15,7 +16,9 @@ class AppRoutes {
   // ============ Route Names ============
   static const String welcome = '/';
   static const String login = '/login';
+  static const String signup = '/signup';
   static const String phoneLogin = '/phone-login';
+  static const String otpVerification = '/otp-verification';
   static const String home = '/home';
   static const String profile = '/profile';
   static const String settings = '/settings';
@@ -28,6 +31,9 @@ class AppRoutes {
 
       case login:
         return _buildRoute(const LoginPage(), settings);
+
+      case signup:
+        return _buildRoute(const SignupPage(), settings);
 
       case phoneLogin:
         return _buildRoute(const PhoneLoginPage(), settings);

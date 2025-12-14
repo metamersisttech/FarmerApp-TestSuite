@@ -1,6 +1,7 @@
 /// App-wide Configuration
 ///
 /// Contains general app settings and constants.
+library;
 
 class AppConfig {
   // App Info

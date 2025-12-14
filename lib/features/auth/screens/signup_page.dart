@@ -1,37 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app/core/errors/exceptions.dart';
 import 'package:flutter_app/core/utils/validators.dart';
-import 'package:flutter_app/data/repositories/auth_repository.dart';
-import 'package:flutter_app/features/auth/screens/signup_page.dart';
+import 'package:flutter_app/data/services/auth_service.dart';
+import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SignupPage extends StatefulWidget {
+  const SignupPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignupPage> createState() => _SignupPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignupPageState extends State<SignupPage> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final AuthRepository _authRepository = AuthRepository();
+  final AuthService _authService = AuthService();
 
   bool _isLoading = false;
-  bool _obscurePassword = true;
   String? _errorMessage;
 
   @override
   void dispose() {
+    _usernameController.dispose();
+    _mobileController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
-  /// Handle login
-  Future<void> _handleLogin() async {
+  /// Handle Send OTP
+  Future<void> _handleSendOtp() async {
     // Clear previous error
     setState(() {
       _errorMessage = null;
@@ -48,24 +50,26 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // Call login API
-      await _authRepository.login(
+      // Call API to send OTP
+      await _authService.sendOtp(
+        phone: '+91${_mobileController.text.trim()}',
         email: _emailController.text.trim(),
-        password: _passwordController.text,
+        username: _usernameController.text.trim(),
       );
 
-      // Navigate to home on success
+      // Navigate to OTP verification page
       if (mounted) {
-        Navigator.pushAndRemoveUntil(
+        Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-          (route) => false, // Remove all previous routes
+          MaterialPageRoute(
+            builder: (context) => OtpVerificationPage(
+              username: _usernameController.text.trim(),
+              mobileNumber: _mobileController.text.trim(),
+              email: _emailController.text.trim(),
+            ),
+          ),
         );
       }
-    } on UnauthorizedException {
-      setState(() {
-        _errorMessage = 'Invalid email or password';
-      });
     } on NetworkException {
       setState(() {
         _errorMessage = 'No internet connection. Please try again.';
@@ -76,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Something went wrong. Please try again.';
+        _errorMessage = 'Failed to send OTP. Please try again.';
       });
     } finally {
       if (mounted) {
@@ -87,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  /// Handle skip - navigate to home without login
+  /// Handle skip - navigate to home without signup
   void _handleSkip() {
     Navigator.pushAndRemoveUntil(
       context,
@@ -121,15 +125,29 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                // Title below back arrow at top left
+
+                // Title
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text(
-                    'Login',
+                    'Sign Up',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.primaryColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Subtitle
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    'Create your account to get started',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
                     ),
                   ),
                 ),
@@ -139,11 +157,8 @@ class _LoginPageState extends State<LoginPage> {
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SizedBox(height: 40),
-
                         // Error message
                         if (_errorMessage != null)
                           Container(
@@ -168,14 +183,80 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
 
-                        // Email field
+                        // Username field
+                        TextFormField(
+                          controller: _usernameController,
+                          enabled: !_isLoading,
+                          textCapitalization: TextCapitalization.words,
+                          validator: Validators.validateUsername,
+                          decoration: InputDecoration(
+                            labelText: 'Username',
+                            hintText: 'Enter your username',
+                            labelStyle: TextStyle(color: AppTheme.primaryColor),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: AppTheme.primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            prefixIcon: Icon(
+                              Icons.person_outline,
+                              color: AppTheme.primaryColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Mobile Number field
+                        TextFormField(
+                          controller: _mobileController,
+                          enabled: !_isLoading,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          validator: Validators.validatePhone,
+                          decoration: InputDecoration(
+                            labelText: 'Mobile Number',
+                            hintText: 'Enter 10 digit mobile number',
+                            labelStyle: TextStyle(color: AppTheme.primaryColor),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: AppTheme.primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            prefixIcon: Icon(
+                              Icons.phone_android,
+                              color: AppTheme.primaryColor,
+                            ),
+                            prefixText: '+91 ',
+                            prefixStyle: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Email ID field
                         TextFormField(
                           controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
                           enabled: !_isLoading,
+                          keyboardType: TextInputType.emailAddress,
                           validator: Validators.validateEmail,
                           decoration: InputDecoration(
-                            labelText: 'Email',
+                            labelText: 'Email ID',
+                            hintText: 'Enter your email address',
                             labelStyle: TextStyle(color: AppTheme.primaryColor),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -188,61 +269,18 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             prefixIcon: Icon(
-                              Icons.email,
+                              Icons.email_outlined,
                               color: AppTheme.primaryColor,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 40),
 
-                        // Password field
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          enabled: !_isLoading,
-                          validator: (value) => Validators.validateRequired(
-                            value,
-                            fieldName: 'Password',
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            labelStyle: TextStyle(color: AppTheme.primaryColor),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: AppTheme.primaryColor,
-                                width: 2,
-                              ),
-                            ),
-                            prefixIcon: Icon(
-                              Icons.lock,
-                              color: AppTheme.primaryColor,
-                            ),
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: AppTheme.primaryColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Login button
+                        // Send OTP button
                         SizedBox(
                           height: 56,
                           child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleLogin,
+                            onPressed: _isLoading ? null : _handleSendOtp,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryColor,
                               foregroundColor: Colors.white,
@@ -262,63 +300,45 @@ class _LoginPageState extends State<LoginPage> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : Text(
-                                    'Login',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.sms_outlined),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Send OTP',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                           ),
                         ),
                         const SizedBox(height: 20),
 
-                        // Forgot password / Sign up row
+                        // Already have account
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            TextButton(
-                              onPressed: _isLoading
-                                  ? null
-                                  : () {
-                                      // TODO: Navigate to forgot password page
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Forgot Password - Coming soon!'),
-                                        ),
-                                      );
-                                    },
-                              child: Text(
-                                'Forgot Password?',
-                                style: TextStyle(
-                                  color: AppTheme.primaryColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
                             Text(
-                              ' / ',
+                              'Already have an account? ',
                               style: TextStyle(
-                                color: Colors.grey,
+                                color: Colors.grey[600],
                               ),
                             ),
                             TextButton(
                               onPressed: _isLoading
                                   ? null
                                   : () {
-                                      // Navigate to sign up page
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const SignupPage(),
-                                        ),
-                                      );
+                                      Navigator.pop(context);
                                     },
                               child: Text(
-                                'Sign up',
+                                'Login',
                                 style: TextStyle(
                                   color: AppTheme.primaryColor,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -353,3 +373,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+

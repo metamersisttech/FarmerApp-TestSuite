@@ -3,8 +3,7 @@
 /// Handles all authentication-related API calls to Django backend.
 /// Methods for login, register, logout, OTP verification, etc.
 
-// ignore: unused_import
-import 'package:flutter_app/core/constants/api_endpoints.dart'; // Will be used when implementing HTTP calls
+import 'package:flutter_app/core/constants/api_endpoints.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/data/services/api_service.dart';
 
@@ -26,14 +25,14 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    // TODO: Implement with actual HTTP call
-    // final response = await _apiService.post(ApiEndpoints.login, {
-    //   'email': email,
-    //   'password': password,
-    // });
-    // return AuthResponse.fromJson(response.data);
-    
-    throw UnimplementedError('Add dio package and implement HTTP call');
+    final response = await _apiService.post(
+      ApiEndpoints.login,
+      data: {
+        'email': email,
+        'password': password,
+      },
+    );
+    return AuthResponse.fromJson(response.data);
   }
 
   /// Register new user
@@ -48,93 +47,117 @@ class AuthService {
     String? username,
     String? phone,
   }) async {
-    // TODO: Implement with actual HTTP call
-    // final response = await _apiService.post(ApiEndpoints.register, {
-    //   'email': email,
-    //   'password': password,
-    //   'password_confirm': confirmPassword,
-    //   'username': username,
-    //   'phone': phone,
-    // });
-    // return AuthResponse.fromJson(response.data);
-    
-    throw UnimplementedError('Add dio package and implement HTTP call');
+    final response = await _apiService.post(
+      ApiEndpoints.register,
+      data: {
+        'email': email,
+        'password': password,
+        'password_confirm': confirmPassword,
+        if (username != null) 'username': username,
+        if (phone != null) 'phone': phone,
+      },
+    );
+    return AuthResponse.fromJson(response.data);
   }
 
   /// Send OTP to phone number
   /// 
-  /// Example Django endpoint: POST /api/auth/otp/send/
-  Future<bool> sendOtp({required String phone}) async {
-    // TODO: Implement with actual HTTP call
-    // final response = await _apiService.post(ApiEndpoints.sendOtp, {
-    //   'phone': phone,
-    // });
-    // return response.statusCode == 200;
+  /// Django endpoint: POST /api/auth/otp/send/
+  /// Request body: { "phone": "+91XXXXXXXXXX" }
+  /// Response: { "success": true, "message": "OTP sent successfully" }
+  Future<bool> sendOtp({
+    required String phone,
+    String? email,
+    String? username,
+  }) async {
+    final response = await _apiService.post(
+      ApiEndpoints.sendOtp,
+      data: {
+        'phone': phone,
+        if (email != null) 'email': email,
+        if (username != null) 'username': username,
+      },
+    );
     
-    throw UnimplementedError('Add dio package and implement HTTP call');
+    // Check if response indicates success
+    final data = response.data;
+    if (data is Map) {
+      return data['success'] == true || response.statusCode == 200;
+    }
+    return response.statusCode == 200;
   }
 
   /// Verify OTP code
   /// 
-  /// Example Django endpoint: POST /api/auth/otp/verify/
+  /// Django endpoint: POST /api/auth/otp/verify/
+  /// Request body: { "phone": "+91XXXXXXXXXX", "otp": "123456" }
+  /// Response: { "access": "...", "refresh": "...", "user": {...} }
   Future<AuthResponse> verifyOtp({
     required String phone,
     required String otp,
+    String? email,
+    String? username,
   }) async {
-    // TODO: Implement with actual HTTP call
-    // final response = await _apiService.post(ApiEndpoints.verifyOtp, {
-    //   'phone': phone,
-    //   'otp': otp,
-    // });
-    // return AuthResponse.fromJson(response.data);
-    
-    throw UnimplementedError('Add dio package and implement HTTP call');
+    final response = await _apiService.post(
+      ApiEndpoints.verifyOtp,
+      data: {
+        'phone': phone,
+        'otp': otp,
+        if (email != null) 'email': email,
+        if (username != null) 'username': username,
+      },
+    );
+    return AuthResponse.fromJson(response.data);
   }
 
   /// Logout user
   /// 
   /// Example Django endpoint: POST /api/auth/logout/
   Future<void> logout() async {
-    // TODO: Implement with actual HTTP call
-    // await _apiService.post(ApiEndpoints.logout, {});
-    _apiService.clearAuthToken();
+    try {
+      await _apiService.post(ApiEndpoints.logout);
+    } catch (e) {
+      // Ignore logout errors, just clear token
+    } finally {
+      _apiService.clearAuthToken();
+    }
   }
 
   /// Refresh access token
   /// 
-  /// Example Django endpoint: POST /api/auth/token/refresh/
+  /// Django endpoint: POST /api/auth/token/refresh/
+  /// Request body: { "refresh": "..." }
+  /// Response: { "access": "..." }
   Future<String> refreshToken({required String refreshToken}) async {
-    // TODO: Implement with actual HTTP call
-    // final response = await _apiService.post(ApiEndpoints.refreshToken, {
-    //   'refresh': refreshToken,
-    // });
-    // return response.data['access'] as String;
-    
-    throw UnimplementedError('Add dio package and implement HTTP call');
+    final response = await _apiService.post(
+      ApiEndpoints.refreshToken,
+      data: {
+        'refresh': refreshToken,
+      },
+    );
+    return response.data['access'] as String;
   }
 
   /// Request password reset
   /// 
-  /// Example Django endpoint: POST /api/auth/password/reset/
+  /// Django endpoint: POST /api/auth/password/reset/
+  /// Request body: { "email": "..." }
   Future<bool> forgotPassword({required String email}) async {
-    // TODO: Implement with actual HTTP call
-    // final response = await _apiService.post(ApiEndpoints.forgotPassword, {
-    //   'email': email,
-    // });
-    // return response.statusCode == 200;
-    
-    throw UnimplementedError('Add dio package and implement HTTP call');
+    final response = await _apiService.post(
+      ApiEndpoints.forgotPassword,
+      data: {
+        'email': email,
+      },
+    );
+    return response.statusCode == 200;
   }
 
   /// Get current user profile
   /// 
-  /// Example Django endpoint: GET /api/users/profile/
+  /// Django endpoint: GET /api/users/profile/
   Future<UserModel> getCurrentUser() async {
-    // TODO: Implement with actual HTTP call
-    // final response = await _apiService.get(ApiEndpoints.userProfile);
-    // return UserModel.fromJson(response.data);
-    
-    throw UnimplementedError('Add dio package and implement HTTP call');
+    final response = await _apiService.get(ApiEndpoints.userProfile);
+    return UserModel.fromJson(response.data);
   }
 
   /// Set auth token for authenticated requests

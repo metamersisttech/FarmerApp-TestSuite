@@ -5,6 +5,7 @@
 /// 
 /// TODO: Add 'flutter_secure_storage' package for secure token storage.
 ///       Run: flutter pub add flutter_secure_storage
+library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/core/errors/exceptions.dart';

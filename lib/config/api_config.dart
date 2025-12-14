@@ -2,6 +2,7 @@
 ///
 /// Contains base URLs and API settings for different environments.
 /// Switch between dev and prod by changing the getter.
+library;
 
 class ApiConfig {
   // Development - Android Emulator uses 10.0.2.2 to reach localhost

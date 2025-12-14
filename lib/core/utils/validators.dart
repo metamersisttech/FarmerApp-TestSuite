@@ -2,6 +2,7 @@
 ///
 /// Common validation functions for form fields.
 /// Returns error message if invalid, null if valid.
+library;
 
 class Validators {
   /// Validate email format

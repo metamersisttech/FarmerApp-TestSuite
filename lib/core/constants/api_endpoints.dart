@@ -2,6 +2,7 @@
 ///
 /// All API endpoint paths for the Django backend.
 /// Usage: ApiEndpoints.login, ApiEndpoints.userProfile, etc.
+library;
 
 class ApiEndpoints {
   // ============ Authentication Endpoints ============

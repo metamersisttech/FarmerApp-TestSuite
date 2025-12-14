@@ -2,6 +2,7 @@
 ///
 /// Use these exceptions to handle different types of errors
 /// from the Django backend.
+library;
 
 /// Base exception class for API errors
 class ApiException implements Exception {
@@ -21,26 +22,26 @@ class ApiException implements Exception {
 
 /// 400 - Bad Request
 class BadRequestException extends ApiException {
-  BadRequestException({String message = 'Bad request', dynamic data})
-      : super(message: message, statusCode: 400, data: data);
+  BadRequestException({super.message = 'Bad request', super.data})
+      : super(statusCode: 400);
 }
 
 /// 401 - Unauthorized (Invalid or expired token)
 class UnauthorizedException extends ApiException {
-  UnauthorizedException({String message = 'Unauthorized access'})
-      : super(message: message, statusCode: 401);
+  UnauthorizedException({super.message = 'Unauthorized access'})
+      : super(statusCode: 401);
 }
 
 /// 403 - Forbidden (No permission)
 class ForbiddenException extends ApiException {
-  ForbiddenException({String message = 'Access forbidden'})
-      : super(message: message, statusCode: 403);
+  ForbiddenException({super.message = 'Access forbidden'})
+      : super(statusCode: 403);
 }
 
 /// 404 - Not Found
 class NotFoundException extends ApiException {
-  NotFoundException({String message = 'Resource not found'})
-      : super(message: message, statusCode: 404);
+  NotFoundException({super.message = 'Resource not found'})
+      : super(statusCode: 404);
 }
 
 /// 422 - Validation Error
@@ -48,27 +49,27 @@ class ValidationException extends ApiException {
   final Map<String, dynamic>? errors;
 
   ValidationException({
-    String message = 'Validation failed',
+    super.message = 'Validation failed',
     this.errors,
-  }) : super(message: message, statusCode: 422, data: errors);
+  }) : super(statusCode: 422, data: errors);
 }
 
 /// 500 - Server Error
 class ServerException extends ApiException {
-  ServerException({String message = 'Internal server error'})
-      : super(message: message, statusCode: 500);
+  ServerException({super.message = 'Internal server error'})
+      : super(statusCode: 500);
 }
 
 /// Network Error (No internet connection)
 class NetworkException extends ApiException {
-  NetworkException({String message = 'No internet connection'})
-      : super(message: message, statusCode: null);
+  NetworkException({super.message = 'No internet connection'})
+      : super(statusCode: null);
 }
 
 /// Timeout Exception
 class TimeoutException extends ApiException {
-  TimeoutException({String message = 'Request timeout'})
-      : super(message: message, statusCode: null);
+  TimeoutException({super.message = 'Request timeout'})
+      : super(statusCode: null);
 }
 
 /// Cache Exception

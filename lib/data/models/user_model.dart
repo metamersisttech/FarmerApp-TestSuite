@@ -2,6 +2,7 @@
 ///
 /// Data class that matches Django's User serializer.
 /// Handles JSON serialization/deserialization.
+library;
 
 class UserModel {
   final int id;
