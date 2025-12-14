@@ -1,7 +1,7 @@
-/// Authentication Service
-///
-/// Handles all authentication-related API calls to Django backend.
-/// Methods for login, register, logout, OTP verification, etc.
+// Authentication Service
+//
+// Handles all authentication-related API calls to Django backend.
+// Methods for login, register, logout, OTP verification, etc.
 
 import 'package:flutter_app/core/constants/api_endpoints.dart';
 import 'package:flutter_app/data/models/user_model.dart';
