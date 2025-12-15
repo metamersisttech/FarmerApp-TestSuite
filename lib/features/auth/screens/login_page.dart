@@ -99,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -251,7 +251,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               elevation: 4,
                               disabledBackgroundColor:
-                                  AppTheme.primaryColor.withOpacity(0.6),
+                                  AppTheme.primaryColor.withValues(alpha: 0.6),
                             ),
                             child: _isLoading
                                 ? SizedBox(

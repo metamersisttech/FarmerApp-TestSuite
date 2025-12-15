@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/features/auth/screens/login_page.dart';
+import 'package:flutter_app/features/language/screens/choose_language_page.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -8,7 +8,7 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.primaryColor,
+      backgroundColor: AppTheme.authPrimaryColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -20,7 +20,7 @@ class WelcomePage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppTheme.authTextPrimary,
                     letterSpacing: 1.2,
                   ),
                   textAlign: TextAlign.center,
@@ -35,11 +35,11 @@ class WelcomePage extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to login page
+                    // Navigate to choose language page
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LoginPage(),
+                        builder: (context) => const ChooseLanguagePage(),
                       ),
                     );
                   },
@@ -53,10 +53,7 @@ class WelcomePage extends StatelessWidget {
                   ),
                   child: Text(
                     'Get Started',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),

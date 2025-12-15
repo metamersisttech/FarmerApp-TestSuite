@@ -21,6 +21,15 @@ class AppTheme {
   static const Color successColor = Color(0xFF388E3C);
   static const Color warningColor = Color(0xFFF57C00);
 
+  // ============ Auth (Screenshot) Colors ============
+  // Keeping these in AppTheme ensures we have a single source of truth for colors.
+  static const Color authBackgroundColor = Color(0xFFFBFAF7); // off-white
+  static const Color authPrimaryColor = Color(0xFF93BF8F); // soft green CTA
+  static const Color authFieldFillColor = Color(0xFFECE7DF); // beige input bg
+  static const Color authBorderColor = Color(0xFFE5E2DA);
+  static const Color authTextPrimary = Color(0xFF2B2B2B);
+  static const Color authTextSecondary = Color(0xFF8D8D8D);
+
   // ============ Text Colors ============
   static const Color textPrimary = Color(0xFF212121);
   static const Color textSecondary = Color(0xFF757575);

@@ -6,15 +6,15 @@ import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 class OtpVerificationPage extends StatefulWidget {
-  final String username;
   final String mobileNumber;
-  final String email;
+  final String? username;
+  final String? email;
 
   const OtpVerificationPage({
     super.key,
-    required this.username,
     required this.mobileNumber,
-    required this.email,
+    this.username,
+    this.email,
   });
 
   @override
@@ -88,12 +88,19 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     });
 
     try {
+      final email = (widget.email == null || widget.email!.trim().isEmpty)
+          ? null
+          : widget.email!.trim();
+      final username = (widget.username == null || widget.username!.trim().isEmpty)
+          ? null
+          : widget.username!.trim();
+
       // Call API to verify OTP
       final response = await _authService.verifyOtp(
         phone: '+91${widget.mobileNumber}',
         otp: _otp,
-        email: widget.email,
-        username: widget.username,
+        email: email,
+        username: username,
       );
 
       // Set auth token for future requests
@@ -143,11 +150,18 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     });
 
     try {
+      final email = (widget.email == null || widget.email!.trim().isEmpty)
+          ? null
+          : widget.email!.trim();
+      final username = (widget.username == null || widget.username!.trim().isEmpty)
+          ? null
+          : widget.username!.trim();
+
       // Call API to resend OTP
       await _authService.sendOtp(
         phone: '+91${widget.mobileNumber}',
-        email: widget.email,
-        username: widget.username,
+        email: email,
+        username: username,
       );
 
       if (mounted) {
@@ -345,7 +359,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                             ),
                             elevation: 4,
                             disabledBackgroundColor:
-                                AppTheme.primaryColor.withOpacity(0.4),
+                                AppTheme.primaryColor.withValues(alpha: 0.4),
                           ),
                           child: _isLoading
                               ? SizedBox(
