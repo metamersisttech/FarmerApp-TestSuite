@@ -3,6 +3,7 @@ import 'package:flutter_app/core/errors/exceptions.dart';
 import 'package:flutter_app/core/utils/validators.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
 import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
+import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/shared/widgets/auth/auth_divider.dart';
@@ -11,14 +12,16 @@ import 'package:flutter_app/shared/widgets/auth/auth_primary_button.dart';
 import 'package:flutter_app/shared/widgets/auth/auth_social_button.dart';
 import 'package:flutter_app/shared/widgets/auth/phone_number_field.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+class SendOtpPage extends StatefulWidget {
+  final bool isAfterRegistration;
+  
+  const SendOtpPage({super.key, this.isAfterRegistration = false});
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<SendOtpPage> createState() => _SendOtpPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _SendOtpPageState extends State<SendOtpPage> {
   final TextEditingController _mobileController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final AuthService _authService = AuthService();
@@ -47,16 +50,54 @@ class _SignupPageState extends State<SignupPage> {
     });
 
     try {
-      await _authService.sendOtp(
-        phone: '+91${_mobileController.text.trim()}',
+      // Call login OTP endpoint (send phone WITHOUT +91 prefix)
+      final response = await _authService.sendLoginOtp(
+        phone: _mobileController.text.trim(),
       );
 
+      // Debug: Print response
+      print('✅ OTP Response: $response');
+
+      // Check if user exists by looking at user_id in response
+      final userId = response['user_id'];
+      
+      if (userId == null) {
+        // User not registered - navigate to registration
+        print('❌ User not found (user_id is null)');
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RegisterPage(
+                phoneNumber: _mobileController.text.trim(),
+              ),
+            ),
+          );
+        }
+      } else {
+        // Success - user exists, OTP sent, navigate to verification
+        print('✅ User found (user_id: $userId), navigating to OTP verification');
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OtpVerificationPage(
+                mobileNumber: _mobileController.text.trim(),
+                isNewUser: widget.isAfterRegistration,
+              ),
+            ),
+          );
+        }
+      }
+    } on NotFoundException catch (e) {
+      // User not registered (404) - navigate to registration
+      print('❌ User not found (404): ${e.message}');
       if (mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OtpVerificationPage(
-              mobileNumber: _mobileController.text.trim(),
+            builder: (context) => RegisterPage(
+              phoneNumber: _mobileController.text.trim(),
             ),
           ),
         );
@@ -66,10 +107,13 @@ class _SignupPageState extends State<SignupPage> {
         _errorMessage = 'No internet connection. Please try again.';
       });
     } on ApiException catch (e) {
+      // Other API errors (401, 403, 500, etc.)
+      print('❌ API Error [${e.statusCode}]: ${e.message}');
       setState(() {
         _errorMessage = e.message;
       });
     } catch (e) {
+      print('❌ Unexpected error: $e');
       setState(() {
         _errorMessage = 'Failed to send OTP. Please try again.';
       });

@@ -72,6 +72,21 @@ class Validators {
     return null;
   }
 
+  /// Validate name fields (first name, last name)
+  /// Letters and spaces only, minimum 2 characters
+  static String? validateName(String? value, {String fieldName = 'Name'}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    if (value.trim().length < 2) {
+      return '$fieldName must be at least 2 characters';
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+      return '$fieldName can only contain letters';
+    }
+    return null;
+  }
+
   /// Validate username
   /// Alphanumeric and underscores only, 3-20 characters
   static String? validateUsername(String? value) {

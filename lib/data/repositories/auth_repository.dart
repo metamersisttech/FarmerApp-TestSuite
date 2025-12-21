@@ -68,19 +68,23 @@ class AuthRepository {
 
   /// Register new user
   Future<UserModel> register({
+    required String username,
     required String email,
+    required String phone,
     required String password,
     required String confirmPassword,
-    String? username,
-    String? phone,
+    required String firstName,
+    required String lastName,
   }) async {
     try {
       final response = await _authService.register(
+        username: username,
         email: email,
+        phone: phone,
         password: password,
         confirmPassword: confirmPassword,
-        username: username,
-        phone: phone,
+        firstName: firstName,
+        lastName: lastName,
       );
 
       // Store tokens

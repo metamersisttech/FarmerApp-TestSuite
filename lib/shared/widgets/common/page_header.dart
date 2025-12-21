@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
+import 'package:flutter_app/shared/widgets/auth/auth_header_icon.dart';
 
-/// Reusable page header with title and subtitle
+/// Reusable page header with optional icon, title and subtitle
 class PageHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
+  final IconData? icon;
   final Color? titleColor;
   final Color? subtitleColor;
   final double titleFontSize;
@@ -15,11 +17,12 @@ class PageHeader extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
+    this.icon,
     this.titleColor,
     this.subtitleColor,
-    this.titleFontSize = 32,
-    this.subtitleFontSize = 16,
-    this.alignment = CrossAxisAlignment.start,
+    this.titleFontSize = 28,
+    this.subtitleFontSize = 14,
+    this.alignment = CrossAxisAlignment.center,
   });
 
   @override
@@ -27,11 +30,18 @@ class PageHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: alignment,
       children: [
+        if (icon != null) ...[
+          AuthHeaderIcon(icon: icon!),
+          const SizedBox(height: 20),
+        ],
         Text(
           title,
+          textAlign: alignment == CrossAxisAlignment.center
+              ? TextAlign.center
+              : TextAlign.start,
           style: TextStyle(
             fontSize: titleFontSize,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
             color: titleColor ?? AppTheme.authPrimaryColor,
           ),
         ),
@@ -39,9 +49,13 @@ class PageHeader extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             subtitle!,
+            textAlign: alignment == CrossAxisAlignment.center
+                ? TextAlign.center
+                : TextAlign.start,
             style: TextStyle(
               fontSize: subtitleFontSize,
-              color: subtitleColor ?? Colors.grey[600],
+              color: subtitleColor ?? AppTheme.authTextSecondary,
+              height: 1.4,
             ),
           ),
         ],
@@ -49,4 +63,3 @@ class PageHeader extends StatelessWidget {
     );
   }
 }
-

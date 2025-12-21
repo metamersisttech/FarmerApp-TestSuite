@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/features/language/screens/choose_language_page.dart';
+import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -35,11 +35,11 @@ class WelcomePage extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to choose language page
+                    // Navigate to phone login page
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ChooseLanguagePage(),
+                        builder: (context) => const SendOtpPage(),
                       ),
                     );
                   },

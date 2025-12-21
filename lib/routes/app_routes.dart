@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/auth/screens/login_page.dart';
-import 'package:flutter_app/features/auth/screens/phone_login_page.dart';
-import 'package:flutter_app/features/auth/screens/signup_page.dart';
+import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
+import 'package:flutter_app/features/auth/screens/register_page.dart';
+import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 
@@ -16,7 +17,8 @@ class AppRoutes {
   // ============ Route Names ============
   static const String welcome = '/';
   static const String login = '/login';
-  static const String signup = '/signup';
+  static const String register = '/register';
+  static const String signup = '/signup'; // Alias for SendOtpPage (phone entry)
   static const String phoneLogin = '/phone-login';
   static const String otpVerification = '/otp-verification';
   static const String home = '/home';
@@ -33,10 +35,27 @@ class AppRoutes {
         return _buildRoute(const LoginPage(), settings);
 
       case signup:
-        return _buildRoute(const SignupPage(), settings);
+        return _buildRoute(const SendOtpPage(), settings);
 
       case phoneLogin:
-        return _buildRoute(const PhoneLoginPage(), settings);
+        // Alias for signup - both go to SendOtpPage
+        return _buildRoute(const SendOtpPage(), settings);
+
+      case otpVerification:
+        // Extract phone number from arguments
+        final args = settings.arguments;
+        if (args is String) {
+          return _buildRoute(
+            OtpVerificationPage(mobileNumber: args),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Phone number required for OTP verification')),
+          ),
+          settings,
+        );
 
       case home:
         return _buildRoute(const HomePage(), settings);
@@ -48,9 +67,7 @@ class AppRoutes {
       default:
         return _buildRoute(
           Scaffold(
-            body: Center(
-              child: Text('No route defined for ${settings.name}'),
-            ),
+            body: Center(child: Text('No route defined for ${settings.name}')),
           ),
           settings,
         );
@@ -59,21 +76,14 @@ class AppRoutes {
 
   /// Build a MaterialPageRoute with given widget
   static MaterialPageRoute _buildRoute(Widget widget, RouteSettings settings) {
-    return MaterialPageRoute(
-      builder: (_) => widget,
-      settings: settings,
-    );
+    return MaterialPageRoute(builder: (_) => widget, settings: settings);
   }
 
   // ============ Navigation Helpers ============
 
   /// Navigate to a route and remove all previous routes
   static void navigateAndRemoveAll(BuildContext context, String routeName) {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      routeName,
-      (route) => false,
-    );
+    Navigator.pushNamedAndRemoveUntil(context, routeName, (route) => false);
   }
 
   /// Navigate to a route and replace current route
@@ -82,7 +92,11 @@ class AppRoutes {
   }
 
   /// Navigate to a route
-  static void navigateTo(BuildContext context, String routeName, {Object? arguments}) {
+  static void navigateTo(
+    BuildContext context,
+    String routeName, {
+    Object? arguments,
+  }) {
     Navigator.pushNamed(context, routeName, arguments: arguments);
   }
 
@@ -96,4 +110,3 @@ class AppRoutes {
     Navigator.pop(context, result);
   }
 }
-
