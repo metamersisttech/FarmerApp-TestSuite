@@ -179,7 +179,9 @@ class ApiService {
 
     final statusCode = response.statusCode ?? 0;
     final data = response.data;
-    final message = data is Map ? data['message'] ?? data['detail'] : null;
+    
+    // Extract error message from various Django response formats
+    final message = _extractErrorMessage(data);
 
     switch (statusCode) {
       case 400:
@@ -215,6 +217,45 @@ class ApiService {
           statusCode: statusCode,
         );
     }
+  }
+
+  /// Extract error message from Django response
+  /// Handles various formats:
+  /// - { "message": "..." }
+  /// - { "detail": "..." }
+  /// - { "error": "..." }
+  /// - { "username": ["A user with that username already exists."] }
+  /// - { "email": ["user with this email already exists."] }
+  String? _extractErrorMessage(dynamic data) {
+    if (data == null) return null;
+    
+    if (data is String) return data;
+    
+    if (data is Map) {
+      // Check for common message fields first
+      if (data['message'] != null) return data['message'].toString();
+      if (data['detail'] != null) return data['detail'].toString();
+      if (data['error'] != null) return data['error'].toString();
+      
+      // Check for field-specific validation errors (Django format)
+      // { "username": ["error message"], "email": ["error message"] }
+      final fieldErrors = <String>[];
+      data.forEach((key, value) {
+        if (value is List && value.isNotEmpty) {
+          // Field error: "username": ["A user with that username already exists."]
+          fieldErrors.add(value.first.toString());
+        } else if (value is String) {
+          // Field error: "username": "error message"
+          fieldErrors.add(value);
+        }
+      });
+      
+      if (fieldErrors.isNotEmpty) {
+        return fieldErrors.join('\n');
+      }
+    }
+    
+    return null;
   }
 
   // ============ Logging ============

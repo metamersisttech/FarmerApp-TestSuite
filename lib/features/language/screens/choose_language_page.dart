@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/features/auth/screens/login_page.dart';
+import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/language/models/language_model.dart';
 import 'package:flutter_app/features/language/widgets/language_list.dart';
 import 'package:flutter_app/shared/widgets/cards/selection_card.dart';
@@ -34,9 +34,11 @@ class _ChooseLanguagePageState extends State<ChooseLanguagePage> {
   void _navigateToLogin() {
     Future.delayed(SelectionCardTheme.animationDuration, () {
       if (mounted) {
-        Navigator.push(
+        // Navigate to Home page after language selection
+        Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const LoginPage()),
+          MaterialPageRoute(builder: (_) => const HomePage()),
+          (route) => false,
         );
       }
     });

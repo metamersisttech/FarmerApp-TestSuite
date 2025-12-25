@@ -16,6 +16,8 @@ class ApiEndpoints {
   static const String changePassword = 'auth/password/change/';
 
   // Phone Authentication
+  static const String sendLoginOtp = 'auth/send-login-otp/';
+  static const String verifyLoginOtp = 'auth/login/'; // OTP verification endpoint
   static const String sendOtp = 'auth/otp/send/';
   static const String verifyOtp = 'auth/otp/verify/';
 

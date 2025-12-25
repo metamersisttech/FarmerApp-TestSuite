@@ -3,18 +3,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_app/core/errors/exceptions.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
+import 'package:flutter_app/features/language/screens/choose_language_page.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
+import 'package:flutter_app/shared/widgets/auth/auth_header_icon.dart';
+import 'package:flutter_app/shared/widgets/auth/auth_primary_button.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String mobileNumber;
   final String? username;
   final String? email;
+  final bool isNewUser;
 
   const OtpVerificationPage({
     super.key,
     required this.mobileNumber,
     this.username,
     this.email,
+    this.isNewUser = false,
   });
 
   @override
@@ -88,45 +93,50 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     });
 
     try {
-      final email = (widget.email == null || widget.email!.trim().isEmpty)
-          ? null
-          : widget.email!.trim();
-      final username = (widget.username == null || widget.username!.trim().isEmpty)
-          ? null
-          : widget.username!.trim();
-
-      // Call API to verify OTP
-      final response = await _authService.verifyOtp(
-        phone: '+91${widget.mobileNumber}',
+      // Call API to verify OTP (send phone WITHOUT +91 prefix)
+      final response = await _authService.verifyLoginOtp(
+        phone: widget.mobileNumber, // Send without +91 prefix
         otp: _otp,
-        email: email,
-        username: username,
       );
 
       // Set auth token for future requests
       _authService.setAuthToken(response.accessToken);
 
-      // Navigate to home on success
+      // Navigate based on user type
       if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-          (route) => false,
-        );
+        if (widget.isNewUser) {
+          // New user - go to language selection
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const ChooseLanguagePage()),
+            (route) => false,
+          );
+        } else {
+          // Existing user - go directly to home
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+            (route) => false,
+          );
+        }
       }
-    } on UnauthorizedException {
+    } on UnauthorizedException catch (e) {
       setState(() {
-        _errorMessage = 'Invalid OTP. Please try again.';
+        _errorMessage = e.message.contains('Invalid OTP') 
+            ? 'Invalid OTP. Please try again.' 
+            : e.message;
       });
     } on NetworkException {
       setState(() {
         _errorMessage = 'No internet connection. Please try again.';
       });
     } on ApiException catch (e) {
+      // Handle API errors (including 401 with "Invalid OTP" message)
       setState(() {
         _errorMessage = e.message;
       });
     } catch (e) {
+      print('❌ OTP Verification error: $e');
       setState(() {
         _errorMessage = 'Verification failed. Please try again.';
       });
@@ -150,23 +160,22 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     });
 
     try {
-      final email = (widget.email == null || widget.email!.trim().isEmpty)
-          ? null
-          : widget.email!.trim();
-      final username = (widget.username == null || widget.username!.trim().isEmpty)
-          ? null
-          : widget.username!.trim();
-
-      // Call API to resend OTP
-      await _authService.sendOtp(
-        phone: '+91${widget.mobileNumber}',
-        email: email,
-        username: username,
+      // Call API to resend OTP (send phone WITHOUT +91 prefix)
+      await _authService.sendLoginOtp(
+        phone: widget.mobileNumber,
       );
 
       if (mounted) {
+        // Clear all OTP fields
+        for (var controller in _otpControllers) {
+          controller.clear();
+        }
+        
+        // Reset focus to first field
+        _focusNodes[0].requestFocus();
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('OTP sent successfully!'),
             backgroundColor: Colors.green,
           ),
@@ -179,6 +188,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         _canResend = true;
       });
     } catch (e) {
+      print('❌ Resend OTP error: $e');
       setState(() {
         _errorMessage = 'Failed to resend OTP. Please try again.';
         _canResend = true;
@@ -189,200 +199,195 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.authBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppTheme.authTextPrimary,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              // Back arrow button at top left
-              Align(
-                alignment: Alignment.topLeft,
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: Colors.black,
-                    size: 28,
-                  ),
-                ),
-              ),
-
+              const SizedBox(height: 10),
+              
+              // Header with icon
+              const AuthHeaderIcon(icon: Icons.verified_user_rounded),
+              const SizedBox(height: 26),
+              
               // Title
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  'Verify OTP',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryColor,
-                  ),
+              const Text(
+                'Verify OTP',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.authTextPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
-
+              const SizedBox(height: 10),
+              
               // Subtitle
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  'Enter the 6-digit code sent to\n+91 ${widget.mobileNumber}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    height: 1.5,
-                  ),
+              Text(
+                'Enter the 6-digit code sent to\n+91 ${widget.mobileNumber}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.authTextSecondary,
+                  height: 1.4,
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 26),
 
-              // Main content
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      // Error message
-                      if (_errorMessage != null)
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.red.shade200),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.error_outline, color: Colors.red),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _errorMessage!,
-                                  style: TextStyle(color: Colors.red.shade700),
-                                ),
-                              ),
-                            ],
-                          ),
+              // Error Message
+              if (_errorMessage != null) ...[
+                Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+
+              // OTP Input Fields
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(6, (index) {
+                  return SizedBox(
+                    width: 45,
+                    height: 55,
+                    child: RawKeyboardListener(
+                      focusNode: FocusNode(),
+                      onKey: (RawKeyEvent event) {
+                        // Handle backspace on empty field
+                        if (event.isKeyPressed(LogicalKeyboardKey.backspace)) {
+                          if (_otpControllers[index].text.isEmpty && index > 0) {
+                            _focusNodes[index - 1].requestFocus();
+                            _otpControllers[index - 1].clear();
+                          }
+                        }
+                      },
+                      child: TextFormField(
+                        controller: _otpControllers[index],
+                        focusNode: _focusNodes[index],
+                        enabled: !_isLoading,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        maxLength: 1,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.authTextPrimary,
                         ),
-
-                      // OTP Input Fields
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: List.generate(6, (index) {
-                          return SizedBox(
-                            width: 45,
-                            height: 55,
-                            child: TextFormField(
-                              controller: _otpControllers[index],
-                              focusNode: _focusNodes[index],
-                              enabled: !_isLoading,
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.center,
-                              maxLength: 1,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              decoration: InputDecoration(
-                                counterText: '',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: AppTheme.primaryColor,
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
-                              onChanged: (value) {
-                                if (value.isNotEmpty && index < 5) {
-                                  _focusNodes[index + 1].requestFocus();
-                                } else if (value.isEmpty && index > 0) {
-                                  _focusNodes[index - 1].requestFocus();
-                                }
-                                setState(() {});
-                              },
-                            ),
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 30),
-
-                      // Resend OTP
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Didn't receive the code? ",
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: _canResend ? _handleResendOtp : null,
-                            child: Text(
-                              _canResend
-                                  ? 'Resend OTP'
-                                  : 'Resend in ${_resendTimer}s',
-                              style: TextStyle(
-                                color: _canResend
-                                    ? AppTheme.primaryColor
-                                    : Colors.grey,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
-                      ),
-                      const SizedBox(height: 40),
-
-                      // Verify Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: _isLoading || _otp.length != 6
-                              ? null
-                              : _handleVerifyOtp,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryColor,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 4,
-                            disabledBackgroundColor:
-                                AppTheme.primaryColor.withValues(alpha: 0.4),
+                        decoration: InputDecoration(
+                          counterText: '',
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          child: _isLoading
-                              ? SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  'Verify & Continue',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppTheme.primaryColor,
+                              width: 2,
+                            ),
+                          ),
                         ),
+                        onChanged: (value) {
+                          // Handle forward navigation
+                          if (value.isNotEmpty) {
+                            if (index < 5) {
+                              _focusNodes[index + 1].requestFocus();
+                            } else {
+                              // Last field - unfocus keyboard
+                              FocusScope.of(context).unfocus();
+                            }
+                          }
+                          // Trigger rebuild to update button state
+                          setState(() {});
+                        },
+                        onEditingComplete: () {
+                          // Move to next field on done/enter
+                          if (index < 5 && _otpControllers[index].text.isNotEmpty) {
+                            _focusNodes[index + 1].requestFocus();
+                          }
+                        },
+                        // Handle backspace key press
+                        onTap: () {
+                          // If field is empty and user taps, move to previous field
+                          if (_otpControllers[index].text.isEmpty && index > 0) {
+                            _focusNodes[index - 1].requestFocus();
+                          }
+                        },
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                }),
               ),
+              const SizedBox(height: 16),
+
+              // Verify Button
+              AuthPrimaryButton(
+                text: 'Verify & Continue',
+                isLoading: _isLoading,
+                onPressed: _isLoading || _otp.length != 6 ? null : _handleVerifyOtp,
+              ),
+
+              const SizedBox(height: 20),
+
+              // Resend OTP
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Didn't receive the code? ",
+                    style: TextStyle(
+                      color: AppTheme.authTextSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _canResend ? _handleResendOtp : null,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      _canResend ? 'Resend OTP' : 'Resend in ${_resendTimer}s',
+                      style: TextStyle(
+                        color: _canResend
+                            ? AppTheme.primaryColor
+                            : AppTheme.authTextSecondary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const Spacer(),
             ],
           ),
         ),
