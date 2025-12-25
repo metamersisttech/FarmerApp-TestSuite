@@ -16,19 +16,19 @@ class QuickActionsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: const TextStyle(
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: AppTheme.authTextPrimary,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           // Content or placeholder
           content ?? _buildPlaceholder(),
         ],
@@ -38,7 +38,7 @@ class QuickActionsSection extends StatelessWidget {
 
   Widget _buildPlaceholder() {
     return Container(
-      height: 100,
+      height: 70,
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
@@ -49,7 +49,7 @@ class QuickActionsSection extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          'Components will be added here',
+          'Quick Action Buttons',
           style: TextStyle(color: Colors.grey[500], fontSize: 14),
         ),
       ),

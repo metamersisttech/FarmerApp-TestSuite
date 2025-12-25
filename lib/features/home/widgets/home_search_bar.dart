@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Search bar widget for home page
 class HomeSearchBar extends StatelessWidget {
@@ -21,34 +20,30 @@ class HomeSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppTheme.authBackgroundColor,
-      padding: const EdgeInsets.all(20),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: TextField(
-          controller: controller,
-          enabled: enabled,
-          onChanged: onChanged,
-          onTap: onTap,
-          decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
-            prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 16,
-            ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 20,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        enabled: enabled,
+        onChanged: onChanged,
+        onTap: onTap,
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
+          prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 22),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 14,
           ),
         ),
       ),
