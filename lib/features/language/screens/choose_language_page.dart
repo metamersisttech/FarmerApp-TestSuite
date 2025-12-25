@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/features/home/screens/home_page.dart';
+import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/language/models/language_model.dart';
 import 'package:flutter_app/features/language/widgets/language_list.dart';
+import 'package:flutter_app/features/useridentity/screens/choose_identity_page.dart';
 import 'package:flutter_app/shared/widgets/cards/selection_card.dart';
 import 'package:flutter_app/shared/widgets/common/page_header.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Page for selecting the app's language preference
 class ChooseLanguagePage extends StatefulWidget {
-  const ChooseLanguagePage({super.key});
+  final UserModel? user;
+  
+  const ChooseLanguagePage({super.key, this.user});
 
   @override
   State<ChooseLanguagePage> createState() => _ChooseLanguagePageState();
@@ -34,10 +37,10 @@ class _ChooseLanguagePageState extends State<ChooseLanguagePage> {
   void _navigateToLogin() {
     Future.delayed(SelectionCardTheme.animationDuration, () {
       if (mounted) {
-        // Navigate to Home page after language selection
+        // Navigate to User Identity page after language selection with user data
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
+          MaterialPageRoute(builder: (_) => ChooseIdentityPage(user: widget.user)),
           (route) => false,
         );
       }

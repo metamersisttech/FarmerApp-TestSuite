@@ -105,17 +105,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       // Navigate based on user type
       if (mounted) {
         if (widget.isNewUser) {
-          // New user - go to language selection
+          // New user - go to language selection with user data
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => const ChooseLanguagePage()),
+            MaterialPageRoute(builder: (context) => ChooseLanguagePage(user: response.user)),
             (route) => false,
           );
         } else {
-          // Existing user - go directly to home
+          // Existing user - go directly to home with user data
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
+            MaterialPageRoute(builder: (context) => HomePage(user: response.user)),
             (route) => false,
           );
         }
