@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/core/errors/exceptions.dart';
-import 'package:flutter_app/core/utils/validators.dart';
+import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
-import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
-import 'package:flutter_app/features/auth/screens/register_page.dart';
-import 'package:flutter_app/features/home/screens/home_page.dart';
+import 'package:flutter_app/features/auth/controllers/otp_controller.dart';
+import 'package:flutter_app/features/auth/mixins/auth_state_mixin.dart';
+import 'package:flutter_app/features/auth/services/auth_navigation_service.dart';
+import 'package:flutter_app/features/auth/widgets/phone_input_form.dart';
+import 'package:flutter_app/features/auth/widgets/social_login_section.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
-import 'package:flutter_app/shared/widgets/auth/auth_divider.dart';
 import 'package:flutter_app/shared/widgets/auth/auth_header_icon.dart';
 import 'package:flutter_app/shared/widgets/auth/auth_primary_button.dart';
-import 'package:flutter_app/shared/widgets/auth/auth_social_button.dart';
-import 'package:flutter_app/shared/widgets/auth/phone_number_field.dart';
 
 class SendOtpPage extends StatefulWidget {
   final bool isAfterRegistration;
@@ -21,118 +19,60 @@ class SendOtpPage extends StatefulWidget {
   State<SendOtpPage> createState() => _SendOtpPageState();
 }
 
-class _SendOtpPageState extends State<SendOtpPage> {
-  final TextEditingController _mobileController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  final AuthService _authService = AuthService();
+class _SendOtpPageState extends State<SendOtpPage>
+    with AuthStateMixin, ToastMixin {
+  late final TextEditingController _phoneController;
+  late final OtpController _otpController;
 
-  bool _isLoading = false;
-  String? _errorMessage;
+  @override
+  void initState() {
+    super.initState();
+    _phoneController = TextEditingController();
+    _otpController = OtpController(AuthService());
+  }
 
   @override
   void dispose() {
-    _mobileController.dispose();
+    _phoneController.dispose();
+    _otpController.dispose();
     super.dispose();
   }
 
-  /// Handle Send OTP
+  /// Handle send OTP button press
   Future<void> _handleSendOtp() async {
-    // Clear previous error
-    setState(() {
-      _errorMessage = null;
-    });
+    // Validate form
+    if (!validateForm()) return;
 
-    if (!_formKey.currentState!.validate()) return;
+    final phone = _phoneController.text.trim();
+    final result = await _otpController.sendOtp(phone);
 
-    // Show loading
-    setState(() {
-      _isLoading = true;
-    });
+    if (!mounted) return;
 
-    try {
-      // Call login OTP endpoint (send phone WITHOUT +91 prefix)
-      final response = await _authService.sendLoginOtp(
-        phone: _mobileController.text.trim(),
+    // Update UI state
+    setLoading(_otpController.isLoading);
+    setError(_otpController.errorMessage);
+
+    // Handle result
+    if (result.success) {
+      // Show OTP if available
+      if (result.otp != null) {
+        showSuccessToast('Your OTP: ${result.otp}');
+      }
+
+      // Navigate to verification
+      AuthNavigationService.toOtpVerification(
+        context,
+        phoneNumber: phone,
+        isNewUser: widget.isAfterRegistration,
       );
-
-      // Debug: Print response
-      print('✅ OTP Response: $response');
-
-      // Check if user exists by looking at user_id in response
-      final userId = response['user_id'];
-
-      if (userId == null) {
-        // User not registered - navigate to registration
-        print('❌ User not found (user_id is null)');
-        if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  RegisterPage(phoneNumber: _mobileController.text.trim()),
-            ),
-          );
-        }
-      } else {
-        // Success - user exists, OTP sent, navigate to verification
-        print(
-          '✅ User found (user_id: $userId), navigating to OTP verification',
-        );
-        if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OtpVerificationPage(
-                mobileNumber: _mobileController.text.trim(),
-                isNewUser: widget.isAfterRegistration,
-              ),
-            ),
-          );
-        }
-      }
-    } on NotFoundException catch (e) {
-      // User not registered (404) - navigate to registration
-      print('❌ User not found (404): ${e.message}');
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                RegisterPage(phoneNumber: _mobileController.text.trim()),
-          ),
-        );
-      }
-    } on NetworkException {
-      setState(() {
-        _errorMessage = 'No internet connection. Please try again.';
-      });
-    } on ApiException catch (e) {
-      // Other API errors (401, 403, 500, etc.)
-      print('❌ API Error [${e.statusCode}]: ${e.message}');
-      setState(() {
-        _errorMessage = e.message;
-      });
-    } catch (e) {
-      print('❌ Unexpected error: $e');
-      setState(() {
-        _errorMessage = 'Failed to send OTP. Please try again.';
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    } else if (result.isUserNotFound) {
+      // Show error and navigate to registration
+      showErrorToast(result.errorMessage ?? 'User not found');
+      AuthNavigationService.toRegister(context, phoneNumber: phone);
+    } else {
+      // Show error
+      showErrorToast(result.errorMessage ?? 'Failed to send OTP');
     }
-  }
-
-  /// Handle skip - navigate to home without signup
-  void _handleSkip() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
-      (route) => false,
-    );
   }
 
   @override
@@ -144,8 +84,7 @@ class _SendOtpPageState extends State<SendOtpPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight:
-                  MediaQuery.of(context).size.height -
+              minHeight: MediaQuery.of(context).size.height -
                   MediaQuery.of(context).padding.top -
                   MediaQuery.of(context).padding.bottom,
             ),
@@ -153,94 +92,38 @@ class _SendOtpPageState extends State<SendOtpPage> {
               child: Column(
                 children: [
                   const SizedBox(height: 80),
-                  const AuthHeaderIcon(icon: Icons.phone_android_rounded),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Enter Mobile Number',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.authTextPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "We'll send you a verification code",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.authTextSecondary,
-                      height: 1.4,
-                    ),
-                  ),
+                  _buildHeader(),
                   const SizedBox(height: 26),
-
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        if (_errorMessage != null) ...[
-                          Text(
-                            _errorMessage!,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.redAccent,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                        PhoneNumberField(
-                          controller: _mobileController,
-                          enabled: !_isLoading,
-                          validator: Validators.validatePhone,
-                        ),
-                      ],
-                    ),
+                  PhoneInputForm(
+                    formKey: formKey,
+                    controller: _phoneController,
+                    isLoading: isLoading,
+                    errorMessage: errorMessage,
                   ),
                   const SizedBox(height: 16),
-
                   AuthPrimaryButton(
                     text: 'Get OTP',
-                    isLoading: _isLoading,
-                    onPressed: _isLoading ? null : _handleSendOtp,
+                    isLoading: isLoading,
+                    onPressed: isLoading ? null : _handleSendOtp,
                   ),
-                  //login through email text with text color
                   TextButton(
-                    onPressed: _isLoading ? null : () {},
+                    onPressed: isLoading ? null : () {},
                     style: TextButton.styleFrom(
                       foregroundColor: AppTheme.authPrimaryColor,
                     ),
                     child: const Text('OR login via email'),
                   ),
                   const Spacer(),
-                  const AuthDivider(),
-                  const SizedBox(height: 18),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AuthSocialButton(
-                          provider: SocialProvider.google,
-                          text: 'Google',
-                          onPressed: _isLoading ? null : () {},
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: AuthSocialButton(
-                          provider: SocialProvider.facebook,
-                          text: 'Facebook',
-                          onPressed: _isLoading ? null : () {},
-                        ),
-                      ),
-                    ],
+                  SocialLoginSection(
+                    isLoading: isLoading,
+                    onGooglePressed: () {},
+                    onFacebookPressed: () {},
                   ),
-
                   const SizedBox(height: 18),
                   TextButton(
-                    onPressed: _isLoading ? null : _handleSkip,
+                    onPressed: isLoading
+                        ? null
+                        : () => AuthNavigationService.toHome(context),
                     child: const Text(
                       'Continue as Guest',
                       style: TextStyle(
@@ -256,6 +139,34 @@ class _SendOtpPageState extends State<SendOtpPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return const Column(
+      children: [
+        AuthHeaderIcon(icon: Icons.phone_android_rounded),
+        SizedBox(height: 24),
+        Text(
+          'Enter Mobile Number',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+            color: AppTheme.authTextPrimary,
+          ),
+        ),
+        SizedBox(height: 10),
+        Text(
+          "We'll send you a verification code",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            color: AppTheme.authTextSecondary,
+            height: 1.4,
+          ),
+        ),
+      ],
     );
   }
 }

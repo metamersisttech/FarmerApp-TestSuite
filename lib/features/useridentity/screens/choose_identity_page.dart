@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
+import 'package:flutter_app/features/useridentity/controllers/user_identity_controller.dart';
+import 'package:flutter_app/features/useridentity/mixins/user_identity_state_mixin.dart';
 import 'package:flutter_app/features/useridentity/models/user_identity_model.dart';
 import 'package:flutter_app/features/useridentity/widgets/user_identity_list.dart';
 import 'package:flutter_app/shared/widgets/cards/selection_card.dart';
@@ -17,28 +20,56 @@ class ChooseIdentityPage extends StatefulWidget {
   State<ChooseIdentityPage> createState() => _ChooseIdentityPageState();
 }
 
-class _ChooseIdentityPageState extends State<ChooseIdentityPage> {
-  String? _selectedIdentityCode;
-  String? _hoveredIdentityCode;
+class _ChooseIdentityPageState extends State<ChooseIdentityPage>
+    with UserIdentityStateMixin, ToastMixin {
+  late final UserIdentityController _controller;
 
-  void _handleIdentitySelection(UserIdentityModel identity) {
-    setState(() => _selectedIdentityCode = identity.code);
-    _navigateToHome();
+  @override
+  void initState() {
+    super.initState();
+    _controller = UserIdentityController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  /// Handle identity selection
+  Future<void> _handleIdentitySelection(UserIdentityModel identity) async {
+    selectIdentity(identity.code);
+    _controller.selectIdentity(identity.code);
+    
+    // Save identity to backend
+    setLoading(true);
+    final result = await _controller.saveIdentity();
+    setLoading(false);
+
+    if (!mounted) return;
+
+    if (result.success) {
+      _navigateToHome();
+    } else {
+      showErrorToast(result.message ?? 'Failed to save identity');
+      setError(result.message);
+    }
   }
 
   void _handleHoverEnter(String code) {
-    setState(() => _hoveredIdentityCode = code);
+    onHoverEnter(code);
+    _controller.setHoveredIdentity(code);
   }
 
   void _handleHoverExit() {
-    setState(() => _hoveredIdentityCode = null);
+    onHoverExit();
+    _controller.setHoveredIdentity(null);
   }
 
   void _navigateToHome() {
     Future.delayed(SelectionCardTheme.animationDuration, () {
       if (mounted) {
         // Navigate to Home page after identity selection with user data
-        // TODO: Save selected identity to user profile/preferences
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => HomePage(user: widget.user)),
@@ -64,15 +95,34 @@ class _ChooseIdentityPageState extends State<ChooseIdentityPage> {
                 subtitle: 'Select your role to get started',
               ),
               const SizedBox(height: 50),
-              Expanded(
-                child: UserIdentityList(
-                  identities: UserIdentityModel.supportedIdentities,
-                  selectedCode: _selectedIdentityCode,
-                  hoveredCode: _hoveredIdentityCode,
-                  onSelect: _handleIdentitySelection,
-                  onHoverEnter: _handleHoverEnter,
-                  onHoverExit: _handleHoverExit,
+              if (errorMessage != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    errorMessage!,
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
+                const SizedBox(height: 16),
+              ],
+              Expanded(
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : UserIdentityList(
+                        identities: UserIdentityModel.supportedIdentities,
+                        selectedCode: selectedIdentityCode,
+                        hoveredCode: hoveredIdentityCode,
+                        onSelect: _handleIdentitySelection,
+                        onHoverEnter: _handleHoverEnter,
+                        onHoverExit: _handleHoverExit,
+                      ),
               ),
             ],
           ),
@@ -81,4 +131,3 @@ class _ChooseIdentityPageState extends State<ChooseIdentityPage> {
     );
   }
 }
-

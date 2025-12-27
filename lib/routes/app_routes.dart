@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/features/auth/screens/login_page.dart';
 import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
@@ -16,10 +15,9 @@ import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 class AppRoutes {
   // ============ Route Names ============
   static const String welcome = '/';
-  static const String login = '/login';
-  static const String register = '/register';
   static const String signup = '/signup'; // Alias for SendOtpPage (phone entry)
   static const String phoneLogin = '/phone-login';
+  static const String register = '/register';
   static const String otpVerification = '/otp-verification';
   static const String home = '/home';
   static const String profile = '/profile';
@@ -31,15 +29,19 @@ class AppRoutes {
       case welcome:
         return _buildRoute(const WelcomePage(), settings);
 
-      case login:
-        return _buildRoute(const LoginPage(), settings);
-
       case signup:
         return _buildRoute(const SendOtpPage(), settings);
 
       case phoneLogin:
         // Alias for signup - both go to SendOtpPage
         return _buildRoute(const SendOtpPage(), settings);
+
+      case register:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          RegisterPage(phoneNumber: args?['phoneNumber']),
+          settings,
+        );
 
       case otpVerification:
         // Extract phone number from arguments

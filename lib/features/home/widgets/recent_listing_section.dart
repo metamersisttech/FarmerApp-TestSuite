@@ -20,42 +20,70 @@ class RecentListingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title row with "View All" button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.authTextPrimary,
-                ),
-              ),
-              if (actionText != null && onActionPressed != null)
-                TextButton(
-                  onPressed: onActionPressed,
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppTheme.authPrimaryColor,
+          // Fixed Header (Title row with "View All" button)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.authTextPrimary,
                   ),
-                  child: Text(
-                    actionText!,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                ),
+                if (actionText != null && onActionPressed != null)
+                  TextButton(
+                    onPressed: onActionPressed,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppTheme.authPrimaryColor,
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(50, 30),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      actionText!,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
-          // Content or placeholder
-          content ?? _buildPlaceholder(),
-          const SizedBox(height: 20),
+          
+          // Scrollable Content Area
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  // Content or placeholder
+                  content ?? _buildPlaceholder(),
+                  
+                  // Add multiple placeholders to demonstrate scrolling
+                  if (content == null) ...[
+                    const SizedBox(height: 12),
+                    _buildPlaceholder(),
+                    const SizedBox(height: 12),
+                    _buildPlaceholder(),
+                    const SizedBox(height: 12),
+                    _buildPlaceholder(),
+                    const SizedBox(height: 12),
+                    _buildPlaceholder(),
+                  ],
+                  
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -63,7 +91,7 @@ class RecentListingSection extends StatelessWidget {
 
   Widget _buildPlaceholder() {
     return Container(
-      height: 150,
+      height: 100,
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
@@ -74,8 +102,8 @@ class RecentListingSection extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          'Components will be added here',
-          style: TextStyle(color: Colors.grey[500], fontSize: 14),
+          'Listing item placeholder',
+          style: TextStyle(color: Colors.grey[500], fontSize: 13),
         ),
       ),
     );

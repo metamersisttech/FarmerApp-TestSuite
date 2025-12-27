@@ -48,11 +48,11 @@ class _ScrollingTemplatesState extends State<ScrollingTemplates> {
   Widget build(BuildContext context) {
     return Container(
       color: AppTheme.authBackgroundColor,
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Column(
         children: [
           SizedBox(
-            height: 160,
+            height: 140,
             child: ListView.separated(
               controller: _scrollController,
               scrollDirection: Axis.horizontal,
@@ -73,7 +73,7 @@ class _ScrollingTemplatesState extends State<ScrollingTemplates> {
               },
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           // Sliding Indicator
           _ScrollIndicator(
             totalItems: widget.templates.length,
@@ -126,7 +126,7 @@ class _TemplateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 280,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
@@ -152,7 +152,7 @@ class _TemplateCard extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 22,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -161,14 +161,14 @@ class _TemplateCard extends StatelessWidget {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         color: Colors.white.withOpacity(0.9),
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(icon, color: Colors.white.withOpacity(0.8), size: 40),
+              Icon(icon, color: Colors.white.withOpacity(0.8), size: 36),
             ],
           ),
           // View Button
@@ -177,7 +177,7 @@ class _TemplateCard extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: backgroundColor,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -185,7 +185,7 @@ class _TemplateCard extends StatelessWidget {
             ),
             child: Text(
               buttonText,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
             ),
           ),
         ],

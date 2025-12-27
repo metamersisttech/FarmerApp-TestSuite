@@ -24,7 +24,7 @@ class ProfileSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
       decoration: const BoxDecoration(
         color: AppTheme.authPrimaryColor,
         borderRadius: BorderRadius.only(
@@ -35,7 +35,7 @@ class ProfileSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top row: Hi Username on left, Icons on right
+          // Top row: Hi  , Icons on right
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +85,7 @@ class ProfileSection extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Bottom row: Wallet button on left, Location on right
           Row(
