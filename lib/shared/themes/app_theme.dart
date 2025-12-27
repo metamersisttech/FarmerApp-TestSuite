@@ -24,7 +24,7 @@ class AppTheme {
   // ============ Auth (Screenshot) Colors ============
   // Keeping these in AppTheme ensures we have a single source of truth for colors.
   static const Color authBackgroundColor = Color(0xFFFBFAF7); // off-white
-  static const Color authPrimaryColor = Color(0xFF93BF8F); // soft green CTA
+  static const Color authPrimaryColor = Color(0xFF4CAF50); // soft green CTA
   static const Color authFieldFillColor = Color(0xFFECE7DF); // beige input bg
   static const Color authBorderColor = Color(0xFFE5E2DA);
   static const Color authTextPrimary = Color(0xFF2B2B2B);
@@ -76,9 +76,7 @@ class AppTheme {
       ),
 
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: primaryColor,
-        ),
+        style: TextButton.styleFrom(foregroundColor: primaryColor),
       ),
 
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -95,7 +93,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surfaceColor,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: textHint),
@@ -120,9 +121,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: surfaceColor,
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
       // Text Theme
@@ -142,18 +141,9 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: textPrimary,
         ),
-        bodyLarge: TextStyle(
-          fontSize: 16,
-          color: textPrimary,
-        ),
-        bodyMedium: TextStyle(
-          fontSize: 14,
-          color: textPrimary,
-        ),
-        bodySmall: TextStyle(
-          fontSize: 12,
-          color: textSecondary,
-        ),
+        bodyLarge: TextStyle(fontSize: 16, color: textPrimary),
+        bodyMedium: TextStyle(fontSize: 14, color: textPrimary),
+        bodySmall: TextStyle(fontSize: 12, color: textSecondary),
         labelLarge: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -183,4 +173,3 @@ class AppTheme {
     );
   }
 }
-
