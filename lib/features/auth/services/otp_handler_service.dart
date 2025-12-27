@@ -1,5 +1,7 @@
 import 'package:flutter_app/core/errors/exceptions.dart';
+import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
+import 'package:flutter_app/data/services/token_storage_service.dart';
 
 /// Result of OTP operations
 class OtpResult {
@@ -8,6 +10,7 @@ class OtpResult {
   final String? userId;
   final String? errorMessage;
   final bool isUserNotFound;
+  final UserModel? user;
 
   const OtpResult({
     required this.success,
@@ -15,10 +18,11 @@ class OtpResult {
     this.userId,
     this.errorMessage,
     this.isUserNotFound = false,
+    this.user,
   });
 
-  factory OtpResult.success({String? otp, String? userId}) {
-    return OtpResult(success: true, otp: otp, userId: userId);
+  factory OtpResult.success({String? otp, String? userId, UserModel? user}) {
+    return OtpResult(success: true, otp: otp, userId: userId, user: user);
   }
 
   factory OtpResult.userNotFound() {
@@ -68,12 +72,23 @@ class OtpHandlerService {
   /// Verify OTP
   Future<OtpResult> verifyOtp(String phoneNumber, String otp) async {
     try {
-      await _authService.verifyLoginOtp(
+      final authResponse = await _authService.verifyLoginOtp(
         phone: phoneNumber,
         otp: otp,
       );
       
-      return OtpResult.success();
+      // Store tokens securely
+      final tokenStorage = TokenStorageService();
+      await tokenStorage.saveTokens(
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken ?? '',
+      );
+      
+      // Set auth token for subsequent API calls
+      _authService.setAuthToken(authResponse.accessToken);
+      
+      // Return success with user data from the response
+      return OtpResult.success(user: authResponse.user);
     } on UnauthorizedException {
       return OtpResult.error('Invalid OTP. Please try again.');
     } on NetworkException {

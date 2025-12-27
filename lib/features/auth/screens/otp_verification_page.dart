@@ -74,11 +74,11 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
     setLoading(_otpController.isLoading);
 
     if (result.success) {
-      // Navigate based on user type
+      // Navigate based on user type, passing the user data
       if (widget.isNewUser) {
-        AuthNavigationService.toLanguageSelection(context);
+        AuthNavigationService.toLanguageSelection(context, user: result.user);
       } else {
-        AuthNavigationService.toHome(context);
+        AuthNavigationService.toHome(context, user: result.user);
       }
     } else {
       showErrorToast(result.errorMessage ?? 'Verification failed');

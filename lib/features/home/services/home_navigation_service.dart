@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/sell/screens/post_animal_page.dart';
 
 /// Result of navigation action
@@ -54,9 +55,16 @@ class HomeNavigationService {
   }
 
   /// Navigate to Profile screen
-  static NavigationResult toProfile(BuildContext context) {
-    // TODO: Implement profile navigation when screen is ready
-    return NavigationResult.comingSoon('Profile');
+  static NavigationResult toProfile(BuildContext context, {VoidCallback? onReturn}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfilePage()),
+    ).then((_) {
+      if (onReturn != null) {
+        onReturn();
+      }
+    });
+    return NavigationResult.success();
   }
 
   /// Navigate to Wallet screen

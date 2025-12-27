@@ -3,6 +3,7 @@ import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
+import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 
 /// App Routes
@@ -62,9 +63,8 @@ class AppRoutes {
       case home:
         return _buildRoute(const HomePage(), settings);
 
-      // Add more routes as needed
-      // case profile:
-      //   return _buildRoute(const ProfilePage(), settings);
+      case profile:
+        return _buildRoute(const ProfilePage(), settings);
 
       default:
         return _buildRoute(

@@ -6,6 +6,7 @@
 import 'package:flutter_app/core/constants/api_endpoints.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/data/services/api_service.dart';
+import 'package:flutter_app/data/services/token_storage_service.dart';
 
 class AuthService {
   final ApiService _apiService;
@@ -160,15 +161,37 @@ class AuthService {
 
   /// Logout user
   /// 
-  /// Example Django endpoint: POST /api/auth/logout/
+  /// Django endpoint: POST /api/auth/logout/
+  /// Request body: { "refresh": "..." }
+  /// Authorization: Bearer access_token
   Future<void> logout() async {
+    final tokenStorage = TokenStorageService();
     try {
-      await _apiService.post(ApiEndpoints.logout);
+      final refreshToken = await tokenStorage.getRefreshToken();
+      if (refreshToken != null) {
+        await _apiService.post(
+          ApiEndpoints.logout,
+          data: {
+            'refresh': refreshToken,
+          },
+        );
+      }
     } catch (e) {
-      // Ignore logout errors, just clear token
+      // Ignore logout errors, just clear tokens
     } finally {
       _apiService.clearAuthToken();
+      await tokenStorage.clearTokens();
     }
+  }
+
+  /// Get current authenticated user
+  /// 
+  /// Django endpoint: GET /api/auth/me/
+  /// Authorization: Bearer access_token
+  /// Response: { "id": 1, "email": "...", "first_name": "...", "last_name": "...", ... }
+  Future<UserModel> getMe() async {
+    final response = await _apiService.get(ApiEndpoints.me);
+    return UserModel.fromJson(response.data);
   }
 
   /// Refresh access token
