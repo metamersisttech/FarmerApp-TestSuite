@@ -20,6 +20,9 @@ class ApiEndpoints {
   static const String verifyLoginOtp = 'auth/login/'; // OTP verification endpoint
   static const String sendOtp = 'auth/otp/send/';
   static const String verifyOtp = 'auth/otp/verify/';
+  
+  // Current User
+  static const String me = 'auth/me/'; // Get authenticated user info
 
   // ============ User Endpoints ============
   static const String userProfile = 'users/profile/';
