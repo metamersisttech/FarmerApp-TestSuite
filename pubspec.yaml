@@ -45,6 +45,10 @@ dependencies:
   
   # State Management (optional - choose one)
   provider: ^6.1.0                 # Simple state management
+  
+  # Location Services
+  geolocator: ^13.0.2              # Location and GPS services
+  permission_handler: ^11.3.1     # Handle runtime permissions
 
 dev_dependencies:
   flutter_test:

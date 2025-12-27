@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/data/models/user_model.dart';
+import 'package:flutter_app/data/services/location_service.dart';
 import 'package:flutter_app/features/home/controllers/home_controller.dart';
 import 'package:flutter_app/features/home/mixins/home_state_mixin.dart';
 import 'package:flutter_app/features/home/services/home_navigation_service.dart';
@@ -27,17 +28,52 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
   late final HomeController _homeController;
+  final LocationService _locationService = LocationService();
 
   @override
   void initState() {
     super.initState();
     _homeController = HomeController();
+    
+    // Check location permission after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLocationPermission();
+    });
   }
 
   @override
   void dispose() {
     _homeController.dispose();
     super.dispose();
+  }
+
+  /// Check and request location permission
+  Future<void> _checkLocationPermission() async {
+    // Check if permission is already granted
+    final isGranted = await _locationService.isPermissionGranted();
+    if (isGranted) return;
+
+    if (!mounted) return;
+
+    // Show custom dialog asking user to enable location
+    final shouldEnable = await LocationService.showLocationPermissionDialog(context);
+    
+    if (shouldEnable && mounted) {
+      // User clicked "Enable" - request permission
+      final result = await _locationService.requestLocationAccess();
+      
+      if (!mounted) return;
+      
+      if (result.success) {
+        showSuccessToast('Location access enabled');
+      } else if (result.serviceDisabled) {
+        // Location service is disabled, prompt to enable
+        showErrorToast('Please enable location services in settings');
+        await _locationService.openLocationSettings();
+      } else if (result.permissionDenied) {
+        showErrorToast('Location permission denied');
+      }
+    }
   }
 
   /// Handle bottom navigation tap
