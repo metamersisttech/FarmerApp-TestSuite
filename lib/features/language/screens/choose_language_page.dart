@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/data/models/user_model.dart';
+import 'package:flutter_app/features/language/controllers/language_controller.dart';
+import 'package:flutter_app/features/language/mixins/language_state_mixin.dart';
 import 'package:flutter_app/features/language/models/language_model.dart';
+import 'package:flutter_app/features/language/services/language_navigation_service.dart';
 import 'package:flutter_app/features/language/widgets/language_list.dart';
-import 'package:flutter_app/features/useridentity/screens/choose_identity_page.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/shared/widgets/cards/selection_card.dart';
 import 'package:flutter_app/shared/widgets/common/page_header.dart';
-import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Page for selecting the app's language preference
 class ChooseLanguagePage extends StatefulWidget {
@@ -17,32 +19,54 @@ class ChooseLanguagePage extends StatefulWidget {
   State<ChooseLanguagePage> createState() => _ChooseLanguagePageState();
 }
 
-class _ChooseLanguagePageState extends State<ChooseLanguagePage> {
-  String? _selectedLanguageCode;
-  String? _hoveredLanguageCode;
+class _ChooseLanguagePageState extends State<ChooseLanguagePage>
+    with LanguageStateMixin {
+  late final LanguageController _languageController;
 
+  @override
+  void initState() {
+    super.initState();
+    _languageController = LanguageController();
+  }
+
+  @override
+  void dispose() {
+    _languageController.dispose();
+    super.dispose();
+  }
+
+  /// Handle language selection
   void _handleLanguageSelection(LanguageModel language) {
-    setState(() => _selectedLanguageCode = language.code);
-    _navigateToLogin();
+    // Update local state
+    selectLanguage(language.code);
+    
+    // Update controller
+    _languageController.selectLanguage(language.code);
+    
+    // Save preference (when backend is ready)
+    _languageController.saveLanguagePreference();
+    
+    // Navigate after animation
+    _navigateToNextPage();
   }
 
+  /// Handle hover enter
   void _handleHoverEnter(String code) {
-    setState(() => _hoveredLanguageCode = code);
+    onHoverEnter(code);
+    _languageController.setHoveredLanguage(code);
   }
 
+  /// Handle hover exit
   void _handleHoverExit() {
-    setState(() => _hoveredLanguageCode = null);
+    onHoverExit();
+    _languageController.setHoveredLanguage(null);
   }
 
-  void _navigateToLogin() {
+  /// Navigate to next page after delay
+  void _navigateToNextPage() {
     Future.delayed(SelectionCardTheme.animationDuration, () {
       if (mounted) {
-        // Navigate to User Identity page after language selection with user data
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => ChooseIdentityPage(user: widget.user)),
-          (route) => false,
-        );
+        LanguageNavigationService.toUserIdentity(context, user: widget.user);
       }
     });
   }
@@ -66,8 +90,8 @@ class _ChooseLanguagePageState extends State<ChooseLanguagePage> {
               Expanded(
                 child: LanguageList(
                   languages: LanguageModel.supportedLanguages,
-                  selectedCode: _selectedLanguageCode,
-                  hoveredCode: _hoveredLanguageCode,
+                  selectedCode: selectedLanguageCode,
+                  hoveredCode: hoveredLanguageCode,
                   onSelect: _handleLanguageSelection,
                   onHoverEnter: _handleHoverEnter,
                   onHoverExit: _handleHoverExit,
