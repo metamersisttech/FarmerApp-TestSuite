@@ -7,6 +7,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/config/api_config.dart';
 import 'package:flutter_app/core/errors/exceptions.dart';
+import 'package:flutter_app/data/services/token_storage_service.dart';
+import 'package:flutter_app/main.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// API Service for HTTP requests using Dio
 class ApiService {
@@ -14,6 +17,12 @@ class ApiService {
 
   // Store auth token
   String? _authToken;
+
+  // Token storage service
+  final TokenStorageService _tokenStorage = TokenStorageService();
+
+  // Flag to prevent multiple redirects
+  bool _isRedirecting = false;
 
   ApiService() {
     _dio = Dio(
@@ -43,12 +52,50 @@ class ApiService {
           _logResponse(response);
           return handler.next(response);
         },
-        onError: (error, handler) {
+        onError: (error, handler) async {
           _logError(error);
+          
+          // Handle 401 Unauthorized errors (token expired)
+          if (error.response?.statusCode == 401) {
+            await _handle401Error();
+          }
+          
           return handler.next(error);
         },
       ),
     );
+  }
+
+  /// Handle 401 Unauthorized errors
+  /// Clears tokens and redirects to sendOTP page
+  Future<void> _handle401Error() async {
+    // Prevent multiple redirects
+    if (_isRedirecting) return;
+    _isRedirecting = true;
+
+    try {
+      // Clear stored tokens
+      await _tokenStorage.clearTokens();
+      
+      // Clear in-memory token
+      clearAuthToken();
+
+      // Navigate to sendOTP page (login page)
+      final context = navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        // Remove all routes and go to sendOTP page
+        AppRoutes.navigateAndRemoveAll(context, AppRoutes.signup);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error handling 401: $e');
+      }
+    } finally {
+      // Reset flag after a delay to allow future redirects if needed
+      Future.delayed(const Duration(seconds: 2), () {
+        _isRedirecting = false;
+      });
+    }
   }
 
   /// Set authentication token

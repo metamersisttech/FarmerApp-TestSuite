@@ -100,6 +100,7 @@ class _PostAnimalPageState extends State<PostAnimalPage>
                 ),
                 MediaTab(
                   onNext: nextStep,
+                  onPrevious: previousStep,
                 ),
                 PreviewTab(
                   onPrevious: previousStep,

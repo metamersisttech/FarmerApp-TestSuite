@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// Toast type enum
+enum ToastType { success, error, info }
+
 /// Mixin for showing toast notifications at the top of the screen
 mixin ToastMixin<T extends StatefulWidget> on State<T> {
   OverlayEntry? _currentToast;
@@ -7,11 +10,30 @@ mixin ToastMixin<T extends StatefulWidget> on State<T> {
   /// Show toast notification at the top of the screen
   void showTopToast(
     String message, {
-    bool isError = false,
+    ToastType type = ToastType.success,
     Duration duration = const Duration(seconds: 5),
   }) {
     // Remove existing toast if any
     _currentToast?.remove();
+
+    // Determine color and icon based on type
+    Color backgroundColor;
+    IconData icon;
+    
+    switch (type) {
+      case ToastType.success:
+        backgroundColor = Colors.green;
+        icon = Icons.check_circle;
+        break;
+      case ToastType.error:
+        backgroundColor = Colors.redAccent;
+        icon = Icons.error_outline;
+        break;
+      case ToastType.info:
+        backgroundColor = Colors.blueAccent;
+        icon = Icons.info_outline;
+        break;
+    }
 
     final overlay = Overlay.of(context);
     _currentToast = OverlayEntry(
@@ -24,7 +46,7 @@ mixin ToastMixin<T extends StatefulWidget> on State<T> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: isError ? Colors.redAccent : Colors.green,
+              color: backgroundColor,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -37,7 +59,7 @@ mixin ToastMixin<T extends StatefulWidget> on State<T> {
             child: Row(
               children: [
                 Icon(
-                  isError ? Icons.error_outline : Icons.check_circle,
+                  icon,
                   color: Colors.white,
                   size: 24,
                 ),
@@ -69,10 +91,15 @@ mixin ToastMixin<T extends StatefulWidget> on State<T> {
 
   /// Show success toast (green)
   void showSuccessToast(String message) =>
-      showTopToast(message, isError: false);
+      showTopToast(message, type: ToastType.success);
 
   /// Show error toast (red)
-  void showErrorToast(String message) => showTopToast(message, isError: true);
+  void showErrorToast(String message) => 
+      showTopToast(message, type: ToastType.error);
+
+  /// Show info toast (blue)
+  void showInfoToast(String message) => 
+      showTopToast(message, type: ToastType.info);
 
   @override
   void dispose() {

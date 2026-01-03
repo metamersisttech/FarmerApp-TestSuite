@@ -24,6 +24,9 @@ class ApiEndpoints {
   // Current User
   static const String me = 'auth/me/'; // Get authenticated user info
 
+  // ============ Animal Endpoints ============
+  static const String animals = 'animals/'; // Get all animals catalog
+
   // ============ User Endpoints ============
   static const String userProfile = 'users/profile/';
   static const String updateProfile = 'users/profile/update/';
