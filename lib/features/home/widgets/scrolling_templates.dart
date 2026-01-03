@@ -1,13 +1,18 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Horizontal scrolling templates section with indicator
 class ScrollingTemplates extends StatefulWidget {
   final List<TemplateCardData> templates;
+  final Duration autoScrollDuration;
+  final Duration autoScrollInterval;
 
   const ScrollingTemplates({
     super.key,
     required this.templates,
+    this.autoScrollDuration = const Duration(milliseconds: 500),
+    this.autoScrollInterval = const Duration(seconds: 3),
   });
 
   @override
@@ -17,20 +22,56 @@ class ScrollingTemplates extends StatefulWidget {
 class _ScrollingTemplatesState extends State<ScrollingTemplates> {
   final ScrollController _scrollController = ScrollController();
   int _currentCardIndex = 0;
+  Timer? _autoScrollTimer;
+  bool _userIsScrolling = false;
+  Timer? _userScrollDebounceTimer;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _startAutoScroll();
   }
 
   @override
   void dispose() {
+    _autoScrollTimer?.cancel();
+    _userScrollDebounceTimer?.cancel();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
 
+  /// Start auto-scrolling timer
+  void _startAutoScroll() {
+    _autoScrollTimer?.cancel();
+    _autoScrollTimer = Timer.periodic(widget.autoScrollInterval, (timer) {
+      if (!_userIsScrolling && mounted && _scrollController.hasClients) {
+        _scrollToNextCard();
+      }
+    });
+  }
+
+  /// Scroll to the next card
+  void _scrollToNextCard() {
+    final double cardWidth = 280 + 16; // Card width + separator
+    int nextIndex = _currentCardIndex + 1;
+
+    // Loop back to first card if at the end
+    if (nextIndex >= widget.templates.length) {
+      nextIndex = 0;
+    }
+
+    final double targetOffset = nextIndex * cardWidth;
+
+    _scrollController.animateTo(
+      targetOffset,
+      duration: widget.autoScrollDuration,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  /// Handle manual scroll by user
   void _onScroll() {
     final double cardWidth = 280 + 16; // Card width + separator
     final double offset = _scrollController.offset;
@@ -42,6 +83,13 @@ class _ScrollingTemplatesState extends State<ScrollingTemplates> {
         _currentCardIndex = newIndex;
       });
     }
+
+    // Detect user interaction and pause auto-scroll
+    _userIsScrolling = true;
+    _userScrollDebounceTimer?.cancel();
+    _userScrollDebounceTimer = Timer(const Duration(seconds: 2), () {
+      _userIsScrolling = false;
+    });
   }
 
   @override
@@ -53,24 +101,41 @@ class _ScrollingTemplatesState extends State<ScrollingTemplates> {
         children: [
           SizedBox(
             height: 140,
-            child: ListView.separated(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              physics: const BouncingScrollPhysics(),
-              itemCount: widget.templates.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 16),
-              itemBuilder: (context, index) {
-                final template = widget.templates[index];
-                return _TemplateCard(
-                  title: template.title,
-                  subtitle: template.subtitle,
-                  icon: template.icon,
-                  backgroundColor: template.backgroundColor,
-                  buttonText: template.buttonText,
-                  onPressed: template.onPressed,
-                );
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                // Detect when user starts scrolling
+                if (notification is ScrollStartNotification) {
+                  _userIsScrolling = true;
+                  _userScrollDebounceTimer?.cancel();
+                }
+                // Reset auto-scroll after user stops scrolling
+                else if (notification is ScrollEndNotification) {
+                  _userScrollDebounceTimer?.cancel();
+                  _userScrollDebounceTimer = Timer(const Duration(seconds: 2), () {
+                    _userIsScrolling = false;
+                  });
+                }
+                return false;
               },
+              child: ListView.separated(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                physics: const BouncingScrollPhysics(),
+                itemCount: widget.templates.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 16),
+                itemBuilder: (context, index) {
+                  final template = widget.templates[index];
+                  return _TemplateCard(
+                    title: template.title,
+                    subtitle: template.subtitle,
+                    icon: template.icon,
+                    backgroundColor: template.backgroundColor,
+                    buttonText: template.buttonText,
+                    onPressed: template.onPressed,
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: 10),

@@ -4,6 +4,9 @@ import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
+/// Global navigation key for accessing navigation context from anywhere
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 /// Main entry point for the Flutter app
 ///
 /// Initializes Firebase and runs the app.
@@ -21,6 +24,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter App',
       debugShowCheckedModeBanner: false,
+
+      // Global navigation key
+      navigatorKey: navigatorKey,
 
       // Theme configuration
       theme: AppTheme.lightTheme,
