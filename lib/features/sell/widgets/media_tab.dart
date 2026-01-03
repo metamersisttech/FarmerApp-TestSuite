@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 /// Media Tab - Upload photos/videos
 class MediaTab extends StatelessWidget {
   final VoidCallback onNext;
+  final VoidCallback? onPrevious;
 
-  const MediaTab({super.key, required this.onNext});
+  const MediaTab({
+    super.key,
+    required this.onNext,
+    this.onPrevious,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,23 +63,56 @@ class MediaTab extends StatelessWidget {
           
           const SizedBox(height: 32),
           
-          // Next button
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: onNext,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2E7D32),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          // Navigation buttons
+          Row(
+            children: [
+              // Previous button (if available)
+              if (onPrevious != null) ...[
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: onPrevious,
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF2E7D32), width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Previous',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2E7D32),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+              
+              // Next button
+              Expanded(
+                child: SizedBox(
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: onNext,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2E7D32),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Next',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ),
                 ),
               ),
-              child: const Text(
-                'Next',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ),
+            ],
           ),
         ],
       ),

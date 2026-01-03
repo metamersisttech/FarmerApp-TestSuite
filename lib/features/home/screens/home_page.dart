@@ -48,14 +48,11 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
   }
 
   /// Check and request location permission
+  /// Always prompts user on login, even if previously granted
   Future<void> _checkLocationPermission() async {
-    // Check if permission is already granted
-    final isGranted = await _locationService.isPermissionGranted();
-    if (isGranted) return;
-
     if (!mounted) return;
 
-    // Show custom dialog asking user to enable location
+    // Always show location dialog on login to ensure user is aware
     final shouldEnable = await LocationService.showLocationPermissionDialog(context);
     
     if (shouldEnable && mounted) {
@@ -73,6 +70,9 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
       } else if (result.permissionDenied) {
         showErrorToast('Location permission denied');
       }
+    } else if (!shouldEnable) {
+      // User clicked "Not Now"
+      showInfoToast('You can enable location later from settings');
     }
   }
 
