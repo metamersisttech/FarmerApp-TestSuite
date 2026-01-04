@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
+import 'package:flutter_app/features/editprofile/screens/edit_profile_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const String otpVerification = '/otp-verification';
   static const String home = '/home';
   static const String profile = '/profile';
+  static const String editProfile = '/edit-profile';
   static const String settings = '/settings';
 
   // ============ Route Generator ============
@@ -65,6 +67,20 @@ class AppRoutes {
 
       case profile:
         return _buildRoute(const ProfilePage(), settings);
+
+      case editProfile:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          EditProfilePage(
+            initialUsername: args?['username'],
+            initialFirstName: args?['firstName'],
+            initialLastName: args?['lastName'],
+            initialPhoneNumber: args?['phoneNumber'],
+            initialEmail: args?['email'],
+            initialProfileImageUrl: args?['profileImageUrl'],
+          ),
+          settings,
+        );
 
       default:
         return _buildRoute(

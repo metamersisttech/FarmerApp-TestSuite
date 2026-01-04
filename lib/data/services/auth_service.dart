@@ -231,6 +231,31 @@ class AuthService {
     return UserModel.fromJson(response.data);
   }
 
+  /// Update current user profile
+  /// 
+  /// Django endpoint: PATCH /api/auth/me/
+  /// Request body: { "username": "...", "email": "...", "first_name": "...", "last_name": "...", "phone": "..." }
+  /// Response: Updated UserModel
+  Future<UserModel> updateMe({
+    String? username,
+    String? email,
+    String? phone,
+    String? firstName,
+    String? lastName,
+  }) async {
+    final response = await _apiService.patch(
+      ApiEndpoints.me,
+      data: {
+        if (username != null) 'username': username,
+        if (email != null) 'email': email,
+        if (phone != null) 'phone': phone,
+        if (firstName != null) 'first_name': firstName,
+        if (lastName != null) 'last_name': lastName,
+      },
+    );
+    return UserModel.fromJson(response.data);
+  }
+
   /// Set auth token for authenticated requests
   void setAuthToken(String token) {
     _apiService.setAuthToken(token);
