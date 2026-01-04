@@ -34,11 +34,32 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
   void initState() {
     super.initState();
     _homeController = HomeController();
-    
-    // Check location permission after first frame
+
+    // Fetch listings and check location after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchListings();
       _checkLocationPermission();
     });
+  }
+
+  /// Fetch listings from API
+  Future<void> _fetchListings() async {
+    await _homeController.fetchListings();
+
+    if (!mounted) return;
+
+    // Refresh UI with new listings
+    setState(() {});
+
+    if (_homeController.errorMessage != null) {
+      showErrorToast(_homeController.errorMessage!);
+    }
+  }
+
+  /// Handle listing tap
+  void _handleListingTap(dynamic listing) {
+    // TODO: Navigate to animal detail page
+    showComingSoonMessage('Animal Detail');
   }
 
   @override
@@ -166,7 +187,17 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
             const QuickActionsSection(),
 
             // 4. Recent Listing Section (Scrollable - takes remaining space)
-            Expanded(child: RecentListingSection(onActionPressed: () {})),
+            Expanded(
+              child: RecentListingSection(
+                listings: _homeController.listings,
+                isLoading: _homeController.isLoading,
+                onActionPressed: () {
+                  // TODO: Navigate to marketplace
+                  showComingSoonMessage('Marketplace');
+                },
+                onListingTap: _handleListingTap,
+              ),
+            ),
           ],
         ),
       ),

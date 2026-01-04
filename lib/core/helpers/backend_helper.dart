@@ -115,6 +115,19 @@ class BackendHelper {
     }
   }
 
+  // ============ Listing Endpoints ============
+
+  /// Get all listings
+  /// GET /api/listing/
+  Future<dynamic> getListings({Map<String, dynamic>? params}) async {
+    try {
+      final response = await _client.get(ApiEndpoints.listings, params: params);
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Error Handling ============
 
   /// Handle Dio errors and extract message
