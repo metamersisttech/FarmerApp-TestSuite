@@ -11,16 +11,10 @@ import 'package:flutter_app/shared/widgets/auth/auth_primary_button.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String mobileNumber;
-  final String? username;
-  final String? email;
-  final bool isNewUser;
 
   const OtpVerificationPage({
     super.key,
     required this.mobileNumber,
-    this.username,
-    this.email,
-    this.isNewUser = false,
   });
 
   @override
@@ -35,6 +29,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
   String _otp = '';
   int _resendTimer = 30;
   bool _canResend = false;
+  bool _isVerifying = false; // Prevent duplicate verify calls
 
   @override
   void initState() {
@@ -62,25 +57,29 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
 
   /// Handle OTP verification
   Future<void> _handleVerifyOtp() async {
+    // Prevent duplicate calls
+    if (_isVerifying) return;
+
     if (_otp.length != 6) {
       showErrorToast('Please enter complete 6-digit OTP');
       return;
     }
 
+    _isVerifying = true;
+    setLoading(true);
+
     final result = await _otpController.verifyOtp(widget.mobileNumber, _otp);
 
+    // Check mounted before any UI updates
     if (!mounted) return;
 
-    setLoading(_otpController.isLoading);
-
     if (result.success) {
-      // Navigate based on user type, passing the user data
-      if (widget.isNewUser) {
-        AuthNavigationService.toLanguageSelection(context, user: result.user);
-      } else {
-        AuthNavigationService.toHome(context, user: result.user);
-      }
+      // User data is stored in otp_handler_service
+      // Navigate directly to Home (don't update loading state, we're leaving)
+      AuthNavigationService.toHome(context, user: result.user);
     } else {
+      _isVerifying = false;
+      setLoading(false);
       showErrorToast(result.errorMessage ?? 'Verification failed');
       setError(result.errorMessage);
     }

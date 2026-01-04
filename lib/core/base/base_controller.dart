@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 abstract class BaseController extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
+  bool _isDisposed = false;
 
   /// Current loading state
   bool get isLoading => _isLoading;
@@ -11,20 +12,32 @@ abstract class BaseController extends ChangeNotifier {
   /// Current error message
   String? get errorMessage => _errorMessage;
 
-  /// Set loading state
+  /// Check if controller is disposed
+  bool get isDisposed => _isDisposed;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  /// Set loading state (safe - checks if disposed)
   void setLoading(bool loading) {
+    if (_isDisposed) return;
     _isLoading = loading;
     notifyListeners();
   }
 
-  /// Set error message
+  /// Set error message (safe - checks if disposed)
   void setError(String? error) {
+    if (_isDisposed) return;
     _errorMessage = error;
     notifyListeners();
   }
 
-  /// Clear error message
+  /// Clear error message (safe - checks if disposed)
   void clearError() {
+    if (_isDisposed) return;
     _errorMessage = null;
     notifyListeners();
   }
@@ -34,15 +47,20 @@ abstract class BaseController extends ChangeNotifier {
     Future<T> Function() operation, {
     String? errorMessage,
   }) async {
+    if (_isDisposed) return null;
     try {
       setLoading(true);
       clearError();
       return await operation();
     } catch (e) {
-      setError(errorMessage ?? 'An error occurred');
+      if (!_isDisposed) {
+        setError(errorMessage ?? 'An error occurred');
+      }
       return null;
     } finally {
-      setLoading(false);
+      if (!_isDisposed) {
+        setLoading(false);
+      }
     }
   }
 }

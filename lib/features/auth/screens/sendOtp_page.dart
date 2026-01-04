@@ -11,9 +11,7 @@ import 'package:flutter_app/shared/widgets/auth/auth_header_icon.dart';
 import 'package:flutter_app/shared/widgets/auth/auth_primary_button.dart';
 
 class SendOtpPage extends StatefulWidget {
-  final bool isAfterRegistration;
-
-  const SendOtpPage({super.key, this.isAfterRegistration = false});
+  const SendOtpPage({super.key});
 
   @override
   State<SendOtpPage> createState() => _SendOtpPageState();
@@ -44,33 +42,35 @@ class _SendOtpPageState extends State<SendOtpPage>
     if (!validateForm()) return;
 
     final phone = _phoneController.text.trim();
+
+    // Show loader before API call
+    setLoading(true);
+    setError(null);
+
     final result = await _otpController.sendOtp(phone);
 
     if (!mounted) return;
 
-    // Update UI state
-    setLoading(_otpController.isLoading);
-    setError(_otpController.errorMessage);
+    // Hide loader after API call
+    setLoading(false);
 
     // Handle result
     if (result.success) {
-      // Show OTP if available
+      // Show OTP if available (temporary for development)
       if (result.otp != null) {
         showSuccessToast('Your OTP: ${result.otp}');
       }
 
-      // Navigate to verification
+      // Navigate to OTP verification
       AuthNavigationService.toOtpVerification(
         context,
         phoneNumber: phone,
-        isNewUser: widget.isAfterRegistration,
       );
     } else if (result.isUserNotFound) {
-      // Show error and navigate to registration
-      showErrorToast(result.errorMessage ?? 'User not found');
-      AuthNavigationService.toRegister(context, phoneNumber: phone);
+      // User not found - show toast and STAY on screen (no redirect to register)
+      showErrorToast(result.errorMessage ?? 'User not found. Please contact support.');
     } else {
-      // Show error
+      // Show error and stay on screen
       showErrorToast(result.errorMessage ?? 'Failed to send OTP');
     }
   }
@@ -123,11 +123,11 @@ class _SendOtpPageState extends State<SendOtpPage>
                   TextButton(
                     onPressed: isLoading
                         ? null
-                        : () => AuthNavigationService.toHome(context),
+                        : () => Navigator.pushNamed(context, '/register'),
                     child: const Text(
-                      'Continue as Guest',
+                      'Or Sign up instead',
                       style: TextStyle(
-                        color: AppTheme.authTextSecondary,
+                        color: AppTheme.authPrimaryColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

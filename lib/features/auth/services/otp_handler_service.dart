@@ -1,4 +1,6 @@
 import 'package:flutter_app/core/errors/exceptions.dart';
+import 'package:flutter_app/core/helpers/api_helper.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
 import 'package:flutter_app/data/services/token_storage_service.dart';
@@ -76,17 +78,26 @@ class OtpHandlerService {
         phone: phoneNumber,
         otp: otp,
       );
-      
-      // Store tokens securely
+
+      // Store tokens securely using TokenStorageService
       final tokenStorage = TokenStorageService();
       await tokenStorage.saveTokens(
         accessToken: authResponse.accessToken,
         refreshToken: authResponse.refreshToken ?? '',
       );
-      
+
+      // Store user data in localStorage using CommonHelper
+      final commonHelper = CommonHelper();
+      await commonHelper.saveAuthData(
+        user: authResponse.user,
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+      );
+
       // Set auth token for subsequent API calls
       _authService.setAuthToken(authResponse.accessToken);
-      
+      APIClient().setAuthorization(authResponse.accessToken);
+
       // Return success with user data from the response
       return OtpResult.success(user: authResponse.user);
     } on UnauthorizedException {

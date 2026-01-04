@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
-import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 
 /// App Routes
 ///
@@ -15,9 +15,9 @@ import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 
 class AppRoutes {
   // ============ Route Names ============
-  static const String welcome = '/';
-  static const String signup = '/signup'; // Alias for SendOtpPage (phone entry)
-  static const String phoneLogin = '/phone-login';
+  static const String login = '/'; // Login is now the initial route
+  static const String signup = '/signup'; // Alias for login
+  static const String phoneLogin = '/phone-login'; // Alias for login
   static const String register = '/register';
   static const String otpVerification = '/otp-verification';
   static const String home = '/home';
@@ -27,22 +27,14 @@ class AppRoutes {
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case welcome:
-        return _buildRoute(const WelcomePage(), settings);
-
+      case login:
       case signup:
-        return _buildRoute(const SendOtpPage(), settings);
-
       case phoneLogin:
-        // Alias for signup - both go to SendOtpPage
+        // All these routes go to SendOtpPage (Login screen)
         return _buildRoute(const SendOtpPage(), settings);
 
       case register:
-        final args = settings.arguments as Map<String, dynamic>?;
-        return _buildRoute(
-          RegisterPage(phoneNumber: args?['phoneNumber']),
-          settings,
-        );
+        return _buildRoute(const RegisterPage(), settings);
 
       case otpVerification:
         // Extract phone number from arguments
@@ -61,7 +53,13 @@ class AppRoutes {
         );
 
       case home:
-        return _buildRoute(const HomePage(), settings);
+        // Get user from arguments if passed
+        final args = settings.arguments;
+        UserModel? user;
+        if (args is Map<String, dynamic>) {
+          user = args['user'] as UserModel?;
+        }
+        return _buildRoute(HomePage(user: user), settings);
 
       case profile:
         return _buildRoute(const ProfilePage(), settings);
@@ -84,13 +82,18 @@ class AppRoutes {
   // ============ Navigation Helpers ============
 
   /// Navigate to a route and remove all previous routes
-  static void navigateAndRemoveAll(BuildContext context, String routeName) {
-    Navigator.pushNamedAndRemoveUntil(context, routeName, (route) => false);
+  static void navigateAndRemoveAll(BuildContext context, String routeName, {Object? arguments}) {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      routeName,
+      (route) => false,
+      arguments: arguments,
+    );
   }
 
   /// Navigate to a route and replace current route
-  static void navigateAndReplace(BuildContext context, String routeName) {
-    Navigator.pushReplacementNamed(context, routeName);
+  static void navigateAndReplace(BuildContext context, String routeName, {Object? arguments}) {
+    Navigator.pushReplacementNamed(context, routeName, arguments: arguments);
   }
 
   /// Navigate to a route
