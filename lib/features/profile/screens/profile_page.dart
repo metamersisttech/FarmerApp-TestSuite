@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
+import 'package:flutter_app/data/services/auth_service.dart';
+import 'package:flutter_app/data/services/token_storage_service.dart';
+import 'package:flutter_app/features/editprofile/screens/edit_profile_page.dart';
 import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_app/features/profile/controllers/profile_controller.dart';
 import 'package:flutter_app/features/profile/mixins/profile_state_mixin.dart';
@@ -66,9 +69,46 @@ class _ProfilePageState extends State<ProfilePage>
     await _loadData();
   }
 
-  void _handleEditProfile() {
-    // TODO: Navigate to edit profile page
-    showSuccessToast('Edit Profile - Coming soon!');
+  void _handleEditProfile() async {
+    // Fetch fresh user data before navigating
+    try {
+      final tokenStorage = TokenStorageService();
+      final authService = AuthService();
+      
+      // Initialize auth with stored token
+      final accessToken = await tokenStorage.getAccessToken();
+      if (accessToken != null) {
+        authService.setAuthToken(accessToken);
+      }
+      
+      // Fetch current user data from API
+      final user = await authService.getMe();
+      
+      if (!mounted) return;
+      
+      // Navigate to edit profile page with user data
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EditProfilePage(
+            initialUsername: user.username ?? '',
+            initialFirstName: user.firstName ?? '',
+            initialLastName: user.lastName ?? '',
+            initialPhoneNumber: user.phone ?? '',
+            initialEmail: user.email,
+            initialProfileImageUrl: user.profileImage,
+          ),
+        ),
+      );
+      
+      // If profile was saved successfully, refresh the profile data
+      if (result == true) {
+        await _handleRefresh();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      showErrorToast('Failed to load profile data');
+    }
   }
 
   void _handleKycTap() {
