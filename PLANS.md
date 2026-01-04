@@ -7,9 +7,11 @@ Documentation for screen flows, API structure, and folder organization for the F
 ## Table of Contents
 
 1. [Screen Flow Diagrams](#screen-flow-diagrams)
-2. [API Calling Structure](#api-calling-structure)
-3. [Folder Structure](#folder-structure)
-4. [Feature Documentation](#feature-documentation)
+2. [Helper Classes](#helper-classes)
+3. [API Calling Structure](#api-calling-structure)
+4. [Folder Structure](#folder-structure)
+5. [Feature Documentation](#feature-documentation)
+6. [Reusable Components](#reusable-components)
 
 ---
 
@@ -23,63 +25,52 @@ Documentation for screen flows, API structure, and folder organization for the F
                                     │   (main.dart)   │
                                     └────────┬────────┘
                                              │
-                                             ▼
-                                    ┌─────────────────┐
-                                    │  WelcomePage    │
-                                    │   Route: /      │
-                                    └────────┬────────┘
-                                             │
-                                    [Get Started Button]
-                                             │
-                                             ▼
-                                    ┌─────────────────┐
-                                    │  SendOtpPage    │
-                                    │  Route: /signup │
-                                    └────────┬────────┘
+                              ┌──────────────┴──────────────┐
+                              │  Check CommonHelper         │
+                              │  getLoggedInUser()          │
+                              └──────────────┬──────────────┘
                                              │
                     ┌────────────────────────┼────────────────────────┐
-                    │                        │                        │
-           [User Not Found]          [OTP Sent Successfully]   [Continue as Guest]
-                    │                        │                        │
-                    ▼                        ▼                        │
-           ┌─────────────────┐      ┌─────────────────┐               │
-           │  RegisterPage   │      │ OtpVerification │               │
-           │ Route: /register│      │      Page       │               │
-           └────────┬────────┘      └────────┬────────┘               │
-                    │                        │                        │
-           [Register Success]                │                        │
-                    │               ┌────────┴────────┐               │
-                    │               │                 │               │
-                    ▼          [Existing User]   [New User]           │
-           ┌─────────────────┐      │                 │               │
-           │  SendOtpPage    │      │                 ▼               │
-           │(isAfterRegister)│      │      ┌─────────────────┐        │
-           └────────┬────────┘      │      │ChooseLanguage   │        │
-                    │               │      │     Page        │        │
-                    ▼               │      └────────┬────────┘        │
-           [Verify OTP]             │               │                 │
-                    │               │               ▼                 │
-                    │               │      ┌─────────────────┐        │
-                    │               │      │ChooseIdentity   │        │
-                    │               │      │     Page        │        │
-                    │               │      └────────┬────────┘        │
-                    │               │               │                 │
-                    └───────────────┴───────────────┴─────────────────┘
-                                             │
-                                             ▼
-                                    ┌─────────────────┐
-                                    │    HomePage     │
-                                    │  Route: /home   │
-                                    └────────┬────────┘
-                                             │
-                    ┌────────────────────────┼────────────────────────┐
-                    │                        │                        │
-                    ▼                        ▼                        ▼
-           ┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
-           │  ProfilePage    │      │ PostAnimalPage  │      │   (Coming Soon) │
-           │ Route: /profile │      │   (Sell Tab)    │      │ Chat, MyAds,    │
-           └─────────────────┘      └─────────────────┘      │ Saved, Wallet   │
-                                                             └─────────────────┘
+                    │                                                 │
+            [User EXISTS]                                    [User NOT EXISTS]
+                    │                                                 │
+                    ▼                                                 ▼
+           ┌─────────────────┐                               ┌─────────────────┐
+           │    HomePage     │                               │  SendOtpPage    │
+           │  (with user)    │                               │   Route: /      │
+           └─────────────────┘                               └────────┬────────┘
+                                                                      │
+                                     ┌────────────────────────────────┼────────────────┐
+                                     │                                │                │
+                            [User Not Found]                  [OTP Sent OK]    [Sign Up Link]
+                                     │                                │                │
+                                     ▼                                ▼                ▼
+                            ┌─────────────────┐              ┌─────────────────┐ ┌───────────┐
+                            │ Show Toast      │              │ OtpVerification │ │RegisterPage│
+                            │ Stay on Screen  │              │      Page       │ └─────┬─────┘
+                            └─────────────────┘              └────────┬────────┘       │
+                                                                      │        [Register OK]
+                                                              [Verify Success]         │
+                                                                      │                │
+                                                             ┌────────┴────────────────┘
+                                                             │  Store user in
+                                                             │  CommonHelper
+                                                             └────────┬────────┘
+                                                                      │
+                                                                      ▼
+                                                             ┌─────────────────┐
+                                                             │    HomePage     │
+                                                             │  Route: /home   │
+                                                             └────────┬────────┘
+                                                                      │
+                                     ┌────────────────────────────────┼────────────────────────┐
+                                     │                                │                        │
+                                     ▼                                ▼                        ▼
+                            ┌─────────────────┐              ┌─────────────────┐      ┌─────────────────┐
+                            │  ProfilePage    │              │ PostAnimalPage  │      │   (Coming Soon) │
+                            │ Route: /profile │              │   (Sell Tab)    │      │ Chat, MyAds,    │
+                            └─────────────────┘              └─────────────────┘      │ Saved, Wallet   │
+                                                                                      └─────────────────┘
 ```
 
 ### Authentication Flow Detail
@@ -89,7 +80,22 @@ Documentation for screen flows, API structure, and folder organization for the F
 │                           AUTHENTICATION FLOW                                │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-1. EXISTING USER LOGIN:
+1. APP LAUNCH (main.dart):
+   ┌──────────────┐     ┌──────────────────┐     ┌───────────────────┐
+   │ App Starts   │ ──► │ CommonHelper     │ ──► │ User exists?      │
+   │              │     │ getLoggedInUser()│     │                   │
+   └──────────────┘     └──────────────────┘     └─────────┬─────────┘
+                                                           │
+                              ┌─────────────────────────────┼──────────────────┐
+                              │ YES                                            │ NO
+                              ▼                                                ▼
+                    ┌──────────────────┐                           ┌──────────────────┐
+                    │ Set APIClient    │                           │ Go to Login      │
+                    │ auth token       │                           │ (SendOtpPage)    │
+                    │ Go to HomePage   │                           │                  │
+                    └──────────────────┘                           └──────────────────┘
+
+2. EXISTING USER LOGIN:
    ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐
    │ SendOtpPage  │ ──► │   Send OTP   │ ──► │ OtpVerify    │ ──► │ HomePage │
    │ Enter Phone  │     │   API Call   │     │ Enter 6-digit│     │          │
@@ -100,30 +106,39 @@ Documentation for screen flows, API structure, and folder organization for the F
          │              ▼                          ▼
          │         {phone: "..."}            {phone, otp}
          │                                        │
-         │                                  Returns: tokens + user
+         │                             ┌──────────┴──────────┐
+         │                             │ CommonHelper        │
+         │                             │ saveAuthData()      │
+         │                             │ APIClient.setAuth() │
+         │                             └─────────────────────┘
 
-2. NEW USER REGISTRATION:
+3. USER NOT FOUND (404):
    ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-   │ SendOtpPage  │ ──► │ RegisterPage │ ──► │ SendOtpPage  │ ──►
-   │ (User 404)   │     │ Fill Form    │     │ (afterReg)   │
+   │ SendOtpPage  │ ──► │   Send OTP   │ ──► │ Show Toast   │
+   │ Enter Phone  │     │   API: 404   │     │ STAY on page │
    └──────────────┘     └──────────────┘     └──────────────┘
-                              │
-                        API: POST
-                       auth/register/
-                             ▼
-                    {username, email, phone,
-                     password, first_name, last_name}
+                                               (No auto-redirect to register)
 
-   ──► ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐
-       │ OtpVerify    │ ──► │ ChooseLang   │ ──► │ ChooseIdent  │ ──► │ HomePage │
-       │              │     │              │     │              │     │          │
-       └──────────────┘     └──────────────┘     └──────────────┘     └──────────┘
+4. NEW USER REGISTRATION:
+   ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐
+   │ SendOtpPage  │ ──► │ RegisterPage │ ──► │ SendOtpPage  │ ──► │ OtpVerify│
+   │ [Sign Up]    │     │ Fill Form    │     │              │     │          │
+   └──────────────┘     └──────────────┘     └──────────────┘     └────┬─────┘
+                              │                                        │
+                        API: POST                               [Verify Success]
+                       auth/register/                                  │
+                             ▼                                         ▼
+                    {username, email, phone,                  ┌──────────────┐
+                     password, first_name, last_name}         │ HomePage     │
+                                                              │ (Direct)     │
+                                                              └──────────────┘
 
-3. TOKEN EXPIRY (401 Error):
-   ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-   │ Any API Call │ ──► │ 401 Response │ ──► │ SendOtpPage  │
-   │              │     │ Clear Tokens │     │ Re-login     │
-   └──────────────┘     └──────────────┘     └──────────────┘
+5. TOKEN EXPIRY (401 Error):
+   ┌──────────────┐     ┌──────────────────────┐     ┌──────────────┐
+   │ Any API Call │ ──► │ APIClient intercepts │ ──► │ SendOtpPage  │
+   │              │     │ 401 → Clear user     │     │ Re-login     │
+   │              │     │ CommonHelper.clear() │     │              │
+   └──────────────┘     └──────────────────────┘     └──────────────┘
 ```
 
 ### Bottom Navigation Flow
@@ -186,6 +201,168 @@ Documentation for screen flows, API structure, and folder organization for the F
 │  │  Logout Button ──────────► WelcomePage (Clear tokens, remove stack)   │   │
 │  └──────────────────────────────────────────────────────────────────────┘   │
 └──────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Helper Classes
+
+### Overview
+
+The app uses three main helper classes for API communication and user management:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           HELPER CLASSES                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│  api_config.dart │     │  api_helper.dart │     │ common_helper.dart│
+│  (Configuration) │     │  (HTTP Client)   │     │ (User Storage)   │
+└────────┬─────────┘     └────────┬─────────┘     └────────┬─────────┘
+         │                        │                        │
+         │                        ▼                        │
+         │               ┌──────────────────┐              │
+         └──────────────►│ backend_helper   │◄─────────────┘
+                         │ (API Methods)    │
+                         └──────────────────┘
+```
+
+### 1. api_config.dart (`lib/config/api_config.dart`)
+
+API configuration and base URLs:
+
+```dart
+class ApiConfig {
+  static const String devBaseUrl = 'http://34.28.110.191/api/';
+  static const String devBaseUrlIOS = 'http://localhost:8000/api/';
+  static const String prodBaseUrl = 'https://your-backend-domain.com/api/';
+
+  static const bool isProduction = false;
+  static String get baseUrl => isProduction ? prodBaseUrl : devBaseUrl;
+
+  static const int connectionTimeout = 30000;  // 30 seconds
+  static const int receiveTimeout = 30000;     // 30 seconds
+}
+```
+
+### 2. api_helper.dart (`lib/core/helpers/api_helper.dart`)
+
+Singleton HTTP client with Dio:
+
+```dart
+class APIClient {
+  static final APIClient _instance = APIClient._internal();
+  factory APIClient() => _instance;
+
+  // HTTP Methods
+  Future<Response> get(String url, {Map<String, dynamic>? params});
+  Future<Response> post(String url, {dynamic data});
+  Future<Response> put(String url, {dynamic data});
+  Future<Response> patch(String url, {dynamic data});
+  Future<Response> delete(String url, {dynamic data});
+
+  // Auth Management
+  void setAuthorization(String token);
+  void clearAuthorization();
+  String? get authToken;
+
+  // Features:
+  // - Auto-injects Bearer token to all requests
+  // - Handles 401 errors (clears user, redirects to login)
+  // - Request/Response logging in debug mode
+}
+```
+
+### 3. common_helper.dart (`lib/core/helpers/common_helper.dart`)
+
+User data management with flutter_secure_storage:
+
+```dart
+class CommonHelper {
+  // User Management
+  Future<UserModel?> getLoggedInUser();
+  Future<void> setLoggedInUser(UserModel user);
+  Future<void> clearUser();
+  Future<bool> isAuthenticated();
+
+  // Token Management
+  Future<void> setTokens({required String accessToken, String? refreshToken});
+  Future<String?> getAccessToken();
+  Future<String?> getRefreshToken();
+
+  // Combined Save (used after login)
+  Future<void> saveAuthData({
+    required UserModel user,
+    required String accessToken,
+    String? refreshToken,
+  });
+}
+```
+
+### 4. backend_helper.dart (`lib/core/helpers/backend_helper.dart`)
+
+API endpoint methods:
+
+```dart
+class BackendHelper {
+  // Auth Endpoints
+  Future<Map<String, dynamic>> postSendLoginOtp(Map<String, dynamic> data);
+  Future<Map<String, dynamic>> postVerifyLoginOtp(Map<String, dynamic> data);
+  Future<Map<String, dynamic>> getMe();
+  Future<void> postLogout(Map<String, dynamic> data);
+  Future<Map<String, dynamic>> postRefreshToken(Map<String, dynamic> data);
+
+  // User Endpoints
+  Future<Map<String, dynamic>> getUserProfile();
+  Future<Map<String, dynamic>> putUpdateProfile(Map<String, dynamic> data);
+
+  // Animal Endpoints
+  Future<dynamic> getAnimals({Map<String, dynamic>? params});
+
+  // Listing Endpoints
+  Future<dynamic> getListings({Map<String, dynamic>? params});
+}
+
+// Error Handling
+class BackendException implements Exception {
+  final String message;
+  final int? statusCode;
+  final dynamic data;
+
+  bool get isUserNotFound => statusCode == 404;
+  bool get isUnauthorized => statusCode == 401;
+  bool get isBadRequest => statusCode == 400;
+}
+```
+
+### Usage Example
+
+```dart
+// In a controller or service:
+final backendHelper = BackendHelper();
+
+// Fetch listings
+try {
+  final response = await backendHelper.getListings();
+  // Handle response
+} on BackendException catch (e) {
+  if (e.isUnauthorized) {
+    // 401 is auto-handled by APIClient, but you can add extra logic
+  }
+  showError(e.message);
+}
+
+// Check user on app launch (main.dart):
+final commonHelper = CommonHelper();
+final user = await commonHelper.getLoggedInUser();
+if (user != null) {
+  final token = await commonHelper.getAccessToken();
+  APIClient().setAuthorization(token!);
+  // Go to HomePage
+} else {
+  // Go to LoginPage
+}
 ```
 
 ---
@@ -435,6 +612,10 @@ lib/
 │   │   └── api_endpoints.dart         # All Django API endpoint paths
 │   ├── errors/
 │   │   └── exceptions.dart            # Custom exceptions (BadRequest, Unauthorized, etc.)
+│   ├── helpers/                       # Helper classes for API and storage
+│   │   ├── api_helper.dart            # Singleton Dio HTTP client (APIClient)
+│   │   ├── backend_helper.dart        # API endpoint methods wrapper
+│   │   └── common_helper.dart         # User/token storage with flutter_secure_storage
 │   ├── mixins/
 │   │   └── toast_mixin.dart           # Toast notification mixin
 │   └── utils/
@@ -442,6 +623,7 @@ lib/
 │
 ├── data/                              # Data layer
 │   ├── models/
+│   │   ├── listing_model.dart         # ListingModel for animal listings
 │   │   └── user_model.dart            # UserModel, AuthResponse
 │   ├── repositories/
 │   │   └── auth_repository.dart       # Auth business logic (combines services)
@@ -569,6 +751,7 @@ lib/
 │       │   ├── auth_social_button.dart
 │       │   └── phone_number_field.dart
 │       ├── cards/
+│       │   ├── listing_card.dart      # Reusable animal listing card
 │       │   └── selection_card.dart
 │       ├── common/
 │       │   ├── icon_badge.dart
@@ -689,3 +872,98 @@ Features marked as "Coming Soon" in HomeNavigationService:
 3. Add wrapper method in feature service
 4. Add method in controller
 5. Call from screen
+
+---
+
+## Reusable Components
+
+### ListingCard
+
+**Location:** `lib/shared/widgets/cards/listing_card.dart`
+
+**Purpose:** Displays an animal listing with image, name, age, price, location, rating, and verified status.
+
+**Visual Structure:**
+```
+┌──────────────────────────────────────────┐
+│ ┌────────┐  Name              [Verified] │
+│ │  IMG   │  Age                          │
+│ │ 96x96  │  ₹Price (bold, green)         │
+│ │        │  📍 Location  ★ 4.8           │
+│ └────────┘                               │
+└──────────────────────────────────────────┘
+```
+
+**Props/Parameters:**
+```dart
+class ListingCard extends StatelessWidget {
+  final String? imageUrl;    // Animal image URL (nullable, shows placeholder if null)
+  final String name;         // Animal name/title
+  final String age;          // Age string (e.g., "2 Years")
+  final String price;        // Formatted price (e.g., "₹25,000")
+  final String location;     // Location text
+  final double rating;       // Rating value (0.0 - 5.0)
+  final bool isVerified;     // Shows verified badge if true
+  final VoidCallback? onTap; // Tap callback
+}
+```
+
+**Usage Example:**
+```dart
+ListingCard(
+  imageUrl: listing.imageUrl,
+  name: listing.name,
+  age: listing.age,
+  price: listing.price,
+  location: listing.location,
+  rating: listing.rating,
+  isVerified: listing.isVerified,
+  onTap: () => _handleListingTap(listing),
+)
+```
+
+**Styling:**
+| Element | Value |
+|---------|-------|
+| Card background | `Colors.white` |
+| Card border radius | `16.0` |
+| Card shadow | `BoxShadow(blurRadius: 8, color: black.withOpacity(0.08))` |
+| Card border | `Border.all(color: Colors.grey.shade200)` |
+| Image size | `96 x 96` |
+| Image radius | `12.0` |
+| Name text | `16px bold, AppTheme.authTextPrimary` |
+| Age text | `14px, Colors.grey.shade600` |
+| Price text | `18px bold, AppTheme.authPrimaryColor` |
+| Location text | `14px, Colors.grey.shade500` |
+| Verified badge | Green pill with "Verified" text |
+| Star color | `Colors.amber` |
+
+---
+
+### ListingModel
+
+**Location:** `lib/data/models/listing_model.dart`
+
+**Purpose:** Data model for animal listings from the API.
+
+**Fields:**
+```dart
+class ListingModel {
+  final int id;
+  final String name;
+  final String? imageUrl;
+  final String age;
+  final String price;
+  final String location;
+  final double rating;
+  final bool isVerified;
+}
+```
+
+**JSON Parsing:**
+- `price`: Converts number to formatted string with ₹ symbol
+- `age`: Converts number to "X Years" string
+- `imageUrl`: Checks both `image_url` and `image` keys
+- `isVerified`: Checks both `is_verified` and `verified` keys
+
+**API Endpoint:** `GET /api/listing/`
