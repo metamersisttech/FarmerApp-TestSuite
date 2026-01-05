@@ -256,6 +256,63 @@ class AuthService {
     return UserModel.fromJson(response.data);
   }
 
+  /// Login with email/username and password
+  /// 
+  /// Django endpoint: POST /api/auth/login-email/
+  /// Request body: { "identifier": "string", "password": "string" }
+  /// Response: { "message": "...", "user": {...}, "tokens": { "access": "...", "refresh": "..." } }
+  Future<AuthResponse> loginWithEmail({
+    required String identifier,
+    required String password,
+  }) async {
+    final response = await _apiService.post(
+      'auth/login-email/',
+      data: {
+        'identifier': identifier,
+        'password': password,
+      },
+    );
+    return AuthResponse.fromJson(response.data);
+  }
+
+  /// Request password reset
+  /// 
+  /// Django endpoint: POST /api/auth/password/reset/
+  /// Request body: { "email": "string" }
+  /// Response: { "message": "...", "token": "..." } (token only in mock mode)
+  Future<Map<String, dynamic>> requestPasswordReset({
+    required String email,
+  }) async {
+    final response = await _apiService.post(
+      ApiEndpoints.forgotPassword,
+      data: {
+        'email': email,
+      },
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
+  /// Confirm password reset with token
+  /// 
+  /// Django endpoint: POST /api/auth/password/reset/confirm/
+  /// Request body: { "token": "string", "new_password": "string", "new_password_confirm": "string" }
+  /// Response: { "message": "Password reset successfully." }
+  Future<Map<String, dynamic>> confirmPasswordReset({
+    required String token,
+    required String newPassword,
+    required String newPasswordConfirm,
+  }) async {
+    final response = await _apiService.post(
+      ApiEndpoints.resetPassword,
+      data: {
+        'token': token,
+        'new_password': newPassword,
+        'new_password_confirm': newPasswordConfirm,
+      },
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
   /// Set auth token for authenticated requests
   void setAuthToken(String token) {
     _apiService.setAuthToken(token);

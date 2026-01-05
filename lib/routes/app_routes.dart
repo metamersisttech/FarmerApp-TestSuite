@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/features/auth/screens/email_login_page.dart';
 import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
 import 'package:flutter_app/features/editprofile/screens/edit_profile_page.dart';
+import 'package:flutter_app/features/forgotPassword/screens/forgot_password_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
+import 'package:flutter_app/features/resetPassword/screens/reset_password_page.dart';
 import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 
 /// App Routes
@@ -19,6 +22,9 @@ class AppRoutes {
   static const String welcome = '/';
   static const String signup = '/signup'; // Alias for SendOtpPage (phone entry)
   static const String phoneLogin = '/phone-login';
+  static const String emailLogin = '/email-login';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
   static const String register = '/register';
   static const String otpVerification = '/otp-verification';
   static const String home = '/home';
@@ -38,6 +44,19 @@ class AppRoutes {
       case phoneLogin:
         // Alias for signup - both go to SendOtpPage
         return _buildRoute(const SendOtpPage(), settings);
+
+      case emailLogin:
+        return _buildRoute(const EmailLoginPage(), settings);
+
+      case forgotPassword:
+        return _buildRoute(const ForgotPasswordPage(), settings);
+
+      case resetPassword:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          ResetPasswordPage(token: args?['token'] as String?),
+          settings,
+        );
 
       case register:
         final args = settings.arguments as Map<String, dynamic>?;
