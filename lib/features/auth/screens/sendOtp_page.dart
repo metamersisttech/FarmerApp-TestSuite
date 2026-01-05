@@ -6,6 +6,7 @@ import 'package:flutter_app/features/auth/mixins/auth_state_mixin.dart';
 import 'package:flutter_app/features/auth/services/auth_navigation_service.dart';
 import 'package:flutter_app/features/auth/widgets/phone_input_form.dart';
 import 'package:flutter_app/features/auth/widgets/social_login_section.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/shared/widgets/auth/auth_header_icon.dart';
 import 'package:flutter_app/shared/widgets/auth/auth_primary_button.dart';
@@ -107,7 +108,9 @@ class _SendOtpPageState extends State<SendOtpPage>
                     onPressed: isLoading ? null : _handleSendOtp,
                   ),
                   TextButton(
-                    onPressed: isLoading ? null : () {},
+                    onPressed: isLoading
+                        ? null
+                        : () => Navigator.pushNamed(context, AppRoutes.emailLogin),
                     style: TextButton.styleFrom(
                       foregroundColor: AppTheme.authPrimaryColor,
                     ),

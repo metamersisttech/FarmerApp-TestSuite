@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/data/models/user_model.dart';
+import 'package:flutter_app/features/auth/screens/email_login_page.dart';
 import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
+import 'package:flutter_app/features/editprofile/screens/edit_profile_page.dart';
+import 'package:flutter_app/features/forgotPassword/screens/forgot_password_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
+import 'package:flutter_app/features/resetPassword/screens/reset_password_page.dart';
+import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 
 /// App Routes
 ///
@@ -18,10 +23,17 @@ class AppRoutes {
   static const String login = '/'; // Login is now the initial route
   static const String signup = '/signup'; // Alias for login
   static const String phoneLogin = '/phone-login'; // Alias for login
+  static const String welcome = '/';
+  static const String signup = '/signup'; // Alias for SendOtpPage (phone entry)
+  static const String phoneLogin = '/phone-login';
+  static const String emailLogin = '/email-login';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
   static const String register = '/register';
   static const String otpVerification = '/otp-verification';
   static const String home = '/home';
   static const String profile = '/profile';
+  static const String editProfile = '/edit-profile';
   static const String settings = '/settings';
 
   // ============ Route Generator ============
@@ -32,6 +44,19 @@ class AppRoutes {
       case phoneLogin:
         // All these routes go to SendOtpPage (Login screen)
         return _buildRoute(const SendOtpPage(), settings);
+
+      case emailLogin:
+        return _buildRoute(const EmailLoginPage(), settings);
+
+      case forgotPassword:
+        return _buildRoute(const ForgotPasswordPage(), settings);
+
+      case resetPassword:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          ResetPasswordPage(token: args?['token'] as String?),
+          settings,
+        );
 
       case register:
         return _buildRoute(const RegisterPage(), settings);
@@ -63,6 +88,20 @@ class AppRoutes {
 
       case profile:
         return _buildRoute(const ProfilePage(), settings);
+
+      case editProfile:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          EditProfilePage(
+            initialUsername: args?['username'],
+            initialFirstName: args?['firstName'],
+            initialLastName: args?['lastName'],
+            initialPhoneNumber: args?['phoneNumber'],
+            initialEmail: args?['email'],
+            initialProfileImageUrl: args?['profileImageUrl'],
+          ),
+          settings,
+        );
 
       default:
         return _buildRoute(

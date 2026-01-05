@@ -49,6 +49,9 @@ dependencies:
   # Location Services
   geolocator: ^13.0.2              # Location and GPS services
   permission_handler: ^11.3.1     # Handle runtime permissions
+  
+  # Image Picker
+  image_picker: ^1.0.7             # Pick images from camera/gallery
 
 dev_dependencies:
   flutter_test:
