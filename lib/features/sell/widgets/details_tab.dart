@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/data/repositories/animal_repository.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
@@ -20,15 +21,34 @@ class DetailsTab extends StatefulWidget {
 
 class _DetailsTabState extends State<DetailsTab> with ToastMixin {
   final AnimalRepository _animalRepository = AnimalRepository();
-  
+  final BackendHelper _backendHelper = BackendHelper();
+
   String? _selectedAnimalType;
   String? _selectedBreed;
   String? _selectedGender;
   String? _selectedAge;
   String? _selectedPriceType;
-  
+  int? _selectedFarmId;
+  String? _selectedFarmName;
+
+  // Farms data from API
+  List<Map<String, dynamic>> _farms = [];
+  bool _isLoadingFarms = false;
+
   final TextEditingController _animalSearchController = TextEditingController();
   final TextEditingController _breedSearchController = TextEditingController();
+  final TextEditingController _farmSearchController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+
+  // Error states for validation
+  String? _farmError;
+  String? _animalTypeError;
+  String? _breedError;
+  String? _genderError;
+  String? _ageError;
+  String? _weightError;
+  String? _priceError;
 
   // API fetched data
   List<String> _allAnimals = [];
@@ -40,6 +60,28 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
   void initState() {
     super.initState();
     _fetchAnimals();
+    _fetchFarms();
+  }
+
+  /// Fetch user's farms from API
+  Future<void> _fetchFarms() async {
+    setState(() => _isLoadingFarms = true);
+
+    try {
+      final farms = await _backendHelper.getFarms();
+
+      if (!mounted) return;
+
+      setState(() {
+        _isLoadingFarms = false;
+        _farms = farms.map((farm) => farm as Map<String, dynamic>).toList();
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => _isLoadingFarms = false);
+      showErrorToast(e.toString());
+    }
   }
 
   /// Fetch animals (species) from API
@@ -89,7 +131,127 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
   void dispose() {
     _animalSearchController.dispose();
     _breedSearchController.dispose();
+    _farmSearchController.dispose();
+    _weightController.dispose();
+    _priceController.dispose();
     super.dispose();
+  }
+
+  /// Validate all required fields
+  bool _validateForm() {
+    bool isValid = true;
+
+    setState(() {
+      // Reset all errors
+      _farmError = null;
+      _animalTypeError = null;
+      _breedError = null;
+      _genderError = null;
+      _ageError = null;
+      _weightError = null;
+      _priceError = null;
+
+      // Validate Farm (required)
+      if (_selectedFarmId == null) {
+        _farmError = 'Please select a farm';
+        isValid = false;
+      }
+
+      // Validate Animal Type (required)
+      if (_selectedAnimalType == null || _selectedAnimalType!.isEmpty) {
+        _animalTypeError = 'Please select an animal type';
+        isValid = false;
+      }
+
+      // Validate Breed (required)
+      if (_selectedBreed == null || _selectedBreed!.isEmpty) {
+        _breedError = 'Please select a breed';
+        isValid = false;
+      }
+
+      // Validate Gender (required)
+      if (_selectedGender == null || _selectedGender!.isEmpty) {
+        _genderError = 'Please select a gender';
+        isValid = false;
+      }
+
+      // Validate Age (required)
+      if (_selectedAge == null || _selectedAge!.isEmpty) {
+        _ageError = 'Please select age';
+        isValid = false;
+      }
+
+      // Validate Weight (required)
+      final weight = _weightController.text.trim();
+      if (weight.isEmpty) {
+        _weightError = 'Please enter weight';
+        isValid = false;
+      } else {
+        final weightValue = double.tryParse(weight);
+        if (weightValue == null || weightValue <= 0) {
+          _weightError = 'Please enter a valid weight';
+          isValid = false;
+        }
+      }
+
+      // Validate Price (required)
+      final price = _priceController.text.trim();
+      if (price.isEmpty) {
+        _priceError = 'Please enter price';
+        isValid = false;
+      } else {
+        final priceValue = double.tryParse(price);
+        if (priceValue == null || priceValue <= 0) {
+          _priceError = 'Please enter a valid price';
+          isValid = false;
+        }
+      }
+    });
+
+    return isValid;
+  }
+
+  /// Handle Next button press with validation
+  void _handleNext() {
+    if (_validateForm()) {
+      // All validations passed, proceed to next step
+      widget.onNext();
+    } else {
+      showErrorToast('Please fill all required fields');
+    }
+  }
+
+  /// Convert age string to months
+  int _getAgeInMonths() {
+    switch (_selectedAge) {
+      case '1 Year':
+        return 12;
+      case '2 Years':
+        return 24;
+      case '3 Years':
+        return 36;
+      case '4 Years':
+        return 48;
+      case '5+ Years':
+        return 60;
+      default:
+        return 0;
+    }
+  }
+
+  /// Get form data as Map for API
+  Map<String, dynamic> getFormData() {
+    return {
+      'farm': _selectedFarmId,
+      'animal': _selectedAnimalType, // Will need animal ID later
+      'breed': _selectedBreed,
+      'gender': _selectedGender?.toLowerCase(),
+      'age_months': _getAgeInMonths(),
+      'weight_kg': double.tryParse(_weightController.text.trim()) ?? 0,
+      'price': double.tryParse(_priceController.text.trim()) ?? 0,
+      'currency': 'INR',
+      'price_type': _selectedPriceType,
+    };
   }
 
   @override
@@ -103,323 +265,417 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Animal Type
-                _buildSectionTitle('Animal Type'),
-          const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.authPrimaryColor.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: _isLoadingAnimals
-                ? _buildLoadingIndicator('Loading animals...')
-                : _allAnimals.isEmpty
-                    ? _buildInfoBox('No animals available in catalog')
-                    : DropdownMenu<String>(
-                        controller: _animalSearchController,
-                        width: MediaQuery.of(context).size.width - 40,
-                        hintText: 'Select or search animal type',
-                        leadingIcon: const Icon(Icons.pets, size: 20),
-                        menuHeight: 300,
-                        enableFilter: true,
-                        enableSearch: true,
-                        requestFocusOnTap: true,
-                        inputDecorationTheme: InputDecorationTheme(
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                                color: AppTheme.authPrimaryColor, width: 1.5),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                                color: AppTheme.authPrimaryColor.withOpacity(0.5),
-                                width: 1.5),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                                color: AppTheme.authPrimaryColor, width: 2),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                        dropdownMenuEntries: _allAnimals.map((animal) {
-                          return DropdownMenuEntry<String>(
-                            value: animal,
-                            label: animal,
-                          );
-                        }).toList(),
-                        onSelected: (value) {
-                          setState(() {
-                            _selectedAnimalType = value;
-                            if (value != null) {
-                              _animalSearchController.text = value;
-                              // Fetch breeds for selected species
-                              _fetchBreedsForSpecies(value);
-                            }
-                          });
-                        },
+                // Farm Selection
+                _buildSectionTitle('Select Farm', isRequired: true),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _farmError != null
+                            ? Colors.red.withOpacity(0.1)
+                            : AppTheme.authPrimaryColor.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Breed
-          _buildSectionTitle('Breed'),
-          const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.authPrimaryColor.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                    ],
+                  ),
+                  child: _buildFarmDropdown(),
                 ),
-              ],
-            ),
-            child: _selectedAnimalType == null
-                ? _buildDisabledField('Please select animal type first')
-                : _isLoadingBreeds
-                    ? _buildLoadingIndicator('Loading breeds...')
-                    : _allBreeds.isEmpty
-                        ? _buildErrorBox('No breeds available for this species')
-                        : DropdownMenu<String>(
-                            controller: _breedSearchController,
-                            width: MediaQuery.of(context).size.width - 40,
-                            hintText: 'Select or search breed',
-                            menuHeight: 300,
-                            enableFilter: true,
-                            enableSearch: true,
-                            requestFocusOnTap: true,
-                            inputDecorationTheme: InputDecorationTheme(
-                              filled: true,
-                              fillColor: Colors.white,
+                if (_farmError != null) _buildFieldError(_farmError!),
+
+                const SizedBox(height: 24),
+
+                // Animal Type
+                _buildSectionTitle('Animal Type', isRequired: true),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _animalTypeError != null
+                            ? Colors.red.withOpacity(0.1)
+                            : AppTheme.authPrimaryColor.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: _isLoadingAnimals
+                      ? _buildLoadingIndicator('Loading animals...')
+                      : _allAnimals.isEmpty
+                          ? _buildInfoBox('No animals available in catalog')
+                          : DropdownMenu<String>(
+                              controller: _animalSearchController,
+                              width: MediaQuery.of(context).size.width - 40,
+                              hintText: 'Select or search animal type',
+                              leadingIcon: const Icon(Icons.pets, size: 20),
+                              menuHeight: 300,
+                              enableFilter: true,
+                              enableSearch: true,
+                              requestFocusOnTap: true,
+                              inputDecorationTheme: InputDecorationTheme(
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                      color: _animalTypeError != null
+                                          ? Colors.red
+                                          : AppTheme.authPrimaryColor,
+                                      width: 1.5),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                      color: _animalTypeError != null
+                                          ? Colors.red
+                                          : AppTheme.authPrimaryColor.withOpacity(0.5),
+                                      width: 1.5),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                      color: _animalTypeError != null
+                                          ? Colors.red
+                                          : AppTheme.authPrimaryColor,
+                                      width: 2),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                              ),
+                              dropdownMenuEntries: _allAnimals.map((animal) {
+                                return DropdownMenuEntry<String>(
+                                  value: animal,
+                                  label: animal,
+                                );
+                              }).toList(),
+                              onSelected: (value) {
+                                setState(() {
+                                  _selectedAnimalType = value;
+                                  _animalTypeError = null; // Clear error on selection
+                                  if (value != null) {
+                                    _animalSearchController.text = value;
+                                    // Fetch breeds for selected species
+                                    _fetchBreedsForSpecies(value);
+                                  }
+                                });
+                              },
+                            ),
+                ),
+                if (_animalTypeError != null) _buildFieldError(_animalTypeError!),
+
+                const SizedBox(height: 24),
+
+                // Breed
+                _buildSectionTitle('Breed', isRequired: true),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _breedError != null
+                            ? Colors.red.withOpacity(0.1)
+                            : AppTheme.authPrimaryColor.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: _selectedAnimalType == null
+                      ? _buildDisabledField('Please select animal type first')
+                      : _isLoadingBreeds
+                          ? _buildLoadingIndicator('Loading breeds...')
+                          : _allBreeds.isEmpty
+                              ? _buildErrorBox('No breeds available for this species')
+                              : DropdownMenu<String>(
+                                  controller: _breedSearchController,
+                                  width: MediaQuery.of(context).size.width - 40,
+                                  hintText: 'Select or search breed',
+                                  menuHeight: 300,
+                                  enableFilter: true,
+                                  enableSearch: true,
+                                  requestFocusOnTap: true,
+                                  inputDecorationTheme: InputDecorationTheme(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                          color: _breedError != null
+                                              ? Colors.red
+                                              : AppTheme.authPrimaryColor,
+                                          width: 1.5),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                          color: _breedError != null
+                                              ? Colors.red
+                                              : AppTheme.authPrimaryColor.withOpacity(0.5),
+                                          width: 1.5),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                          color: _breedError != null
+                                              ? Colors.red
+                                              : AppTheme.authPrimaryColor,
+                                          width: 2),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                  dropdownMenuEntries: _allBreeds.map((breed) {
+                                    return DropdownMenuEntry<String>(
+                                      value: breed,
+                                      label: breed,
+                                    );
+                                  }).toList(),
+                                  onSelected: (value) {
+                                    setState(() {
+                                      _selectedBreed = value;
+                                      _breedError = null; // Clear error on selection
+                                      if (value != null) {
+                                        _breedSearchController.text = value;
+                                      }
+                                    });
+                                  },
+                                ),
+                ),
+                if (_breedError != null) _buildFieldError(_breedError!),
+
+                const SizedBox(height: 24),
+
+                // Gender
+                _buildSectionTitle('Gender', isRequired: true),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildGenderChip(
+                        label: 'Male',
+                        icon: Icons.male,
+                        isSelected: _selectedGender == 'Male',
+                        hasError: _genderError != null,
+                        onTap: () => setState(() {
+                          _selectedGender = 'Male';
+                          _genderError = null;
+                        }),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildGenderChip(
+                        label: 'Female',
+                        icon: Icons.female,
+                        isSelected: _selectedGender == 'Female',
+                        hasError: _genderError != null,
+                        onTap: () => setState(() {
+                          _selectedGender = 'Female';
+                          _genderError = null;
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+                if (_genderError != null) _buildFieldError(_genderError!),
+
+                const SizedBox(height: 16),
+
+                // Age and Weight Row
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Age', isRequired: true),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<String>(
+                            value: _selectedAge,
+                            decoration: InputDecoration(
+                              hintText: 'Select age',
+                              errorText: _ageError,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                    color: AppTheme.authPrimaryColor, width: 1.5),
+                                borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 1.5),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                    color: AppTheme.authPrimaryColor.withOpacity(0.5),
+                                    color: _ageError != null
+                                        ? Colors.red
+                                        : AppTheme.authPrimaryColor.withOpacity(0.5),
                                     width: 1.5),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                    color: AppTheme.authPrimaryColor, width: 2),
+                                borderSide: BorderSide(
+                                    color: _ageError != null ? Colors.red : AppTheme.authPrimaryColor,
+                                    width: 2),
                               ),
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 12,
                               ),
                             ),
-                            dropdownMenuEntries: _allBreeds.map((breed) {
-                              return DropdownMenuEntry<String>(
-                                value: breed,
-                                label: breed,
-                              );
-                            }).toList(),
-                            onSelected: (value) {
-                              setState(() {
-                                _selectedBreed = value;
-                                if (value != null) {
-                                  _breedSearchController.text = value;
-                                }
-                              });
+                            items: ['1 Year', '2 Years', '3 Years', '4 Years', '5+ Years']
+                                .map((age) => DropdownMenuItem(value: age, child: Text(age)))
+                                .toList(),
+                            onChanged: (value) => setState(() {
+                              _selectedAge = value;
+                              _ageError = null;
+                            }),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionTitle('Weight (kg)', isRequired: true),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _weightController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: 'e.g. 350',
+                              errorText: _weightError,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 1.5),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: _weightError != null
+                                        ? Colors.red
+                                        : AppTheme.authPrimaryColor.withOpacity(0.5),
+                                    width: 1.5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: _weightError != null ? Colors.red : AppTheme.authPrimaryColor,
+                                    width: 2),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                            ),
+                            onChanged: (_) {
+                              if (_weightError != null) {
+                                setState(() => _weightError = null);
+                              }
                             },
                           ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Gender
-          _buildSectionTitle('Gender'),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildGenderChip(
-                  label: 'Male',
-                  icon: Icons.male,
-                  isSelected: _selectedGender == 'Male',
-                  onTap: () => setState(() => _selectedGender = 'Male'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildGenderChip(
-                  label: 'Female',
-                  icon: Icons.female,
-                  isSelected: _selectedGender == 'Female',
-                  onTap: () => setState(() => _selectedGender = 'Female'),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Age and Weight Row
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionTitle('Age'),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedAge,
-                      decoration: InputDecoration(
-                        hintText: '1 Year',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 1.5),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppTheme.authPrimaryColor.withOpacity(0.5), width: 1.5),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 2),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      items: ['1 Year', '2 Years', '3 Years', '4 Years', '5+ Years']
-                          .map((age) => DropdownMenuItem(value: age, child: Text(age)))
-                          .toList(),
-                      onChanged: (value) => setState(() => _selectedAge = value),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionTitle('Weight (kg)'),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: 'e.g. 350',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 1.5),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppTheme.authPrimaryColor.withOpacity(0.5), width: 1.5),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 2),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
 
-          const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-          // Price Type
-          _buildSectionTitle('Price Type'),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildPriceTypeChip(
-                  label: 'Fixed Price',
-                  icon: '💰',
-                  isSelected: _selectedPriceType == 'Fixed',
-                  onTap: () => setState(() => _selectedPriceType = 'Fixed'),
+                // Price Type
+                _buildSectionTitle('Price Type'),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildPriceTypeChip(
+                        label: 'Fixed Price',
+                        icon: '💰',
+                        isSelected: _selectedPriceType == 'Fixed',
+                        onTap: () => setState(() => _selectedPriceType = 'Fixed'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildPriceTypeChip(
+                        label: 'Auction',
+                        icon: '🔨',
+                        isSelected: _selectedPriceType == 'Auction',
+                        onTap: () => setState(() => _selectedPriceType = 'Auction'),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildPriceTypeChip(
-                  label: 'Auction',
-                  icon: '🔨',
-                  isSelected: _selectedPriceType == 'Auction',
-                  onTap: () => setState(() => _selectedPriceType = 'Auction'),
-                ),
-              ),
-            ],
-          ),
 
-          const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-          // Enter Price
-          _buildSectionTitle('Enter Price (₹)'),
-          const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.authPrimaryColor.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                // Enter Price
+                _buildSectionTitle('Enter Price (₹)', isRequired: true),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _priceError != null
+                            ? Colors.red.withOpacity(0.1)
+                            : AppTheme.authPrimaryColor.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextFormField(
+                    controller: _priceController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'e.g. 50000',
+                      errorText: _priceError,
+                      prefixIcon: const Icon(Icons.currency_rupee, size: 20),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 1.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                            color: _priceError != null
+                                ? Colors.red
+                                : AppTheme.authPrimaryColor.withOpacity(0.5),
+                            width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                            color: _priceError != null ? Colors.red : AppTheme.authPrimaryColor,
+                            width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                    onChanged: (_) {
+                      if (_priceError != null) {
+                        setState(() => _priceError = null);
+                      }
+                    },
+                  ),
                 ),
+                const SizedBox(height: 20), // Bottom padding for scroll
               ],
             ),
-            child: TextFormField(
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: 'e.g. 50000',
-                prefixIcon: const Icon(Icons.currency_rupee, size: 20),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 1.5),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppTheme.authPrimaryColor.withOpacity(0.5), width: 1.5),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 2),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
-            ),
           ),
-          const SizedBox(height: 20), // Bottom padding for scroll
-        ],
-      ),
-    ),
-  ),
+        ),
 
         // Fixed navigation buttons at bottom
         Container(
@@ -456,7 +712,7 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
               if (widget.onPrevious != null) const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: widget.onNext,
+                  onPressed: _handleNext,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.authPrimaryColor,
                     shape: RoundedRectangleBorder(
@@ -477,13 +733,45 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: Colors.black87,
+  Widget _buildSectionTitle(String title, {bool isRequired = false}) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        if (isRequired)
+          const Text(
+            ' *',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.red,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildFieldError(String error) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, left: 4),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, size: 14, color: Colors.red.shade700),
+          const SizedBox(width: 4),
+          Text(
+            error,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.red.shade700,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -493,7 +781,14 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
     required IconData icon,
     required bool isSelected,
     required VoidCallback onTap,
+    bool hasError = false,
   }) {
+    final borderColor = hasError && !isSelected
+        ? Colors.red
+        : isSelected
+            ? AppTheme.authPrimaryColor
+            : AppTheme.authPrimaryColor.withOpacity(0.5);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -502,7 +797,7 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
           color: isSelected ? AppTheme.authPrimaryColor.withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppTheme.authPrimaryColor : AppTheme.authPrimaryColor.withOpacity(0.5),
+            color: borderColor,
             width: isSelected ? 2 : 1.5,
           ),
           boxShadow: [
@@ -699,6 +994,104 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
         ],
       ),
     );
+  }
+
+  /// Build farm dropdown with "+ Create Farm" button
+  Widget _buildFarmDropdown() {
+    // Show loading indicator
+    if (_isLoadingFarms) {
+      return _buildLoadingIndicator('Loading farms...');
+    }
+
+    // Show message if no farms
+    if (_farms.isEmpty) {
+      return _buildInfoBox("You have no farms");
+    }
+
+    return DropdownMenu<int>(
+      controller: _farmSearchController,
+      width: MediaQuery.of(context).size.width - 40,
+      hintText: 'Select or search farm',
+      leadingIcon: const Icon(Icons.agriculture, size: 20),
+      menuHeight: 300,
+      enableFilter: true,
+      enableSearch: true,
+      requestFocusOnTap: true,
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+              color: _farmError != null ? Colors.red : AppTheme.authPrimaryColor,
+              width: 1.5),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+              color: _farmError != null
+                  ? Colors.red
+                  : AppTheme.authPrimaryColor.withOpacity(0.5),
+              width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+              color: _farmError != null ? Colors.red : AppTheme.authPrimaryColor,
+              width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+      ),
+      dropdownMenuEntries: [
+        // Farm items from API
+        ..._farms.map((farm) {
+          final farmId = farm['id'] as int;
+          final farmName = farm['name']?.toString() ?? 'Farm $farmId';
+          return DropdownMenuEntry<int>(
+            value: farmId,
+            label: farmName,
+          );
+        }),
+        // Create Farm button (using -1 as special value)
+        DropdownMenuEntry<int>(
+          value: -1,
+          label: 'Create Farm',
+          leadingIcon: Icon(Icons.add_circle_outline,
+              color: AppTheme.authPrimaryColor, size: 20),
+          style: MenuItemButton.styleFrom(
+            foregroundColor: AppTheme.authPrimaryColor,
+          ),
+        ),
+      ],
+      onSelected: (value) {
+        if (value == -1) {
+          // Reset the controller text since we don't want to show "Create Farm" as selected
+          _farmSearchController.clear();
+          _handleCreateFarm();
+        } else if (value != null) {
+          // Find the farm name for display
+          final selectedFarm = _farms.firstWhere(
+            (farm) => farm['id'] == value,
+            orElse: () => {'name': 'Farm $value'},
+          );
+          setState(() {
+            _selectedFarmId = value;
+            _selectedFarmName = selectedFarm['name']?.toString();
+            _farmError = null; // Clear error on selection
+            _farmSearchController.text = _selectedFarmName ?? '';
+          });
+        }
+      },
+    );
+  }
+
+  /// Handle create farm action
+  void _handleCreateFarm() {
+    // TODO: Navigate to create farm screen or show dialog
+    showInfoToast('Create farm feature coming soon!');
   }
 }
 

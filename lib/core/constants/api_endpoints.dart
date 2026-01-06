@@ -27,8 +27,11 @@ class ApiEndpoints {
   // ============ Animal Endpoints ============
   static const String animals = 'animals/'; // Get all animals catalog
 
+  // ============ Farm Endpoints ============
+  static const String farms = 'farms/';
+
   // ============ Listing Endpoints ============
-  static const String listings = 'listing/';
+  static const String listings = 'listings/';
 
   // ============ User Endpoints ============
   static const String userProfile = 'users/profile/';

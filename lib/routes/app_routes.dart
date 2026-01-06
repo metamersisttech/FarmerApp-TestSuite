@@ -22,9 +22,8 @@ class AppRoutes {
   // ============ Route Names ============
   static const String login = '/'; // Login is now the initial route
   static const String signup = '/signup'; // Alias for login
-  static const String phoneLogin = '/phone-login'; // Alias for login
+  // static const String phoneLogin = '/phone-login'; // Alias for login
   static const String welcome = '/';
-  static const String signup = '/signup'; // Alias for SendOtpPage (phone entry)
   static const String phoneLogin = '/phone-login';
   static const String emailLogin = '/email-login';
   static const String forgotPassword = '/forgot-password';

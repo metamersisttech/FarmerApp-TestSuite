@@ -3,6 +3,7 @@ import 'package:flutter_app/core/helpers/api_helper.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
+import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
 
@@ -81,6 +82,14 @@ class AuthNavigationService {
       context,
       MaterialPageRoute(builder: (context) => HomePage(user: userToPass)),
       (route) => false,
+    );
+  }
+
+  /// Navigate to register page
+  static void toRegister(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RegisterPage()),
     );
   }
 }

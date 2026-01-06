@@ -115,14 +115,60 @@ class BackendHelper {
     }
   }
 
+  // ============ Farm Endpoints ============
+
+  /// Get current user's farms
+  /// GET /api/farms/
+  Future<List<dynamic>> getFarms() async {
+    try {
+      final response = await _client.get(ApiEndpoints.farms);
+      if (response.data is List) {
+        return response.data as List<dynamic>;
+      }
+      // Handle paginated response if needed
+      if (response.data is Map && response.data['results'] != null) {
+        return response.data['results'] as List<dynamic>;
+      }
+      return [];
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Listing Endpoints ============
 
   /// Get all listings
-  /// GET /api/listing/
+  /// GET /api/listings/
   Future<dynamic> getListings({Map<String, dynamic>? params}) async {
     try {
       final response = await _client.get(ApiEndpoints.listings, params: params);
       return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Create a new animal listing
+  /// POST /api/listings/
+  /// Request body:
+  /// {
+  ///   "title": "Healthy Gir Cow - 3 Years Old",
+  ///   "description": "Beautiful Gir cow...",
+  ///   "price": 75000.00,
+  ///   "currency": "INR",
+  ///   "animal": 1,
+  ///   "farm": 1,
+  ///   "age_months": 36,
+  ///   "gender": "female",
+  ///   "weight_kg": 450.00,
+  ///   "height_cm": 140.00,
+  ///   "color": "Red and White",
+  ///   "health_status": "healthy"
+  /// }
+  Future<Map<String, dynamic>> postCreateListing(Map<String, dynamic> data) async {
+    try {
+      final response = await _client.post(ApiEndpoints.listings, data: data);
+      return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);
     }

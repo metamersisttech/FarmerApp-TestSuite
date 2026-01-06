@@ -64,6 +64,8 @@ class HomeController extends BaseController {
     try {
       final response = await _backendHelper.getListings();
 
+      print("${response} response from getListings");
+
       if (isDisposed) return;
 
       List<dynamic> rawListings = [];
