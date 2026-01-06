@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
+import 'package:flutter_app/data/models/animal_model.dart';
 import 'package:flutter_app/data/repositories/animal_repository.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Details Tab - Animal type, breed, gender, etc.
@@ -25,6 +27,7 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
 
   String? _selectedAnimalType;
   String? _selectedBreed;
+  int? _selectedAnimalId; // Animal ID for API
   String? _selectedGender;
   String? _selectedAge;
   String? _selectedPriceType;
@@ -34,6 +37,9 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
   // Farms data from API
   List<Map<String, dynamic>> _farms = [];
   bool _isLoadingFarms = false;
+
+  // Form submission state
+  bool _isSubmitting = false;
 
   final TextEditingController _animalSearchController = TextEditingController();
   final TextEditingController _breedSearchController = TextEditingController();
@@ -51,7 +57,8 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
   String? _priceError;
 
   // API fetched data
-  List<String> _allAnimals = [];
+  List<AnimalModel> _allAnimalModels = []; // Full animal data with IDs
+  List<String> _allAnimals = []; // Species names for dropdown
   List<String> _allBreeds = [];
   bool _isLoadingAnimals = false;
   bool _isLoadingBreeds = false;
@@ -88,6 +95,16 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
   Future<void> _fetchAnimals() async {
     setState(() => _isLoadingAnimals = true);
 
+    // Fetch full animal data (with IDs)
+    final animalsResult = await _animalRepository.getAnimals();
+
+    if (!mounted) return;
+
+    if (animalsResult.success && animalsResult.data != null) {
+      _allAnimalModels = animalsResult.data!;
+    }
+
+    // Fetch species list for dropdown
     final result = await _animalRepository.getSpeciesList();
 
     if (!mounted) return;
@@ -98,9 +115,7 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
       setState(() {
         _allAnimals = result.data!;
       });
-      // Info box in UI will show message if empty - no toast needed
     } else {
-      // Only show error toast for actual errors (not empty data)
       showErrorToast(result.error ?? 'Failed to fetch animals');
     }
   }
@@ -211,13 +226,31 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
     return isValid;
   }
 
-  /// Handle Next button press with validation
-  void _handleNext() {
-    if (_validateForm()) {
-      // All validations passed, proceed to next step
-      widget.onNext();
-    } else {
+  /// Handle Next button press with validation and API call
+  Future<void> _handleNext() async {
+    if (!_validateForm()) {
       showErrorToast('Please fill all required fields');
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final formData = getFormData();
+      await _backendHelper.postCreateListing(formData);
+
+      if (!mounted) return;
+
+      setState(() => _isSubmitting = false);
+      showSuccessToast('Listing created successfully!');
+
+      // Proceed to next step
+      widget.onNext();
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => _isSubmitting = false);
+      showErrorToast(e.toString());
     }
   }
 
@@ -241,16 +274,28 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
 
   /// Get form data as Map for API
   Map<String, dynamic> getFormData() {
+    final ageMonths = _getAgeInMonths();
+    final ageYears = (ageMonths / 12).round();
+
+    // Generate title from form data
+    final title = '${_selectedBreed ?? _selectedAnimalType} - $ageYears ${ageYears == 1 ? 'Year' : 'Years'} Old';
+
+    // Generate description
+    final description =
+        'Healthy ${_selectedGender?.toLowerCase() ?? ''} ${_selectedBreed ?? _selectedAnimalType}. '
+        'Age: $ageYears ${ageYears == 1 ? 'year' : 'years'}. '
+        'Weight: ${_weightController.text.trim()} kg.';
+
     return {
+      'title': title,
+      'description': description,
       'farm': _selectedFarmId,
-      'animal': _selectedAnimalType, // Will need animal ID later
-      'breed': _selectedBreed,
+      'animal': _selectedAnimalId, // Animal ID from selected breed
       'gender': _selectedGender?.toLowerCase(),
-      'age_months': _getAgeInMonths(),
+      'age_months': ageMonths,
       'weight_kg': double.tryParse(_weightController.text.trim()) ?? 0,
       'price': double.tryParse(_priceController.text.trim()) ?? 0,
       'currency': 'INR',
-      'price_type': _selectedPriceType,
     };
   }
 
@@ -445,6 +490,19 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
                                       _breedError = null; // Clear error on selection
                                       if (value != null) {
                                         _breedSearchController.text = value;
+                                        // Find and set the animal ID
+                                        final animal = _allAnimalModels.firstWhere(
+                                          (a) =>
+                                              a.species.toLowerCase() == _selectedAnimalType?.toLowerCase() &&
+                                              a.breed.toLowerCase() == value.toLowerCase(),
+                                          orElse: () => AnimalModel(
+                                            animalId: 0,
+                                            species: '',
+                                            breed: '',
+                                            typicalLifeYears: 0,
+                                          ),
+                                        );
+                                        _selectedAnimalId = animal.animalId > 0 ? animal.animalId : null;
                                       }
                                     });
                                   },
@@ -712,18 +770,28 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
               if (widget.onPrevious != null) const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: _handleNext,
+                  onPressed: _isSubmitting ? null : _handleNext,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.authPrimaryColor,
+                    disabledBackgroundColor: AppTheme.authPrimaryColor.withOpacity(0.6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text(
-                    'Next',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          'Submit',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
                 ),
               ),
             ],
@@ -996,6 +1064,63 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
     );
   }
 
+  /// Build no farms message with add button
+  Widget _buildNoFarmsBox() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.blue.shade300,
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "You have no farms",
+              style: TextStyle(
+                color: Colors.blue.shade700,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          InkWell(
+            onTap: _handleCreateFarm,
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.authPrimaryColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.add, color: Colors.white, size: 18),
+                  SizedBox(width: 4),
+                  Text(
+                    'Add',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Build farm dropdown with "+ Create Farm" button
   Widget _buildFarmDropdown() {
     // Show loading indicator
@@ -1003,9 +1128,9 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
       return _buildLoadingIndicator('Loading farms...');
     }
 
-    // Show message if no farms
+    // Show message if no farms with add button
     if (_farms.isEmpty) {
-      return _buildInfoBox("You have no farms");
+      return _buildNoFarmsBox();
     }
 
     return DropdownMenu<int>(
@@ -1047,8 +1172,11 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
       ),
       dropdownMenuEntries: [
         // Farm items from API
-        ..._farms.map((farm) {
-          final farmId = farm['id'] as int;
+        ..._farms
+            .where((farm) => farm['farm_id'] != null) // Filter out farms with null id
+            .map((farm) {
+          final id = farm['farm_id'];
+          final farmId = id is int ? id : int.tryParse(id.toString()) ?? 0;
           final farmName = farm['name']?.toString() ?? 'Farm $farmId';
           return DropdownMenuEntry<int>(
             value: farmId,
@@ -1074,7 +1202,11 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
         } else if (value != null) {
           // Find the farm name for display
           final selectedFarm = _farms.firstWhere(
-            (farm) => farm['id'] == value,
+            (farm) {
+              final id = farm['farm_id'];
+              final farmId = id is int ? id : int.tryParse(id.toString()) ?? 0;
+              return farmId == value;
+            },
             orElse: () => {'name': 'Farm $value'},
           );
           setState(() {
@@ -1089,9 +1221,25 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
   }
 
   /// Handle create farm action
-  void _handleCreateFarm() {
-    // TODO: Navigate to create farm screen or show dialog
-    showInfoToast('Create farm feature coming soon!');
+  Future<void> _handleCreateFarm() async {
+    // Navigate to create farm page and wait for result
+    final result = await Navigator.pushNamed(context, AppRoutes.createFarm);
+
+    // If a farm was created, refresh the farms list and select the new farm
+    if (result != null && result is Map<String, dynamic>) {
+      await _fetchFarms();
+
+      // Auto-select the newly created farm (API returns farm_id)
+      final farmId = result['farm_id'] ?? result['id'];
+      if (mounted && farmId != null) {
+        setState(() {
+          _selectedFarmId = farmId is int ? farmId : int.tryParse(farmId.toString());
+          _selectedFarmName = result['name']?.toString();
+          _farmError = null;
+          _farmSearchController.text = _selectedFarmName ?? '';
+        });
+      }
+    }
   }
 }
 

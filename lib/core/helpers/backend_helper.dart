@@ -135,6 +135,25 @@ class BackendHelper {
     }
   }
 
+  /// Create a new farm
+  /// POST /api/farms/
+  /// Request body:
+  /// {
+  ///   "name": "Green Valley Farm",
+  ///   "area_sq_m": 50000.00,
+  ///   "address": "Village Khed, Taluka Ambegaon, District Pune",
+  ///   "latitude": 18.7546,
+  ///   "longitude": 73.8854
+  /// }
+  Future<Map<String, dynamic>> postCreateFarm(Map<String, dynamic> data) async {
+    try {
+      final response = await _client.post(ApiEndpoints.farms, data: data);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Listing Endpoints ============
 
   /// Get all listings

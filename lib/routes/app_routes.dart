@@ -9,6 +9,7 @@ import 'package:flutter_app/features/forgotPassword/screens/forgot_password_page
 import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/resetPassword/screens/reset_password_page.dart';
+import 'package:flutter_app/features/sell/screens/create_farm_page.dart';
 import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 
 /// App Routes
@@ -34,6 +35,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
   static const String settings = '/settings';
+  static const String createFarm = '/create-farm';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -101,6 +103,9 @@ class AppRoutes {
           ),
           settings,
         );
+
+      case createFarm:
+        return _buildRoute(const CreateFarmPage(), settings);
 
       default:
         return _buildRoute(
