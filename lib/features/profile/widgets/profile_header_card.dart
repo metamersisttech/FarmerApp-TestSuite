@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/profile/models/profile_model.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Profile header card with user info, stats, and edit button
 class ProfileHeaderCard extends StatelessWidget {
@@ -61,7 +62,7 @@ class ProfileHeaderCard extends StatelessWidget {
                           const SizedBox(width: 6),
                           const Icon(
                             Icons.verified,
-                            color: Color(0xFF4CAF50),
+                            color: AppTheme.authPrimaryColor,
                             size: 20,
                           ),
                         ],
@@ -100,7 +101,7 @@ class ProfileHeaderCard extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onEditProfile,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4CAF50),
+                backgroundColor: AppTheme.authPrimaryColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(

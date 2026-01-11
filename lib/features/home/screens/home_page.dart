@@ -322,13 +322,13 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF4CAF50).withOpacity(0.1),
+                color: AppTheme.authPrimaryColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.location_off,
                 size: 48,
-                color: Color(0xFF4CAF50),
+                color: AppTheme.authPrimaryColor,
               ),
             ),
             const SizedBox(height: 20),
@@ -370,7 +370,7 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4CAF50),
+                  backgroundColor: AppTheme.authPrimaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(

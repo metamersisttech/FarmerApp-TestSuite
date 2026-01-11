@@ -7,34 +7,46 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // ============ Brand Colors ============
-  static const Color primaryColor = Color(0xFF007B7F); // Teal
-  static const Color primaryLight = Color(0xFF4DA8AB);
-  static const Color primaryDark = Color(0xFF005F62);
+  static const Color primaryColor = Color(0xFF3B9B59); // Green
+  static const Color primaryLight = Color(0xFF5CB87A);
+  static const Color primaryDark = Color(0xFF2D7A45);
 
-  static const Color secondaryColor = Color(0xFF5C6B4D);
-  static const Color accentColor = Color(0xFFD4E4C9);
+  static const Color secondaryColor = Color(0xFFF1EFE6); // Light cream
+  static const Color secondaryForeground = Color(0xFF524B41);
+  static const Color accentColor = Color(0xFFF0A63A); // Orange
 
   // ============ Neutral Colors ============
-  static const Color backgroundColor = Color(0xFFF5F5F5);
-  static const Color surfaceColor = Colors.white;
-  static const Color errorColor = Color(0xFFD32F2F);
-  static const Color successColor = Color(0xFF388E3C);
-  static const Color warningColor = Color(0xFFF57C00);
+  static const Color backgroundColor = Color(0xFFFAF9F3); // Cream/off-white
+  static const Color surfaceColor = Color(0xFFFFFFFF); // Card white
+  static const Color errorColor = Color(0xFFD6453A); // Destructive red
+  static const Color successColor = Color(0xFF3B9B59); // Same as primary green
+  static const Color warningColor = Color(0xFFF0A63A); // Orange accent
 
-  // ============ Auth (Screenshot) Colors ============
-  // Keeping these in AppTheme ensures we have a single source of truth for colors.
-  static const Color authBackgroundColor = Color(0xFFFBFAF7); // off-white
-  static const Color authPrimaryColor = Color(0xFF4CAF50); // soft green CTA
-  static const Color authFieldFillColor = Color(0xFFECE7DF); // beige input bg
-  static const Color authBorderColor = Color(0xFFE5E2DA);
-  static const Color authTextPrimary = Color(0xFF2B2B2B);
-  static const Color authTextSecondary = Color(0xFF8D8D8D);
+  // ============ Border & Input Colors ============
+  static const Color borderColor = Color(0xFFE3E0D6);
+  static const Color inputColor = Color(0xFFF4F3ED);
+  static const Color mutedColor = Color(0xFFF4F3ED);
+  static const Color mutedForeground = Color(0xFF7A7266);
+
+  // ============ Auth Colors ============
+  static const Color authBackgroundColor = Color(0xFFFAF9F3); // Same as background
+  static const Color authPrimaryColor = Color(0xFF3B9B59); // Primary green
+  static const Color authFieldFillColor = Color(0xFFF4F3ED); // Input/muted color
+  static const Color authBorderColor = Color(0xFFE3E0D6); // Border color
+  static const Color authTextPrimary = Color(0xFF3A352D); // Foreground
+  static const Color authTextSecondary = Color(0xFF7A7266); // Muted foreground
 
   // ============ Text Colors ============
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
-  static const Color textHint = Color(0xFFBDBDBD);
-  static const Color textOnPrimary = Colors.white;
+  static const Color textPrimary = Color(0xFF3A352D); // Foreground
+  static const Color textSecondary = Color(0xFF7A7266); // Muted foreground
+  static const Color textHint = Color(0xFF7A7266);
+  static const Color textOnPrimary = Color(0xFFFFFFFF);
+
+  // ============ Border Radius ============
+  static const double borderRadiusSmall = 8.0;
+  static const double borderRadiusMedium = 12.0;
+  static const double borderRadiusLarge = 18.0;
+  static const double borderRadiusXLarge = 24.0;
 
   // ============ Light Theme ============
   static ThemeData get lightTheme {

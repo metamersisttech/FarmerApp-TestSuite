@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:geocoding/geocoding.dart';
 
 /// Result of location operations
@@ -238,12 +239,12 @@ class LocationService {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50).withOpacity(0.1),
+                    color: AppTheme.authPrimaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.location_on,
-                    color: Color(0xFF4CAF50),
+                    color: AppTheme.authPrimaryColor,
                     size: 24,
                   ),
                 ),
@@ -279,7 +280,7 @@ class LocationService {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4CAF50),
+                  backgroundColor: AppTheme.authPrimaryColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),

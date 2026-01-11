@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Single profile menu item widget
 class ProfileMenuItemWidget extends StatelessWidget {
@@ -57,7 +58,7 @@ class ProfileMenuItemWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50),
+                  color: AppTheme.authPrimaryColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
