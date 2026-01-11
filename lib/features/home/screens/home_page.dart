@@ -230,6 +230,15 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
     }
   }
 
+  /// Handle add button tap
+  void _handleAddTap() {
+    // Navigate to sell/post page
+    HomeNavigationService.toSell(
+      context,
+      onReturn: resetToHomeTab,
+    );
+  }
+
   /// Handle search input
   void _handleSearch(String value) {
     updateSearchQuery(value);
@@ -459,6 +468,22 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
           ],
         ),
       ),
+      // Floating Add Button
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        child: FloatingActionButton(
+          onPressed: _handleAddTap,
+          backgroundColor: AppTheme.authPrimaryColor,
+          elevation: 4,
+          shape: const CircleBorder(),
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       // Bottom Navigation Bar (Fixed Footer)
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: currentBottomNavIndex,
