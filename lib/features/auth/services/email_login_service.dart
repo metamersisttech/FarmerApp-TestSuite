@@ -1,7 +1,9 @@
 import 'package:flutter_app/core/errors/exceptions.dart';
+import 'package:flutter_app/core/helpers/api_helper.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
-import 'package:flutter_app/data/services/token_storage_service.dart';
 
 /// Result of email login operation
 class EmailLoginResult {
@@ -47,8 +49,10 @@ class EmailLoginResult {
 /// Service for handling email login operations
 class EmailLoginService {
   final AuthService _authService;
+  final BackendHelper _backendHelper;
 
-  EmailLoginService(this._authService);
+  EmailLoginService(this._authService, {BackendHelper? backendHelper})
+      : _backendHelper = backendHelper ?? BackendHelper();
 
   /// Login with email/username and password
   Future<EmailLoginResult> loginWithEmail({
@@ -61,18 +65,24 @@ class EmailLoginService {
         password: password,
       );
 
-      // Store tokens securely
-      final tokenStorage = TokenStorageService();
-      await tokenStorage.saveTokens(
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken ?? '',
-      );
-
       // Set auth token for subsequent API calls
       _authService.setAuthToken(authResponse.accessToken);
+      APIClient().setAuthorization(authResponse.accessToken);
 
-      // Return success with user data
-      return EmailLoginResult.success(user: authResponse.user);
+      // Fetch fresh user data from /api/auth/me/ to get latest profile updates
+      final userJson = await _backendHelper.getMe();
+      final freshUser = UserModel.fromJson(userJson);
+
+      // Store tokens and fresh user data using CommonHelper
+      final commonHelper = CommonHelper();
+      await commonHelper.saveAuthData(
+        user: freshUser,
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+      );
+
+      // Return success with fresh user data
+      return EmailLoginResult.success(user: freshUser);
     } on UnauthorizedException catch (e) {
       // 401 - Invalid password or email
       return EmailLoginResult.invalidCredentials(

@@ -78,6 +78,32 @@ class BackendHelper {
     }
   }
 
+  /// Request password reset
+  /// POST /api/auth/password/reset/
+  /// Request: { "email": "..." }
+  /// Response: { "message": "...", "token": "..." }
+  Future<Map<String, dynamic>> postRequestPasswordReset(Map<String, dynamic> data) async {
+    try {
+      final response = await _client.post(ApiEndpoints.forgotPassword, data: data);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Confirm password reset with token
+  /// POST /api/auth/password/reset/confirm/
+  /// Request: { "token": "...", "new_password": "...", "new_password_confirm": "..." }
+  /// Response: { "message": "Password reset successfully." }
+  Future<Map<String, dynamic>> postConfirmPasswordReset(Map<String, dynamic> data) async {
+    try {
+      final response = await _client.post(ApiEndpoints.resetPassword, data: data);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ User Endpoints ============
 
   /// Get user profile
@@ -92,10 +118,10 @@ class BackendHelper {
   }
 
   /// Update user profile
-  /// PUT /api/users/profile/update/
+  /// PATCH /api/users/profile/update/
   Future<Map<String, dynamic>> putUpdateProfile(Map<String, dynamic> data) async {
     try {
-      final response = await _client.put(ApiEndpoints.updateProfile, data: data);
+      final response = await _client.patch(ApiEndpoints.updateProfile, data: data);
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);

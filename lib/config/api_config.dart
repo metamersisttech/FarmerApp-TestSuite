@@ -6,7 +6,7 @@ library;
 
 class ApiConfig {
   // Development - Android Emulator uses 10.0.2.2 to reach localhost
-  static const String devBaseUrl = 'http://34.28.110.191/api/';
+  static const String devBaseUrl = 'http://10.0.2.2:8000/api/';
 
   // Development - iOS Simulator uses localhost directly
   static const String devBaseUrlIOS = 'http://localhost:8000/api/';

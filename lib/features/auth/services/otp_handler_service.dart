@@ -1,9 +1,9 @@
 import 'package:flutter_app/core/errors/exceptions.dart';
 import 'package:flutter_app/core/helpers/api_helper.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
-import 'package:flutter_app/data/services/token_storage_service.dart';
 
 /// Result of OTP operations
 class OtpResult {
@@ -43,13 +43,15 @@ class OtpResult {
 /// Service for handling OTP operations
 class OtpHandlerService {
   final AuthService _authService;
+  final BackendHelper _backendHelper;
 
-  OtpHandlerService(this._authService);
+  OtpHandlerService(this._authService, {BackendHelper? backendHelper})
+      : _backendHelper = backendHelper ?? BackendHelper();
 
   /// Send OTP to phone number
   Future<OtpResult> sendOtp(String phoneNumber) async {
     try {
-      final response = await _authService.sendLoginOtp(phone: phoneNumber);
+      final response = await _backendHelper.postSendLoginOtp({'phone': phoneNumber});
       
       // Handle both String and int types from API response
       final otp = response['otp']?.toString();
@@ -60,6 +62,12 @@ class OtpHandlerService {
       }
 
       return OtpResult.success(otp: otp, userId: userId);
+    } on BackendException catch (e) {
+      // Handle user not found (404)
+      if (e.isUserNotFound) {
+        return OtpResult.userNotFound();
+      }
+      return OtpResult.error(e.message);
     } on NotFoundException {
       return OtpResult.userNotFound();
     } on NetworkException {
@@ -74,32 +82,40 @@ class OtpHandlerService {
   /// Verify OTP
   Future<OtpResult> verifyOtp(String phoneNumber, String otp) async {
     try {
-      final authResponse = await _authService.verifyLoginOtp(
-        phone: phoneNumber,
-        otp: otp,
-      );
+      final response = await _backendHelper.postVerifyLoginOtp({
+        'phone': phoneNumber,
+        'otp': otp,
+      });
 
-      // Store tokens securely using TokenStorageService
-      final tokenStorage = TokenStorageService();
-      await tokenStorage.saveTokens(
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken ?? '',
-      );
-
-      // Store user data in localStorage using CommonHelper
-      final commonHelper = CommonHelper();
-      await commonHelper.saveAuthData(
-        user: authResponse.user,
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken,
-      );
+      // Extract tokens and user from response
+      final tokens = response['tokens'] as Map<String, dynamic>;
+      final accessToken = tokens['access'] as String;
+      final refreshToken = tokens['refresh'] as String?;
 
       // Set auth token for subsequent API calls
-      _authService.setAuthToken(authResponse.accessToken);
-      APIClient().setAuthorization(authResponse.accessToken);
+      _authService.setAuthToken(accessToken);
+      APIClient().setAuthorization(accessToken);
+      
+      // Fetch fresh user data from /api/auth/me/ to get latest profile updates
+      final userJson = await _backendHelper.getMe();
+      final user = UserModel.fromJson(userJson);
 
-      // Return success with user data from the response
-      return OtpResult.success(user: authResponse.user);
+      // Store user data and tokens in localStorage using CommonHelper
+      final commonHelper = CommonHelper();
+      await commonHelper.saveAuthData(
+        user: user,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      );
+
+      // Return success with fresh user data
+      return OtpResult.success(user: user);
+    } on BackendException catch (e) {
+      // Handle unauthorized (invalid OTP)
+      if (e.isUnauthorized) {
+        return OtpResult.error('Invalid OTP. Please try again.');
+      }
+      return OtpResult.error(e.message);
     } on UnauthorizedException {
       return OtpResult.error('Invalid OTP. Please try again.');
     } on NetworkException {

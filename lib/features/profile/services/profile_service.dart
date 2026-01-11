@@ -1,6 +1,9 @@
+import 'package:flutter_app/core/helpers/api_helper.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
+import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
 import 'package:flutter_app/data/services/api_service.dart';
-import 'package:flutter_app/data/services/token_storage_service.dart';
 import 'package:flutter_app/features/profile/models/profile_model.dart';
 
 /// Result of profile operations
@@ -32,19 +35,22 @@ class ProfileResult {
 class ProfileService {
   final AuthService _authService;
   final ApiService _apiService;
-  final TokenStorageService _tokenStorage;
+  final CommonHelper _commonHelper;
+  final BackendHelper _backendHelper;
 
   ProfileService({
     AuthService? authService,
     ApiService? apiService,
-    TokenStorageService? tokenStorage,
+    CommonHelper? commonHelper,
+    BackendHelper? backendHelper,
   })  : _authService = authService ?? AuthService(),
         _apiService = apiService ?? ApiService(),
-        _tokenStorage = tokenStorage ?? TokenStorageService();
+        _commonHelper = commonHelper ?? CommonHelper(),
+        _backendHelper = backendHelper ?? BackendHelper();
 
   /// Initialize API service with stored token
   Future<void> _initializeAuth() async {
-    final accessToken = await _tokenStorage.getAccessToken();
+    final accessToken = await _commonHelper.getAccessToken();
     if (accessToken != null) {
       _apiService.setAuthToken(accessToken);
       _authService.setAuthToken(accessToken);
@@ -57,13 +63,30 @@ class ProfileService {
       // Initialize auth with stored token
       await _initializeAuth();
       
-      // Fetch user data from /api/auth/me/
-      final user = await _authService.getMe();
+      // Fetch user data from /api/auth/me/ using BackendHelper
+      final userJson = await _backendHelper.getMe();
+      final user = UserModel.fromJson(userJson);
       
       // Convert user data to ProfileModel
+      // Priority for name display: fullName > displayName > firstName+lastName > username > email
+      String name;
+      if (user.fullName != null && user.fullName!.trim().isNotEmpty) {
+        // Use full_name if available and not empty
+        name = user.fullName!.trim();
+      } else if (user.displayName != null && user.displayName!.trim().isNotEmpty) {
+        // Use display_name if available and not empty
+        name = user.displayName!.trim();
+      } else if (user.firstName != null || user.lastName != null) {
+        // Combine first_name and last_name if available
+        name = '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim();
+      } else {
+        // Final fallback: username or email
+        name = user.username ?? user.email;
+      }
+      
       final profile = ProfileModel(
         id: user.id,
-        name: '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
+        name: name,
         profileImage: user.profileImage,
         identity: null, // Will be fetched separately if needed
         location: null, // Will be fetched separately if needed
@@ -136,13 +159,24 @@ class ProfileService {
   Future<bool> logout() async {
     try {
       await _initializeAuth();
-      await _authService.logout();
+      
+      // Get refresh token
+      final refreshToken = await _commonHelper.getRefreshToken();
+      
+      // Call logout API if refresh token exists
+      if (refreshToken != null) {
+        await _backendHelper.postLogout({'refresh': refreshToken});
+      }
+      
       return true;
     } catch (e) {
-      // Still clear tokens even if API call fails
-      await _tokenStorage.clearTokens();
-      _apiService.clearAuthToken();
+      // Ignore logout errors
       return true;
+    } finally {
+      // Always clear tokens and auth state
+      await _commonHelper.clearAll();
+      _apiService.clearAuthToken();
+      APIClient().clearAuthorization();
     }
   }
 }

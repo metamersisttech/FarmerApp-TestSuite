@@ -7,7 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/config/api_config.dart';
 import 'package:flutter_app/core/errors/exceptions.dart';
-import 'package:flutter_app/data/services/token_storage_service.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 
@@ -18,8 +18,8 @@ class ApiService {
   // Store auth token
   String? _authToken;
 
-  // Token storage service
-  final TokenStorageService _tokenStorage = TokenStorageService();
+  // Common helper for token storage
+  final CommonHelper _commonHelper = CommonHelper();
 
   // Flag to prevent multiple redirects
   bool _isRedirecting = false;
@@ -74,8 +74,8 @@ class ApiService {
     _isRedirecting = true;
 
     try {
-      // Clear stored tokens
-      await _tokenStorage.clearTokens();
+      // Clear stored tokens and user data
+      await _commonHelper.clearAll();
       
       // Clear in-memory token
       clearAuthToken();

@@ -4,9 +4,9 @@
 // Methods for login, register, logout, OTP verification, etc.
 
 import 'package:flutter_app/core/constants/api_endpoints.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/data/services/api_service.dart';
-import 'package:flutter_app/data/services/token_storage_service.dart';
 
 class AuthService {
   final ApiService _apiService;
@@ -165,9 +165,9 @@ class AuthService {
   /// Request body: { "refresh": "..." }
   /// Authorization: Bearer access_token
   Future<void> logout() async {
-    final tokenStorage = TokenStorageService();
+    final commonHelper = CommonHelper();
     try {
-      final refreshToken = await tokenStorage.getRefreshToken();
+      final refreshToken = await commonHelper.getRefreshToken();
       if (refreshToken != null) {
         await _apiService.post(
           ApiEndpoints.logout,
@@ -180,7 +180,7 @@ class AuthService {
       // Ignore logout errors, just clear tokens
     } finally {
       _apiService.clearAuthToken();
-      await tokenStorage.clearTokens();
+      await commonHelper.clearAll();
     }
   }
 

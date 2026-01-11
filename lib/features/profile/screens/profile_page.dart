@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/core/helpers/api_helper.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
-import 'package:flutter_app/data/services/auth_service.dart';
-import 'package:flutter_app/data/services/token_storage_service.dart';
+import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/editprofile/screens/edit_profile_page.dart';
 import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_app/features/profile/controllers/profile_controller.dart';
@@ -72,30 +74,46 @@ class _ProfilePageState extends State<ProfilePage>
   void _handleEditProfile() async {
     // Fetch fresh user data before navigating
     try {
-      final tokenStorage = TokenStorageService();
-      final authService = AuthService();
+      final commonHelper = CommonHelper();
+      final backendHelper = BackendHelper();
       
       // Initialize auth with stored token
-      final accessToken = await tokenStorage.getAccessToken();
+      final accessToken = await commonHelper.getAccessToken();
       if (accessToken != null) {
-        authService.setAuthToken(accessToken);
+        APIClient().setAuthorization(accessToken);
       }
       
-      // Fetch current user data from API
-      final user = await authService.getMe();
+      // Fetch current user data from API using BackendHelper
+      final userJson = await backendHelper.getMe();
+      final user = UserModel.fromJson(userJson);
       
       if (!mounted) return;
       
       // Navigate to edit profile page with user data
+      // Map both old and new field formats
+      final fullNameValue = user.fullName ?? 
+          (user.firstName != null || user.lastName != null 
+              ? '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim() 
+              : '');
+      
+      // displayName should default to firstName, not username
+      final displayNameValue = user.displayName ?? user.firstName ?? user.username ?? '';
+              
       final result = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => EditProfilePage(
-            initialUsername: user.username ?? '',
-            initialFirstName: user.firstName ?? '',
-            initialLastName: user.lastName ?? '',
-            initialPhoneNumber: user.phone ?? '',
-            initialEmail: user.email,
+            initialFullName: fullNameValue,
+            initialDisplayName: displayNameValue,
+            initialDob: user.dob,
+            initialAddress: user.address,
+            initialState: user.state,
+            initialDistrict: user.district,
+            initialVillage: user.village,
+            initialPincode: user.pincode,
+            initialLatitude: user.latitude,
+            initialLongitude: user.longitude,
+            initialAbout: user.about,
             initialProfileImageUrl: user.profileImage,
           ),
         ),

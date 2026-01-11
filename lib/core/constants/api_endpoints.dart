@@ -35,7 +35,7 @@ class ApiEndpoints {
 
   // ============ User Endpoints ============
   static const String userProfile = 'users/profile/';
-  static const String updateProfile = 'users/profile/update/';
+  static const String updateProfile = 'auth/me/profile/';
   static const String deleteAccount = 'users/delete/';
 
   // Get user by ID
