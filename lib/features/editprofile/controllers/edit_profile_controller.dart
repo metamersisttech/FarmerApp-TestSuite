@@ -1,82 +1,144 @@
 import 'dart:io';
 import 'package:flutter_app/core/base/base_controller.dart';
-import 'package:flutter_app/data/services/auth_service.dart';
-import 'package:flutter_app/data/services/token_storage_service.dart';
+import 'package:flutter_app/core/helpers/api_helper.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
+import 'package:flutter_app/data/models/user_model.dart';
 
 /// Controller for edit profile operations
 class EditProfileController extends BaseController {
-  final AuthService _authService;
-  final TokenStorageService _tokenStorage;
+  final BackendHelper _backendHelper;
+  final CommonHelper _commonHelper;
 
   // Form field values
-  String _username = '';
-  String _firstName = '';
-  String _lastName = '';
-  String _phoneNumber = '';
-  String _email = '';
-  String? _profileImageUrl;
+  String _fullName = '';
+  String _displayName = '';
+  String _dob = '';
+  String _address = '';
+  String _state = '';
+  String _district = '';
+  String _village = '';
+  String _pincode = '';
+  String _latitude = '';
+  String _longitude = '';
+  String _about = '';
+  String? _profileImageGcs;
   File? _localProfileImage;
 
   EditProfileController({
-    AuthService? authService,
-    TokenStorageService? tokenStorage,
-  })  : _authService = authService ?? AuthService(),
-        _tokenStorage = tokenStorage ?? TokenStorageService();
+    BackendHelper? backendHelper,
+    CommonHelper? commonHelper,
+  })  : _backendHelper = backendHelper ?? BackendHelper(),
+        _commonHelper = commonHelper ?? CommonHelper();
 
   // Getters
-  String get username => _username;
-  String get firstName => _firstName;
-  String get lastName => _lastName;
-  String get phoneNumber => _phoneNumber;
-  String get email => _email;
-  String? get profileImageUrl => _profileImageUrl;
+  String get fullName => _fullName;
+  String get displayName => _displayName;
+  String get dob => _dob;
+  String get address => _address;
+  String get state => _state;
+  String get district => _district;
+  String get village => _village;
+  String get pincode => _pincode;
+  String get latitude => _latitude;
+  String get longitude => _longitude;
+  String get about => _about;
+  String? get profileImageGcs => _profileImageGcs;
   File? get localProfileImage => _localProfileImage;
 
   /// Initialize with existing profile data
   void initializeProfile({
-    required String username,
-    required String firstName,
-    required String lastName,
-    required String phoneNumber,
-    required String email,
-    String? profileImageUrl,
+    String? fullName,
+    String? displayName,
+    String? dob,
+    String? address,
+    String? state,
+    String? district,
+    String? village,
+    String? pincode,
+    String? latitude,
+    String? longitude,
+    String? about,
+    String? profileImageGcs,
   }) {
-    _username = username;
-    _firstName = firstName;
-    _lastName = lastName;
-    _phoneNumber = phoneNumber;
-    _email = email;
-    _profileImageUrl = profileImageUrl;
+    _fullName = fullName ?? '';
+    _displayName = displayName ?? '';
+    _dob = dob ?? '';
+    _address = address ?? '';
+    _state = state ?? '';
+    _district = district ?? '';
+    _village = village ?? '';
+    _pincode = pincode ?? '';
+    _latitude = latitude ?? '';
+    _longitude = longitude ?? '';
+    _about = about ?? '';
+    _profileImageGcs = profileImageGcs;
     notifyListeners();
   }
 
-  /// Update username
-  void updateUsername(String value) {
-    _username = value;
+  /// Update full name
+  void updateFullName(String value) {
+    _fullName = value;
     notifyListeners();
   }
 
-  /// Update first name
-  void updateFirstName(String value) {
-    _firstName = value;
+  /// Update display name
+  void updateDisplayName(String value) {
+    _displayName = value;
     notifyListeners();
   }
 
-  /// Update last name
-  void updateLastName(String value) {
-    _lastName = value;
+  /// Update date of birth
+  void updateDob(String value) {
+    _dob = value;
     notifyListeners();
   }
 
-  /// Update phone number
-  void updatePhoneNumber(String value) {
-    _phoneNumber = value;
+  /// Update address
+  void updateAddress(String value) {
+    _address = value;
     notifyListeners();
   }
 
-  /// Update email
-  void updateEmail(String value) {
-    _email = value;
+  /// Update state
+  void updateState(String value) {
+    _state = value;
+    notifyListeners();
+  }
+
+  /// Update district
+  void updateDistrict(String value) {
+    _district = value;
+    notifyListeners();
+  }
+
+  /// Update village
+  void updateVillage(String value) {
+    _village = value;
+    notifyListeners();
+  }
+
+  /// Update pincode
+  void updatePincode(String value) {
+    _pincode = value;
+    notifyListeners();
+  }
+
+  /// Update latitude
+  void updateLatitude(String value) {
+    _latitude = value;
+    notifyListeners();
+  }
+
+  /// Update longitude
+  void updateLongitude(String value) {
+    _longitude = value;
+    notifyListeners();
+  }
+
+  /// Update about
+  void updateAbout(String value) {
+    _about = value;
     notifyListeners();
   }
 
@@ -89,30 +151,18 @@ class EditProfileController extends BaseController {
   /// Remove profile image
   void removeProfileImage() {
     _localProfileImage = null;
-    _profileImageUrl = null;
+    _profileImageGcs = null;
     notifyListeners();
   }
 
-  /// Validate all fields
+  /// Validate required fields
   bool validateFields() {
-    if (_username.trim().isEmpty) {
-      setError('Username is required');
+    if (_fullName.trim().isEmpty) {
+      setError('Full name is required');
       return false;
     }
-    if (_firstName.trim().isEmpty) {
-      setError('First name is required');
-      return false;
-    }
-    if (_lastName.trim().isEmpty) {
-      setError('Last name is required');
-      return false;
-    }
-    if (_phoneNumber.trim().isEmpty) {
-      setError('Phone number is required');
-      return false;
-    }
-    if (_email.trim().isEmpty) {
-      setError('Email is required');
+    if (_displayName.trim().isEmpty) {
+      setError('Display name is required');
       return false;
     }
     return true;
@@ -129,19 +179,39 @@ class EditProfileController extends BaseController {
 
     try {
       // Initialize auth with stored token
-      final accessToken = await _tokenStorage.getAccessToken();
+      final accessToken = await _commonHelper.getAccessToken();
       if (accessToken != null) {
-        _authService.setAuthToken(accessToken);
+        APIClient().setAuthorization(accessToken);
       }
 
-      // Call API to update profile
-      await _authService.updateMe(
-        username: _username.trim(),
-        firstName: _firstName.trim(),
-        lastName: _lastName.trim(),
-        phone: _phoneNumber.trim(),
-        email: _email.trim(),
-      );
+      // Prepare request body
+      final Map<String, dynamic> data = {
+        'full_name': _fullName.trim(),
+        'display_name': _displayName.trim(),
+      };
+
+      // Add optional fields only if they have values
+      if (_dob.isNotEmpty) data['dob'] = _dob;
+      if (_address.isNotEmpty) data['address'] = _address;
+      if (_state.isNotEmpty) data['state'] = _state;
+      if (_district.isNotEmpty) data['district'] = _district;
+      if (_village.isNotEmpty) data['village'] = _village;
+      if (_pincode.isNotEmpty) data['pincode'] = _pincode;
+      if (_latitude.isNotEmpty) data['latitude'] = _latitude;
+      if (_longitude.isNotEmpty) data['longitude'] = _longitude;
+      if (_about.isNotEmpty) data['about'] = _about;
+      if (_profileImageGcs != null) data['profile_image_gcs'] = _profileImageGcs;
+
+      // Call API to update profile using BackendHelper
+      await _backendHelper.putUpdateProfile(data);
+      
+      // Fetch complete user data after update (includes id, email, etc.)
+      final userResponse = await _backendHelper.getMe();
+      final updatedUser = UserModel.fromJson(userResponse);
+      
+      // Save updated user to local storage
+      final commonHelper = CommonHelper();
+      await commonHelper.setLoggedInUser(updatedUser);
       
       // TODO: If there's a local image, upload it
       // if (_localProfileImage != null) {
@@ -159,18 +229,29 @@ class EditProfileController extends BaseController {
 
   /// Check if any changes were made
   bool hasChanges({
-    required String originalUsername,
-    required String originalFirstName,
-    required String originalLastName,
-    required String originalPhoneNumber,
-    required String originalEmail,
+    String? originalFullName,
+    String? originalDisplayName,
+    String? originalDob,
+    String? originalAddress,
+    String? originalState,
+    String? originalDistrict,
+    String? originalVillage,
+    String? originalPincode,
+    String? originalLatitude,
+    String? originalLongitude,
+    String? originalAbout,
   }) {
-    return _username != originalUsername ||
-        _firstName != originalFirstName ||
-        _lastName != originalLastName ||
-        _phoneNumber != originalPhoneNumber ||
-        _email != originalEmail ||
+    return _fullName != (originalFullName ?? '') ||
+        _displayName != (originalDisplayName ?? '') ||
+        _dob != (originalDob ?? '') ||
+        _address != (originalAddress ?? '') ||
+        _state != (originalState ?? '') ||
+        _district != (originalDistrict ?? '') ||
+        _village != (originalVillage ?? '') ||
+        _pincode != (originalPincode ?? '') ||
+        _latitude != (originalLatitude ?? '') ||
+        _longitude != (originalLongitude ?? '') ||
+        _about != (originalAbout ?? '') ||
         _localProfileImage != null;
   }
 }
-

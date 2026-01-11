@@ -1,5 +1,5 @@
 import 'package:flutter_app/core/errors/exceptions.dart';
-import 'package:flutter_app/data/services/auth_service.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
 
 /// Result of forgot password operation
 class ForgotPasswordResult {
@@ -36,16 +36,19 @@ class ForgotPasswordResult {
 
 /// Service for handling forgot password operations
 class ForgotPasswordService {
-  final AuthService _authService;
+  final BackendHelper _backendHelper;
 
-  ForgotPasswordService(this._authService);
+  ForgotPasswordService({BackendHelper? backendHelper})
+      : _backendHelper = backendHelper ?? BackendHelper();
 
   /// Request password reset email
   Future<ForgotPasswordResult> requestPasswordReset({
     required String email,
   }) async {
     try {
-      final response = await _authService.requestPasswordReset(email: email);
+      final response = await _backendHelper.postRequestPasswordReset({
+        'email': email,
+      });
 
       final message = response['message'] as String? ??
           'Password reset email sent successfully.';
@@ -55,6 +58,14 @@ class ForgotPasswordService {
         message: message,
         token: token,
       );
+    } on BackendException catch (e) {
+      // Handle not found (404) - email doesn't exist
+      if (e.isUserNotFound) {
+        return ForgotPasswordResult.error(
+          'Email not found. Please check and try again.',
+        );
+      }
+      return ForgotPasswordResult.error(e.message);
     } on NotFoundException {
       return ForgotPasswordResult.error(
         'Email not found. Please check and try again.',

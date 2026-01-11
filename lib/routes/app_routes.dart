@@ -10,7 +10,6 @@ import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/resetPassword/screens/reset_password_page.dart';
 import 'package:flutter_app/features/sell/screens/create_farm_page.dart';
-import 'package:flutter_app/features/welcome/screens/welcome_page.dart';
 
 /// App Routes
 ///
@@ -94,11 +93,17 @@ class AppRoutes {
         final args = settings.arguments as Map<String, dynamic>?;
         return _buildRoute(
           EditProfilePage(
-            initialUsername: args?['username'],
-            initialFirstName: args?['firstName'],
-            initialLastName: args?['lastName'],
-            initialPhoneNumber: args?['phoneNumber'],
-            initialEmail: args?['email'],
+            initialFullName: args?['fullName'],
+            initialDisplayName: args?['displayName'],
+            initialDob: args?['dob'],
+            initialAddress: args?['address'],
+            initialState: args?['state'],
+            initialDistrict: args?['district'],
+            initialVillage: args?['village'],
+            initialPincode: args?['pincode'],
+            initialLatitude: args?['latitude'],
+            initialLongitude: args?['longitude'],
+            initialAbout: args?['about'],
             initialProfileImageUrl: args?['profileImageUrl'],
           ),
           settings,

@@ -1,4 +1,5 @@
 import 'package:flutter_app/core/base/base_controller.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
 import 'package:flutter_app/features/auth/services/otp_handler_service.dart';
 
@@ -6,8 +7,8 @@ import 'package:flutter_app/features/auth/services/otp_handler_service.dart';
 class OtpController extends BaseController {
   final OtpHandlerService _otpService;
 
-  OtpController(AuthService authService)
-      : _otpService = OtpHandlerService(authService);
+  OtpController(AuthService authService, {BackendHelper? backendHelper})
+      : _otpService = OtpHandlerService(authService, backendHelper: backendHelper);
 
   /// Send OTP to phone number
   Future<OtpResult> sendOtp(String phoneNumber) async {

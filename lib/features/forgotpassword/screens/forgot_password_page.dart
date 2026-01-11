@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/core/utils/validators.dart';
-import 'package:flutter_app/data/services/auth_service.dart';
-import 'package:flutter_app/features/forgotPassword/controllers/forgot_password_controller.dart';
+import 'package:flutter_app/features/forgotpassword/controllers/forgot_password_controller.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/shared/widgets/auth/auth_header_icon.dart';
@@ -28,7 +27,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
   @override
   void initState() {
     super.initState();
-    _controller = ForgotPasswordController(AuthService());
+    _controller = ForgotPasswordController();
     _emailController = TextEditingController();
     
     _controller.addListener(_onControllerUpdate);

@@ -1,19 +1,19 @@
 import 'package:flutter_app/core/constants/api_endpoints.dart';
 import 'package:flutter_app/core/errors/exceptions.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/animal_model.dart';
 import 'package:flutter_app/data/services/api_service.dart';
-import 'package:flutter_app/data/services/token_storage_service.dart';
 
 /// Service for handling animal-related API operations
 class AnimalService {
   final ApiService _apiService;
-  final TokenStorageService _tokenService;
+  final CommonHelper _commonHelper;
 
   AnimalService({
     ApiService? apiService,
-    TokenStorageService? tokenService,
+    CommonHelper? commonHelper,
   })  : _apiService = apiService ?? ApiService(),
-        _tokenService = tokenService ?? TokenStorageService();
+        _commonHelper = commonHelper ?? CommonHelper();
 
   /// Get all animals from catalog
   /// Requires authentication (Bearer token)
@@ -24,7 +24,7 @@ class AnimalService {
   Future<List<AnimalModel>> fetchAnimals() async {
     try {
       // Get stored access token
-      final token = await _tokenService.getAccessToken();
+      final token = await _commonHelper.getAccessToken();
       
       if (token == null) {
         throw UnauthorizedException(

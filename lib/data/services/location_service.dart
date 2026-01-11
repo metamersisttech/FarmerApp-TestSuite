@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 /// Result of location operations
 class LocationResult {
@@ -8,6 +9,7 @@ class LocationResult {
   final String? errorMessage;
   final bool permissionDenied;
   final bool serviceDisabled;
+  final String? address; // Add address field
 
   const LocationResult({
     required this.success,
@@ -15,10 +17,15 @@ class LocationResult {
     this.errorMessage,
     this.permissionDenied = false,
     this.serviceDisabled = false,
+    this.address,
   });
 
-  factory LocationResult.success(Position position) {
-    return LocationResult(success: true, position: position);
+  factory LocationResult.success(Position position, {String? address}) {
+    return LocationResult(
+      success: true,
+      position: position,
+      address: address,
+    );
   }
 
   factory LocationResult.permissionDenied() {
@@ -95,12 +102,22 @@ class LocationService {
   }
 
   /// Get current location
-  Future<LocationResult> getCurrentLocation() async {
+  /// NOTE: This method expects permission to already be granted
+  /// Call requestPermission() separately before calling this if needed
+  Future<LocationResult> getCurrentLocation({bool includeAddress = false}) async {
     try {
-      // First check/request permission
-      final accessResult = await requestLocationAccess();
-      if (!accessResult.success) {
-        return accessResult;
+      // Check permission status (but don't request - that should be done explicitly)
+      final permission = await checkPermission();
+      
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return LocationResult.permissionDenied();
+      }
+
+      // Check if location services are enabled
+      final serviceEnabled = await isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return LocationResult.serviceDisabled();
       }
 
       // Get current position
@@ -111,9 +128,89 @@ class LocationService {
         ),
       );
 
-      return LocationResult.success(position);
+      // Get address if requested
+      String? address;
+      if (includeAddress) {
+        address = await getAddressFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+      }
+
+      return LocationResult.success(position, address: address);
     } catch (e) {
       return LocationResult.error('Failed to get location: ${e.toString()}');
+    }
+  }
+
+  /// Get address from coordinates (reverse geocoding)
+  Future<String?> getAddressFromCoordinates(
+    double latitude,
+    double longitude,
+  ) async {
+    try {
+      // Check if this is the Android emulator default location (Mountain View, CA)
+      // Default emulator coords: 37.4220, -122.0841 (with some variance)
+      final isEmulatorDefault = (latitude >= 37.0 && latitude <= 38.0) &&
+          (longitude >= -123.0 && longitude <= -121.0);
+      
+      if (isEmulatorDefault) {
+        debugPrint('⚠️ Detected emulator default location (Mountain View, CA)');
+        debugPrint('💡 TIP: Set custom location in emulator settings or use: adb emu geo fix 77.5946 12.9716');
+        // Return a generic message instead of Mountain View
+        return 'Set location in emulator';
+      }
+
+      final placemarks = await placemarkFromCoordinates(latitude, longitude);
+      
+      if (placemarks.isEmpty) {
+        return null;
+      }
+
+      final place = placemarks.first;
+      
+      debugPrint('🗺️ Geocoding result:');
+      debugPrint('  SubLocality: ${place.subLocality}');
+      debugPrint('  Locality (City): ${place.locality}');
+      debugPrint('  SubAdministrativeArea: ${place.subAdministrativeArea}');
+      debugPrint('  AdministrativeArea (State): ${place.administrativeArea}');
+      debugPrint('  Country: ${place.country}');
+      
+      // Format address: "SubLocality, Locality" (Area, City)
+      final parts = <String>[];
+      
+      // First: Add SubLocality (area/neighborhood) if available
+      if (place.subLocality != null && place.subLocality!.isNotEmpty) {
+        parts.add(place.subLocality!);
+      }
+      
+      // Second: Add Locality (city) if available and different from subLocality
+      if (place.locality != null && 
+          place.locality!.isNotEmpty &&
+          place.locality != place.subLocality) {
+        parts.add(place.locality!);
+      }
+      
+      // Fallback: If we don't have both, try other fields
+      if (parts.isEmpty) {
+        // Try locality alone
+        if (place.locality != null && place.locality!.isNotEmpty) {
+          parts.add(place.locality!);
+        } else if (place.subAdministrativeArea != null && 
+                   place.subAdministrativeArea!.isNotEmpty) {
+          parts.add(place.subAdministrativeArea!);
+        } else if (place.administrativeArea != null && 
+                   place.administrativeArea!.isNotEmpty) {
+          parts.add(place.administrativeArea!);
+        }
+      }
+
+      final address = parts.isEmpty ? 'Current Location' : parts.join(', ');
+      debugPrint('📍 Final address: $address (lat: $latitude, lng: $longitude)');
+      return address;
+    } catch (e) {
+      debugPrint('Error getting address: $e');
+      return 'Current Location';
     }
   }
 

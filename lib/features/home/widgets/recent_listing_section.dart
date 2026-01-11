@@ -29,17 +29,15 @@ class RecentListingSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Fixed Header
+          // Header
           _buildHeader(),
 
-          // Scrollable Content Area
-          Expanded(
-            child: isLoading
-                ? _buildLoadingState()
-                : listings.isEmpty
-                    ? _buildEmptyState()
-                    : _buildListings(),
-          ),
+          // Content Area (no Expanded - shrinkwrap instead)
+          isLoading
+              ? _buildLoadingState()
+              : listings.isEmpty
+                  ? _buildEmptyState()
+                  : _buildListings(),
         ],
       ),
     );
@@ -86,7 +84,9 @@ class RecentListingSection extends StatelessWidget {
   /// Build the listings list
   Widget _buildListings() {
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      shrinkWrap: true, // Don't take infinite height
+      physics: const NeverScrollableScrollPhysics(), // Disable internal scrolling
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       itemCount: listings.length,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
@@ -108,7 +108,9 @@ class RecentListingSection extends StatelessWidget {
   /// Build loading state
   Widget _buildLoadingState() {
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      shrinkWrap: true, // Don't take infinite height
+      physics: const NeverScrollableScrollPhysics(), // Disable internal scrolling
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       itemCount: 3,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) => _buildShimmerCard(),
@@ -176,33 +178,36 @@ class RecentListingSection extends StatelessWidget {
 
   /// Build empty state
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.pets,
-            size: 64,
-            color: Colors.grey.shade300,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No listings available',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade500,
-              fontWeight: FontWeight.w500,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 60),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.pets,
+              size: 64,
+              color: Colors.grey.shade300,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Check back later for new listings',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade400,
+            const SizedBox(height: 16),
+            Text(
+              'No listings available',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade500,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              'Check back later for new listings',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade400,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

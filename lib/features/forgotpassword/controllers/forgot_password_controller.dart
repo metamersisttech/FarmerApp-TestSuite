@@ -1,13 +1,13 @@
 import 'package:flutter_app/core/base/base_controller.dart';
-import 'package:flutter_app/data/services/auth_service.dart';
-import 'package:flutter_app/features/forgotPassword/services/forgot_password_service.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
+import 'package:flutter_app/features/forgotpassword/services/forgot_password_service.dart';
 
 /// Controller for forgot password operations
 class ForgotPasswordController extends BaseController {
   final ForgotPasswordService _forgotPasswordService;
 
-  ForgotPasswordController(AuthService authService)
-      : _forgotPasswordService = ForgotPasswordService(authService);
+  ForgotPasswordController({BackendHelper? backendHelper})
+      : _forgotPasswordService = ForgotPasswordService(backendHelper: backendHelper);
 
   /// Request password reset email
   Future<ForgotPasswordResult> requestPasswordReset({

@@ -7,6 +7,7 @@ class ProfileSection extends StatelessWidget {
   final VoidCallback? onNotificationTap;
   final VoidCallback? onProfileTap;
   final VoidCallback? onWalletTap;
+  final VoidCallback? onLocationTap;
   final String location;
   final int? notificationCount;
 
@@ -16,6 +17,7 @@ class ProfileSection extends StatelessWidget {
     this.onNotificationTap,
     this.onProfileTap,
     this.onWalletTap,
+    this.onLocationTap,
     this.location = 'Bangalore, IN',
     this.notificationCount,
   });
@@ -114,23 +116,27 @@ class ProfileSection extends StatelessWidget {
               ),
 
               // Location
-              Row(
-                children: [
-                  Icon(
-                    Icons.location_on,
-                    color: Colors.white.withOpacity(0.9),
-                    size: 20,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    location,
-                    style: TextStyle(
-                      fontSize: 14,
+              // Location Button
+              GestureDetector(
+                onTap: onLocationTap,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.location_on,
                       color: Colors.white.withOpacity(0.9),
-                      fontWeight: FontWeight.w500,
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                    Text(
+                      location,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.9),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
