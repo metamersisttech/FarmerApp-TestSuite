@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/core/helpers/api_helper.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
@@ -273,7 +274,7 @@ class _ProfilePageState extends State<ProfilePage>
     final headerHeight = MediaQuery.of(context).padding.top + 120;
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppTheme.backgroundColor,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Stack(
@@ -366,8 +367,8 @@ class _ProfilePageState extends State<ProfilePage>
         right: 20,
         bottom: 20,
       ),
-      decoration: const BoxDecoration(
-        color: Color(0xFF4CAF50),
+      decoration: BoxDecoration(
+        color: AppTheme.authPrimaryColor,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),

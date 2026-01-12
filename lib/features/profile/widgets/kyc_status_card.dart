@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// KYC verification status card
 class KycStatusCard extends StatelessWidget {
@@ -42,7 +43,7 @@ class KycStatusCard extends StatelessWidget {
               height: 48,
               decoration: BoxDecoration(
                 color: isKycVerified
-                    ? const Color(0xFF4CAF50).withOpacity(0.1)
+                    ? AppTheme.authPrimaryColor.withOpacity(0.1)
                     : isPending
                         ? Colors.orange.withOpacity(0.1)
                         : Colors.grey.withOpacity(0.1),
@@ -55,7 +56,7 @@ class KycStatusCard extends StatelessWidget {
                         ? Icons.schedule
                         : Icons.shield_outlined,
                 color: isKycVerified
-                    ? const Color(0xFF4CAF50)
+                    ? AppTheme.authPrimaryColor
                     : isPending
                         ? Colors.orange
                         : Colors.grey,
@@ -79,7 +80,7 @@ class KycStatusCard extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: isKycVerified
-                          ? const Color(0xFF4CAF50)
+                          ? AppTheme.authPrimaryColor
                           : isPending
                               ? Colors.orange
                               : Colors.grey[700],

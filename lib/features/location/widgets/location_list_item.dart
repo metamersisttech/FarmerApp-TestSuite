@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Reusable list item for location selection
 class LocationListItem extends StatelessWidget {
@@ -36,12 +37,12 @@ class LocationListItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF4CAF50).withOpacity(0.1),
+                color: AppTheme.authPrimaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
                 Icons.location_on,
-                color: Color(0xFF4CAF50),
+                color: AppTheme.authPrimaryColor,
                 size: 20,
               ),
             ),

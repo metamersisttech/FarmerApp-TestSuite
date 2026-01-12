@@ -20,16 +20,10 @@ class HomeSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 20,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(23),
       ),
       child: TextField(
         controller: controller,
@@ -38,9 +32,12 @@ class HomeSearchBar extends StatelessWidget {
         onTap: onTap,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
+          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
           prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 22),
           border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
             vertical: 14,

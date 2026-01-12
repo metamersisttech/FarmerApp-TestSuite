@@ -105,4 +105,21 @@ class CommonHelper {
   Future<void> clearAll() async {
     await clearUser();
   }
+
+  // ============ Time-based Greeting ============
+
+  /// Returns greeting based on current time of day
+  /// Morning: 5:00 AM - 11:59 AM
+  /// Afternoon: 12:00 PM - 4:59 PM
+  /// Evening: 5:00 PM - 4:59 AM
+  static String getTimeOfDayGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 12) {
+      return 'Hi, Good Morning 👋';
+    } else if (hour >= 12 && hour < 17) {
+      return 'Hi, Good Afternoon 👋';
+    } else {
+      return 'Hi, Good Evening 👋';
+    }
+  }
 }

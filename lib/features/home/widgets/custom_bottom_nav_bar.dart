@@ -4,9 +4,8 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 /// Custom Bottom Navigation Bar for Home Page
 ///
 /// Features:
-/// - 5 navigation items
-/// - Special elevated "Sell" button in center
-/// - Fixed at bottom while content scrolls
+/// - 4 navigation items (Home, Listings, AI, Community)
+/// - Icon-only design with subtle backgrounds
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int)? onTap;
@@ -22,59 +21,49 @@ class CustomBottomNavBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+        border: Border(
+          top: BorderSide(
+            color: AppTheme.borderColor,
+            width: 1,
           ),
-        ],
+        ),
       ),
       child: SafeArea(
         child: SizedBox(
-          height: 70,
+          height: 80,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // 1. Home Icon
+              // 1. Home
               _NavBarItem(
                 icon: Icons.home_outlined,
-                activeIcon: Icons.home,
-                label: 'Home',
+                activeIcon: Icons.home_rounded,
                 isActive: currentIndex == 0,
                 onTap: () => onTap?.call(0),
               ),
 
-              // 2. Chat Icon
+              // 2. Listings/Farm
               _NavBarItem(
-                icon: Icons.chat_bubble_outline,
-                activeIcon: Icons.chat_bubble,
-                label: 'Chat',
+                icon: Icons.storefront_outlined,
+                activeIcon: Icons.storefront_rounded,
                 isActive: currentIndex == 1,
                 onTap: () => onTap?.call(1),
               ),
 
-              // 3. Sell Button (Center - Special)
-              _SellButton(
+              // 3. AI Tools
+              _NavBarItem(
+                icon: Icons.auto_awesome_outlined,
+                activeIcon: Icons.auto_awesome,
+                isActive: currentIndex == 2,
                 onTap: () => onTap?.call(2),
               ),
 
-              // 4. My Ads Icon
+              // 4. Community
               _NavBarItem(
-                icon: Icons.list_alt_outlined,
-                activeIcon: Icons.list_alt,
-                label: 'My Ads',
+                icon: Icons.groups_outlined,
+                activeIcon: Icons.groups_rounded,
                 isActive: currentIndex == 3,
                 onTap: () => onTap?.call(3),
-              ),
-
-              // 5. Like Icon
-              _NavBarItem(
-                icon: Icons.favorite_border,
-                activeIcon: Icons.favorite,
-                label: 'Saved',
-                isActive: currentIndex == 4,
-                onTap: () => onTap?.call(4),
               ),
             ],
           ),
@@ -84,94 +73,40 @@ class CustomBottomNavBar extends StatelessWidget {
   }
 }
 
-/// Individual navigation bar item
+/// Individual navigation bar item with icon only
 class _NavBarItem extends StatelessWidget {
   final IconData icon;
   final IconData activeIcon;
-  final String label;
   final bool isActive;
   final VoidCallback onTap;
 
   const _NavBarItem({
     required this.icon,
     required this.activeIcon,
-    required this.label,
     required this.isActive,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          color: Colors.transparent,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                isActive ? activeIcon : icon,
-                color: isActive ? AppTheme.authPrimaryColor : Colors.grey[600],
-                size: 26,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                  color: isActive ? AppTheme.authPrimaryColor : Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Special center "Sell" button with elevated design
-class _SellButton extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _SellButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Container(
-        width: 65,
-        height: 65,
-        margin: const EdgeInsets.only(bottom: 20), // Elevate above nav bar
+        width: 56,
+        height: 56,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.authPrimaryColor,
-              AppTheme.authPrimaryColor.withOpacity(0.8),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.authPrimaryColor.withOpacity(0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
+          color: isActive
+              ? AppTheme.authPrimaryColor.withOpacity(0.1)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
         ),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 32,
+        child: Icon(
+          isActive ? activeIcon : icon,
+          color: isActive ? AppTheme.authPrimaryColor : Colors.grey[500],
+          size: 26,
         ),
       ),
     );
   }
 }
-

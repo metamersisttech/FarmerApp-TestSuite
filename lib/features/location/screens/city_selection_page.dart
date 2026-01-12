@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/features/location/controllers/location_controller.dart';
 import 'package:flutter_app/features/location/models/location_model.dart';
 import 'package:flutter_app/features/location/screens/area_selection_page.dart';
@@ -70,7 +71,7 @@ class _CitySelectionPageState extends State<CitySelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: Text(
           widget.stateName,
@@ -80,7 +81,7 @@ class _CitySelectionPageState extends State<CitySelectionPage> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: const Color(0xFF4CAF50),
+        backgroundColor: AppTheme.authPrimaryColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),

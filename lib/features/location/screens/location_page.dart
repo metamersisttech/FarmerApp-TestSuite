@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/features/location/controllers/location_controller.dart';
 import 'package:flutter_app/features/location/screens/state_selection_page.dart';
 import 'package:flutter_app/features/location/widgets/location_search_bar.dart';
@@ -150,12 +151,12 @@ class _LocationPageState extends State<LocationPage> with ToastMixin {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50).withOpacity(0.1),
+                    color: AppTheme.authPrimaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.location_on,
-                    color: Color(0xFF4CAF50),
+                    color: AppTheme.authPrimaryColor,
                     size: 24,
                   ),
                 ),
@@ -193,7 +194,7 @@ class _LocationPageState extends State<LocationPage> with ToastMixin {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4CAF50),
+                  backgroundColor: AppTheme.authPrimaryColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -257,7 +258,7 @@ class _LocationPageState extends State<LocationPage> with ToastMixin {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4CAF50),
+                  backgroundColor: AppTheme.authPrimaryColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -293,7 +294,7 @@ class _LocationPageState extends State<LocationPage> with ToastMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: const Text(
           'Select Location',
@@ -303,7 +304,7 @@ class _LocationPageState extends State<LocationPage> with ToastMixin {
             color: Colors.white,
           ),
         ),
-        backgroundColor: const Color(0xFF4CAF50),
+        backgroundColor: AppTheme.authPrimaryColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -345,7 +346,7 @@ class _LocationPageState extends State<LocationPage> with ToastMixin {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF4CAF50).withOpacity(0.3),
+            color: AppTheme.authPrimaryColor.withOpacity(0.3),
             width: 1.5,
           ),
         ),
@@ -354,12 +355,12 @@ class _LocationPageState extends State<LocationPage> with ToastMixin {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF4CAF50).withOpacity(0.1),
+                color: AppTheme.authPrimaryColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.my_location,
-                color: Color(0xFF4CAF50),
+                color: AppTheme.authPrimaryColor,
                 size: 24,
               ),
             ),
@@ -373,7 +374,7 @@ class _LocationPageState extends State<LocationPage> with ToastMixin {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF4CAF50),
+                      color: AppTheme.authPrimaryColor,
                     ),
                   ),
                   SizedBox(height: 4),
@@ -432,12 +433,12 @@ class _LocationPageState extends State<LocationPage> with ToastMixin {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50).withOpacity(0.1),
+                    color: AppTheme.authPrimaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.location_city,
-                    color: Color(0xFF4CAF50),
+                    color: AppTheme.authPrimaryColor,
                     size: 24,
                   ),
                 ),
