@@ -184,6 +184,25 @@ class EditProfileController extends BaseController {
         APIClient().setAuthorization(accessToken);
       }
 
+      // Upload profile image if a new one was selected
+      String? uploadedImageKey = _profileImageGcs;
+      if (_localProfileImage != null) {
+        try {
+          final uploadResponse = await _backendHelper.postUploadFile(
+            _localProfileImage!.path,
+            'profile',
+          );
+          // Extract the key from upload response
+          uploadedImageKey = uploadResponse['key'] as String?;
+          if (uploadedImageKey != null) {
+            _profileImageGcs = uploadedImageKey;
+          }
+        } catch (e) {
+          // Log error but continue with profile update
+          print('[EditProfileController] Image upload failed: $e');
+        }
+      }
+
       // Prepare request body
       final Map<String, dynamic> data = {
         'full_name': _fullName.trim(),
@@ -197,26 +216,24 @@ class EditProfileController extends BaseController {
       if (_district.isNotEmpty) data['district'] = _district;
       if (_village.isNotEmpty) data['village'] = _village;
       if (_pincode.isNotEmpty) data['pincode'] = _pincode;
-      if (_latitude.isNotEmpty) data['latitude'] = _latitude;
-      if (_longitude.isNotEmpty) data['longitude'] = _longitude;
+      if (_latitude.isNotEmpty) data['latitude'] = double.tryParse(_latitude);
+      if (_longitude.isNotEmpty) data['longitude'] = double.tryParse(_longitude);
       if (_about.isNotEmpty) data['about'] = _about;
-      if (_profileImageGcs != null) data['profile_image_gcs'] = _profileImageGcs;
+      if (uploadedImageKey != null) data['profile_image_gcs'] = uploadedImageKey;
 
       // Call API to update profile using BackendHelper
       await _backendHelper.putUpdateProfile(data);
-      
+
       // Fetch complete user data after update (includes id, email, etc.)
       final userResponse = await _backendHelper.getMe();
       final updatedUser = UserModel.fromJson(userResponse);
-      
+
       // Save updated user to local storage
       final commonHelper = CommonHelper();
       await commonHelper.setLoggedInUser(updatedUser);
-      
-      // TODO: If there's a local image, upload it
-      // if (_localProfileImage != null) {
-      //   await _profileService.uploadProfileImage(_localProfileImage!);
-      // }
+
+      // Clear local image after successful upload
+      _localProfileImage = null;
 
       setLoading(false);
       return true;

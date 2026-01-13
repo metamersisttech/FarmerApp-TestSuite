@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 
 /// Profile statistics model
 class ProfileStats {
@@ -68,10 +69,17 @@ class ProfileModel {
   }
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
+    // Convert profile image key to full URL
+    final profileImageKey = json['profile_image'] as String? ??
+                            json['profile_image_gcs'] as String?;
+    final profileImageUrl = profileImageKey != null && profileImageKey.isNotEmpty
+        ? CommonHelper.getImageUrl(profileImageKey)
+        : null;
+
     return ProfileModel(
       id: json['id'] as int,
       name: json['name'] as String? ?? json['full_name'] as String? ?? '',
-      profileImage: json['profile_image'] as String?,
+      profileImage: profileImageUrl,
       identity: json['identity'] as String?,
       location: json['location'] as String?,
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,

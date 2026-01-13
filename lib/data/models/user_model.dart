@@ -4,6 +4,8 @@
 /// Handles JSON serialization/deserialization.
 library;
 
+import 'package:flutter_app/core/helpers/common_helper.dart';
+
 class UserModel {
   final int id;
   final String email;
@@ -81,7 +83,17 @@ class UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     // Check if profile fields are nested
     final profile = json['profile'] as Map<String, dynamic>?;
-    
+
+    // Get profile image key from various possible fields
+    final profileImageKey = json['profile_image'] as String? ??
+        profile?['profile_image_gcs'] as String? ??
+        json['profile_image_gcs'] as String?;
+
+    // Convert key to full URL if it's not already a full URL
+    final profileImageUrl = profileImageKey != null && profileImageKey.isNotEmpty
+        ? CommonHelper.getImageUrl(profileImageKey)
+        : null;
+
     return UserModel(
       id: json['id'] is int ? json['id'] as int : int.parse(json['id'].toString()),
       email: json['email'] as String,
@@ -90,9 +102,7 @@ class UserModel {
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
       phone: json['phone'] as String?,
-      profileImage: json['profile_image'] as String? ?? 
-                    profile?['profile_image_gcs'] as String? ?? 
-                    json['profile_image_gcs'] as String?,
+      profileImage: profileImageUrl,
       isActive: json['is_active'] as bool? ?? true,
       isVerified: json['is_verified'] as bool? ?? false,
       kycStatus: json['kyc_status'] as String?,
