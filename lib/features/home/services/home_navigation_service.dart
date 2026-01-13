@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/sell/screens/post_animal_page.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// Result of navigation action
 class NavigationResult {
@@ -71,6 +72,16 @@ class HomeNavigationService {
   static NavigationResult toWallet(BuildContext context) {
     // TODO: Implement wallet navigation when screen is ready
     return NavigationResult.comingSoon('Wallet');
+  }
+
+  /// Navigate to Animal Detail screen
+  static NavigationResult toAnimalDetail(BuildContext context, int listingId) {
+    Navigator.pushNamed(
+      context,
+      AppRoutes.animalDetail,
+      arguments: listingId,
+    );
+    return NavigationResult.success();
   }
 }
 

@@ -6,6 +6,7 @@ import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
 import 'package:flutter_app/features/editprofile/screens/edit_profile_page.dart';
 import 'package:flutter_app/features/forgotPassword/screens/forgot_password_page.dart';
+import 'package:flutter_app/features/home/screens/animal_detail_page.dart';
 import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/resetPassword/screens/reset_password_page.dart';
@@ -35,6 +36,7 @@ class AppRoutes {
   static const String editProfile = '/edit-profile';
   static const String settings = '/settings';
   static const String createFarm = '/create-farm';
+  static const String animalDetail = '/animal-detail';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -111,6 +113,21 @@ class AppRoutes {
 
       case createFarm:
         return _buildRoute(const CreateFarmPage(), settings);
+
+      case animalDetail:
+        final listingId = settings.arguments as int?;
+        if (listingId != null) {
+          return _buildRoute(
+            AnimalDetailPage(listingId: listingId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Listing ID required for animal detail')),
+          ),
+          settings,
+        );
 
       default:
         return _buildRoute(

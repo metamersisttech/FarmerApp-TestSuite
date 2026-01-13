@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
+import 'package:flutter_app/data/models/listing_model.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/data/services/location_service.dart';
 import 'package:flutter_app/features/home/controllers/home_controller.dart';
@@ -90,8 +91,9 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
 
   /// Handle listing tap
   void _handleListingTap(dynamic listing) {
-    // TODO: Navigate to animal detail page
-    showComingSoonMessage('Animal Detail');
+    if (listing is ListingModel) {
+      HomeNavigationService.toAnimalDetail(context, listing.id);
+    }
   }
 
   @override
@@ -511,7 +513,7 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
           notificationCount: 3,
           onNotificationTap: _handleNotificationTap,
           onProfileTap: _handleProfileTap,
-          onWalletTap: _handleWalletTap ,
+          onWalletTap: _handleWalletTap,
           onLocationTap: _handleLocationTap,
         ),
 
