@@ -511,7 +511,7 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
           notificationCount: 3,
           onNotificationTap: _handleNotificationTap,
           onProfileTap: _handleProfileTap,
-          onWalletTap: _handleWalletTap,
+          onWalletTap: _handleWalletTap ,
           onLocationTap: _handleLocationTap,
         ),
 
