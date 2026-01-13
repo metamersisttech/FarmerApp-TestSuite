@@ -27,7 +27,7 @@ class ProfileSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
       decoration: const BoxDecoration(
         color: AppTheme.authPrimaryColor,
         borderRadius: BorderRadius.only(

@@ -35,10 +35,19 @@ class ListingModel {
       formattedPrice = '\u20B90';
     }
 
-    // Handle age formatting
+    // Handle age formatting - check age_months first, then age
     String formattedAge;
+    final ageMonths = json['age_months'];
     final ageValue = json['age'];
-    if (ageValue is num) {
+    if (ageMonths != null) {
+      final months = ageMonths is num ? ageMonths.toInt() : int.tryParse(ageMonths.toString()) ?? 0;
+      if (months >= 12) {
+        final years = (months / 12).floor();
+        formattedAge = '$years ${years == 1 ? 'Year' : 'Years'}';
+      } else {
+        formattedAge = '$months ${months == 1 ? 'Month' : 'Months'}';
+      }
+    } else if (ageValue is num) {
       formattedAge = '$ageValue Years';
     } else if (ageValue is String) {
       formattedAge = ageValue;
@@ -46,13 +55,27 @@ class ListingModel {
       formattedAge = 'Unknown';
     }
 
+    // Handle image URL - use primary_image from API (already full URL)
+    final imageUrl = json['primary_image'] as String? ??
+                     json['image_url'] as String? ??
+                     json['image'] as String?;
+
+    // Handle location - check farm object first
+    String location = 'Unknown';
+    final farm = json['farm'];
+    if (farm is Map && farm['address'] != null) {
+      location = farm['address'].toString();
+    } else if (json['location'] != null) {
+      location = json['location'].toString();
+    }
+
     return ListingModel(
-      id: json['id'] as int? ?? 0,
-      name: json['name'] as String? ?? json['title'] as String? ?? 'Unknown',
-      imageUrl: json['image_url'] as String? ?? json['image'] as String?,
+      id: json['listing_id'] as int? ?? json['id'] as int? ?? 0,
+      name: json['title'] as String? ?? json['name'] as String? ?? 'Unknown',
+      imageUrl: imageUrl,
       age: formattedAge,
       price: formattedPrice,
-      location: json['location'] as String? ?? 'Unknown',
+      location: location,
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       isVerified: json['is_verified'] as bool? ?? json['verified'] as bool? ?? false,
     );

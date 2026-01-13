@@ -82,6 +82,9 @@ class HomeController extends BaseController {
 
       if (kDebugMode) {
         print('[HomeController] Fetched ${_listings.length} listings');
+        for (final listing in _listings) {
+          print('[HomeController] Listing: ${listing.name}, imageUrl: ${listing.imageUrl}');
+        }
       }
 
       notifyListeners();

@@ -443,7 +443,7 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
             _buildProfileWithSearch(displayName),
 
             // Add spacing for the overlapping search bar
-            const SizedBox(height: 35),
+            const SizedBox(height: 30),
 
             // Scrollable Content: Templates, Quick Actions, and Recent Listings
             Expanded(
@@ -517,7 +517,7 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
 
         // Search Bar positioned below profile section
         Positioned(
-          bottom: -25,
+          bottom: -20,
           left: 20,
           right: 20,
           child: HomeSearchBar(onChanged: _handleSearch),
