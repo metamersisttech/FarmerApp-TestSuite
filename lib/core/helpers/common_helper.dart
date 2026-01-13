@@ -106,6 +106,25 @@ class CommonHelper {
     await clearUser();
   }
 
+  // ============ Image URL Helper ============
+
+  /// GCS bucket base URL
+  static const String _gcsBaseUrl = 'https://storage.googleapis.com/metamersisttest/';
+
+  /// Convert GCS image key to full URL
+  /// Takes a key like "users/3/listings/1e38bdfa0cbe4476866cba85e7283c73.png"
+  /// Returns "https://storage.googleapis.com/metamersisttest/users/3/listings/1e38bdfa0cbe4476866cba85e7283c73.png"
+  static String getImageUrl(String? key) {
+    if (key == null || key.isEmpty) return '';
+    // If already a full URL, return as-is
+    if (key.startsWith('http://') || key.startsWith('https://')) {
+      return key;
+    }
+    // Remove leading slash if present
+    final cleanKey = key.startsWith('/') ? key.substring(1) : key;
+    return '$_gcsBaseUrl$cleanKey';
+  }
+
   // ============ Time-based Greeting ============
 
   /// Returns greeting based on current time of day

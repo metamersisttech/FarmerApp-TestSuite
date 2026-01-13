@@ -84,8 +84,11 @@ mixin ToastMixin<T extends StatefulWidget> on State<T> {
     overlay.insert(_currentToast!);
 
     Future.delayed(duration, () {
-      _currentToast?.remove();
-      _currentToast = null;
+      // Check if widget is still mounted before removing toast
+      if (mounted && _currentToast != null) {
+        _currentToast?.remove();
+        _currentToast = null;
+      }
     });
   }
 
@@ -104,6 +107,7 @@ mixin ToastMixin<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     _currentToast?.remove();
+    _currentToast = null;
     super.dispose();
   }
 }

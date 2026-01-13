@@ -211,7 +211,7 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
       case 2:
         result = HomeNavigationService.toSell(
           context,
-          onReturn: resetToHomeTab,
+          onReturn: _onReturnFromSell,
         );
         break;
       case 3:
@@ -235,8 +235,15 @@ class _HomePageState extends State<HomePage> with HomeStateMixin, ToastMixin {
     // Navigate to sell/post page
     HomeNavigationService.toSell(
       context,
-      onReturn: resetToHomeTab,
+      onReturn: _onReturnFromSell,
     );
+  }
+
+  /// Callback when returning from Sell page
+  /// Resets tab and refreshes listings
+  void _onReturnFromSell() {
+    resetToHomeTab();
+    _fetchListings(); // Refresh listings to show newly posted animal
   }
 
   /// Handle search input

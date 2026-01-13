@@ -219,6 +219,72 @@ class BackendHelper {
     }
   }
 
+  /// Get a single listing by ID
+  /// GET /api/listings/{id}/
+  Future<Map<String, dynamic>> getListingById(int listingId) async {
+    try {
+      final response = await _client.get('${ApiEndpoints.listings}$listingId/');
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update an existing animal listing
+  /// PATCH /api/listings/{id}/
+  /// Request body: partial update fields
+  Future<Map<String, dynamic>> patchUpdateListing(int listingId, Map<String, dynamic> data) async {
+    try {
+      final response = await _client.patch('${ApiEndpoints.listings}$listingId/', data: data);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Upload Endpoints ============
+
+  /// Upload a single file
+  /// POST /api/upload/?category={category}
+  /// Categories: listings, profile, documents, vet_certificates, general
+  /// Response: { "key": "path/to/file.jpg", "url": "https://..." }
+  Future<Map<String, dynamic>> postUploadFile(String filePath, String category) async {
+    try {
+      final response = await _client.uploadFile(
+        '${ApiEndpoints.upload}?category=$category',
+        filePath: filePath,
+        fieldName: 'file',
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Upload multiple files
+  /// POST /api/upload/multiple/?category={category}
+  /// Categories: listings, profile, documents, vet_certificates, general
+  /// Response: { "uploaded": [{ "key": "...", "url": "..." }, ...], "count": N }
+  Future<List<Map<String, dynamic>>> postUploadMultipleFiles(List<String> filePaths, String category) async {
+    try {
+      final formData = FormData.fromMap({
+        'files': await Future.wait(
+          filePaths.map((path) => MultipartFile.fromFile(path)),
+        ),
+      });
+      final response = await _client.post(
+        '${ApiEndpoints.uploadMultiple}?category=$category',
+        data: formData,
+      );
+      // Extract 'uploaded' list from response
+      final data = response.data as Map<String, dynamic>;
+      final uploaded = data['uploaded'] as List;
+      return uploaded.map((e) => e as Map<String, dynamic>).toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Error Handling ============
 
   /// Handle Dio errors and extract message

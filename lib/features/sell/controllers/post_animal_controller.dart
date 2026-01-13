@@ -2,79 +2,92 @@ import 'package:flutter_app/core/base/base_controller.dart';
 
 /// Data class for animal listing
 class AnimalListingData {
-  // Details tab
+  // Listing ID (set after POST, used for PATCH)
+  int? listingId;
+
+  // Details tab (POST fields)
+  String? title;
+  String? description;
   String? animalType;
   String? breed;
+  int? animalId; // Animal ID from catalog
+  int? farmId;
   String? gender;
-  String? age;
-  String? weight;
+  int? ageMonths;
+  double? weightKg;
+  double? price;
+  String? currency;
   String? priceType;
-  String? price;
 
-  // Health tab
-  bool? isVaccinated;
-  String? lastVaccinationDate;
-  String? healthNotes;
+  // Health tab (PATCH fields)
+  String? vaccinationStatus; // "vaccinated" | "not_vaccinated"
+  String? healthStatus; // e.g., "healthy"
+  String? vetCertificateKey; // GCS key from upload
+  String? pashuAadhar; // Animal ID number
+  String? color;
+  double? heightCm;
 
-  // Location tab
-  String? state;
-  String? city;
-  String? pincode;
-  String? address;
-
-  // Media tab
-  List<String>? imageUrls;
-  List<String>? videoUrls;
+  // Media tab (PATCH fields)
+  List<String>? animalImageKeys; // GCS keys from upload
+  List<String>? animalImageUrls; // Full URLs for display
 
   AnimalListingData({
+    this.listingId,
+    this.title,
+    this.description,
     this.animalType,
     this.breed,
+    this.animalId,
+    this.farmId,
     this.gender,
-    this.age,
-    this.weight,
-    this.priceType,
+    this.ageMonths,
+    this.weightKg,
     this.price,
-    this.isVaccinated,
-    this.lastVaccinationDate,
-    this.healthNotes,
-    this.state,
-    this.city,
-    this.pincode,
-    this.address,
-    this.imageUrls,
-    this.videoUrls,
+    this.currency,
+    this.priceType,
+    this.vaccinationStatus,
+    this.healthStatus,
+    this.vetCertificateKey,
+    this.pashuAadhar,
+    this.color,
+    this.heightCm,
+    this.animalImageKeys,
+    this.animalImageUrls,
   });
 
   /// Check if listing is complete and ready to publish
   bool isComplete() {
-    return animalType != null &&
+    return listingId != null &&
+        animalType != null &&
         breed != null &&
         gender != null &&
-        age != null &&
-        price != null &&
-        state != null &&
-        city != null;
+        ageMonths != null &&
+        price != null;
   }
 
   /// Convert to JSON for API submission
   Map<String, dynamic> toJson() {
     return {
+      'listing_id': listingId,
+      'title': title,
+      'description': description,
       'animal_type': animalType,
       'breed': breed,
+      'animal': animalId,
+      'farm': farmId,
       'gender': gender,
-      'age': age,
-      'weight': weight,
-      'price_type': priceType,
+      'age_months': ageMonths,
+      'weight_kg': weightKg,
       'price': price,
-      'is_vaccinated': isVaccinated,
-      'last_vaccination_date': lastVaccinationDate,
-      'health_notes': healthNotes,
-      'state': state,
-      'city': city,
-      'pincode': pincode,
-      'address': address,
-      'image_urls': imageUrls,
-      'video_urls': videoUrls,
+      'currency': currency,
+      'price_type': priceType,
+      'vaccination_status': vaccinationStatus,
+      'health_status': healthStatus,
+      'vet_certificate': vetCertificateKey,
+      'pashu_aadhar': pashuAadhar,
+      'color': color,
+      'height_cm': heightCm,
+      'animal_images': animalImageKeys,
     };
   }
 }
@@ -90,17 +103,25 @@ class PostAnimalController extends BaseController {
   /// Listing data
   AnimalListingData get listingData => _listingData;
 
-  /// Total number of steps
-  static const int totalSteps = 5;
+  /// Total number of steps (Details, Health, Media, Preview)
+  static const int totalSteps = 4;
 
   /// Step labels
   static const List<String> stepLabels = [
     'Details',
     'Health',
-    'Location',
     'Media',
     'Preview',
   ];
+
+  /// Set listing ID (called after POST creates listing)
+  void setListingId(int id) {
+    _listingData.listingId = id;
+    notifyListeners();
+  }
+
+  /// Get listing ID
+  int? get listingId => _listingData.listingId;
 
   /// Go to specific step
   void goToStep(int step) {
@@ -126,42 +147,64 @@ class PostAnimalController extends BaseController {
     }
   }
 
-  /// Update listing data
-  void updateListingData({
+  /// Update listing data - Details tab
+  void updateDetailsData({
+    String? title,
+    String? description,
     String? animalType,
     String? breed,
+    int? animalId,
+    int? farmId,
     String? gender,
-    String? age,
-    String? weight,
+    int? ageMonths,
+    double? weightKg,
+    double? price,
+    String? currency,
     String? priceType,
-    String? price,
-    bool? isVaccinated,
-    String? lastVaccinationDate,
-    String? healthNotes,
-    String? state,
-    String? city,
-    String? pincode,
-    String? address,
-    List<String>? imageUrls,
-    List<String>? videoUrls,
   }) {
+    if (title != null) _listingData.title = title;
+    if (description != null) _listingData.description = description;
     if (animalType != null) _listingData.animalType = animalType;
     if (breed != null) _listingData.breed = breed;
+    if (animalId != null) _listingData.animalId = animalId;
+    if (farmId != null) _listingData.farmId = farmId;
     if (gender != null) _listingData.gender = gender;
-    if (age != null) _listingData.age = age;
-    if (weight != null) _listingData.weight = weight;
-    if (priceType != null) _listingData.priceType = priceType;
+    if (ageMonths != null) _listingData.ageMonths = ageMonths;
+    if (weightKg != null) _listingData.weightKg = weightKg;
     if (price != null) _listingData.price = price;
-    if (isVaccinated != null) _listingData.isVaccinated = isVaccinated;
-    if (lastVaccinationDate != null) _listingData.lastVaccinationDate = lastVaccinationDate;
-    if (healthNotes != null) _listingData.healthNotes = healthNotes;
-    if (state != null) _listingData.state = state;
-    if (city != null) _listingData.city = city;
-    if (pincode != null) _listingData.pincode = pincode;
-    if (address != null) _listingData.address = address;
-    if (imageUrls != null) _listingData.imageUrls = imageUrls;
-    if (videoUrls != null) _listingData.videoUrls = videoUrls;
-    
+    if (currency != null) _listingData.currency = currency;
+    if (priceType != null) _listingData.priceType = priceType;
+
+    notifyListeners();
+  }
+
+  /// Update listing data - Health tab
+  void updateHealthData({
+    String? vaccinationStatus,
+    String? healthStatus,
+    String? vetCertificateKey,
+    String? pashuAadhar,
+    String? color,
+    double? heightCm,
+  }) {
+    if (vaccinationStatus != null) _listingData.vaccinationStatus = vaccinationStatus;
+    if (healthStatus != null) _listingData.healthStatus = healthStatus;
+    if (vetCertificateKey != null) _listingData.vetCertificateKey = vetCertificateKey;
+    if (pashuAadhar != null) _listingData.pashuAadhar = pashuAadhar;
+    if (color != null) _listingData.color = color;
+    if (heightCm != null) _listingData.heightCm = heightCm;
+
+    notifyListeners();
+  }
+
+  /// Update listing data - Media tab
+  void updateMediaData({
+    List<String>? animalImageKeys,
+    List<String>? animalImageUrls,
+  }) {
+    if (animalImageKeys != null) _listingData.animalImageKeys = animalImageKeys;
+    if (animalImageUrls != null) _listingData.animalImageUrls = animalImageUrls;
+
     notifyListeners();
   }
 
@@ -172,14 +215,13 @@ class PostAnimalController extends BaseController {
         return _listingData.animalType != null &&
             _listingData.breed != null &&
             _listingData.gender != null &&
-            _listingData.age != null;
+            _listingData.ageMonths != null &&
+            _listingData.price != null;
       case 1: // Health
         return true; // Health tab is optional
-      case 2: // Location
-        return _listingData.state != null && _listingData.city != null;
-      case 3: // Media
+      case 2: // Media
         return true; // Media is optional
-      case 4: // Preview
+      case 3: // Preview
         return _listingData.isComplete();
       default:
         return false;
@@ -197,11 +239,11 @@ class PostAnimalController extends BaseController {
     clearError();
 
     try {
-      // TODO: Call API to publish listing
-      // await _sellService.publishListing(_listingData.toJson());
-      
+      // TODO: Call API to publish listing if needed
+      // For now, listing is already created via POST and updated via PATCH
+
       await Future.delayed(const Duration(seconds: 1)); // Simulate API call
-      
+
       setLoading(false);
       return true;
     } catch (e) {
@@ -214,24 +256,29 @@ class PostAnimalController extends BaseController {
   /// Reset form
   void reset() {
     _currentStep = 0;
+    // Reset all listing data
+    _listingData.listingId = null;
+    _listingData.title = null;
+    _listingData.description = null;
     _listingData.animalType = null;
     _listingData.breed = null;
+    _listingData.animalId = null;
+    _listingData.farmId = null;
     _listingData.gender = null;
-    _listingData.age = null;
-    _listingData.weight = null;
-    _listingData.priceType = null;
+    _listingData.ageMonths = null;
+    _listingData.weightKg = null;
     _listingData.price = null;
-    _listingData.isVaccinated = null;
-    _listingData.lastVaccinationDate = null;
-    _listingData.healthNotes = null;
-    _listingData.state = null;
-    _listingData.city = null;
-    _listingData.pincode = null;
-    _listingData.address = null;
-    _listingData.imageUrls = null;
-    _listingData.videoUrls = null;
+    _listingData.currency = null;
+    _listingData.priceType = null;
+    _listingData.vaccinationStatus = null;
+    _listingData.healthStatus = null;
+    _listingData.vetCertificateKey = null;
+    _listingData.pashuAadhar = null;
+    _listingData.color = null;
+    _listingData.heightCm = null;
+    _listingData.animalImageKeys = null;
+    _listingData.animalImageUrls = null;
     clearError();
     notifyListeners();
   }
 }
-

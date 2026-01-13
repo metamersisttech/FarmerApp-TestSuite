@@ -8,7 +8,8 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Details Tab - Animal type, breed, gender, etc.
 class DetailsTab extends StatefulWidget {
-  final VoidCallback onNext;
+  /// Callback when form is submitted successfully, passes the created listing ID
+  final void Function(int listingId) onNext;
   final VoidCallback? onPrevious;
 
   const DetailsTab({
@@ -237,15 +238,21 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
 
     try {
       final formData = getFormData();
-      await _backendHelper.postCreateListing(formData);
+      final response = await _backendHelper.postCreateListing(formData);
 
       if (!mounted) return;
+
+      // Extract listing ID from response
+      final listingId = response['listing_id'] ?? response['id'];
+      if (listingId == null) {
+        throw Exception('Failed to get listing ID from response');
+      }
 
       setState(() => _isSubmitting = false);
       showSuccessToast('Listing created successfully!');
 
-      // Proceed to next step
-      widget.onNext();
+      // Proceed to next step with listing ID
+      widget.onNext(listingId as int);
     } catch (e) {
       if (!mounted) return;
 

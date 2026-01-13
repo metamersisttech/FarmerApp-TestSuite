@@ -33,6 +33,10 @@ class ApiEndpoints {
   // ============ Listing Endpoints ============
   static const String listings = 'listings/';
 
+  // ============ Upload Endpoints ============
+  static const String upload = 'upload/';
+  static const String uploadMultiple = 'upload/multiple/';
+
   // ============ User Endpoints ============
   static const String userProfile = 'users/profile/';
   static const String updateProfile = 'auth/me/profile/';

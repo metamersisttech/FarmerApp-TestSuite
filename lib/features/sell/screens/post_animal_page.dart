@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/features/sell/controllers/post_animal_controller.dart';
 import 'package:flutter_app/features/sell/mixins/post_animal_state_mixin.dart';
-import 'package:flutter_app/features/sell/services/sell_service.dart';
 import 'package:flutter_app/features/sell/widgets/details_tab.dart';
 import 'package:flutter_app/features/sell/widgets/health_tab.dart';
-import 'package:flutter_app/features/sell/widgets/location_tab.dart';
 import 'package:flutter_app/features/sell/widgets/media_tab.dart';
 import 'package:flutter_app/features/sell/widgets/preview_tab.dart';
 import 'package:flutter_app/features/sell/widgets/step_indicator.dart';
@@ -13,6 +11,7 @@ import 'package:flutter_app/features/sell/widgets/step_indicator.dart';
 /// Post Animal Page
 ///
 /// Multi-step form with step indicator for posting animal listings
+/// Flow: Details (POST) -> Health (PATCH) -> Media (PATCH) -> Preview
 class PostAnimalPage extends StatefulWidget {
   const PostAnimalPage({super.key});
 
@@ -23,13 +22,14 @@ class PostAnimalPage extends StatefulWidget {
 class _PostAnimalPageState extends State<PostAnimalPage>
     with PostAnimalStateMixin, ToastMixin {
   late final PostAnimalController _controller;
-  late final SellService _sellService;
+
+  // Listing ID from POST response, used for PATCH calls
+  int? _listingId;
 
   @override
   void initState() {
     super.initState();
     _controller = PostAnimalController();
-    _sellService = SellService();
   }
 
   @override
@@ -38,30 +38,23 @@ class _PostAnimalPageState extends State<PostAnimalPage>
     super.dispose();
   }
 
+  /// Handle listing created from Details tab
+  void _onListingCreated(int listingId) {
+    setState(() {
+      _listingId = listingId;
+    });
+    _controller.setListingId(listingId);
+    nextStep();
+  }
+
   /// Handle publish action
-  Future<void> _handlePublish() async {
-    if (!_controller.listingData.isComplete()) {
-      showErrorToast('Please complete all required fields');
-      return;
-    }
-
-    final result = await _sellService.publishListing(
-      _controller.listingData.toJson(),
-    );
-
-    if (!mounted) return;
-
-    if (result.success) {
-      showSuccessToast(result.message ?? 'Listing published successfully!');
-      Navigator.pop(context);
-    } else {
-      showErrorToast(result.message ?? 'Failed to publish listing');
-    }
+  void _handlePublish() {
+    // Listing is already saved, just navigate back
+    Navigator.pop(context);
   }
 
   /// Handle close/cancel
   void _handleClose() {
-    // TODO: Show confirmation dialog if form has data
     Navigator.pop(context);
   }
 
@@ -72,13 +65,13 @@ class _PostAnimalPageState extends State<PostAnimalPage>
       appBar: _buildAppBar(),
       body: Column(
         children: [
-          // Step Indicator
+          // Step Indicator (4 steps now)
           StepIndicator(
             currentStep: currentStep,
             totalSteps: PostAnimalController.totalSteps,
             stepLabels: PostAnimalController.stepLabels,
           ),
-          
+
           // Page Content
           Expanded(
             child: PageView(
@@ -86,28 +79,57 @@ class _PostAnimalPageState extends State<PostAnimalPage>
               physics: const NeverScrollableScrollPhysics(),
               onPageChanged: updateStep,
               children: [
+                // Step 0: Details (POST creates listing)
                 DetailsTab(
-                  onNext: nextStep,
+                  onNext: _onListingCreated,
                   onPrevious: null,
                 ),
-                HealthTab(
-                  onNext: nextStep,
-                  onPrevious: previousStep,
-                ),
-                LocationTab(
-                  onNext: nextStep,
-                  onPrevious: previousStep,
-                ),
-                MediaTab(
-                  onNext: nextStep,
-                  onPrevious: previousStep,
-                ),
-                PreviewTab(
-                  onPrevious: previousStep,
-                  onPublish: _handlePublish,
-                ),
+
+                // Step 1: Health (PATCH updates listing)
+                _listingId != null
+                    ? HealthTab(
+                        listingId: _listingId!,
+                        onNext: nextStep,
+                        onPrevious: previousStep,
+                      )
+                    : _buildPlaceholder('Health'),
+
+                // Step 2: Media (PATCH updates listing)
+                _listingId != null
+                    ? MediaTab(
+                        listingId: _listingId!,
+                        onNext: nextStep,
+                        onPrevious: previousStep,
+                      )
+                    : _buildPlaceholder('Media'),
+
+                // Step 3: Preview (fetch and display)
+                _listingId != null
+                    ? PreviewTab(
+                        listingId: _listingId!,
+                        onPrevious: previousStep,
+                        onPublish: _handlePublish,
+                      )
+                    : _buildPlaceholder('Preview'),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build placeholder widget for tabs before listing is created
+  Widget _buildPlaceholder(String stepName) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.hourglass_empty, size: 48, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            'Complete Details step first',
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
         ],
       ),

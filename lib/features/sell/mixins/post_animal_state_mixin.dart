@@ -22,7 +22,7 @@ mixin PostAnimalStateMixin<T extends StatefulWidget> on State<T> {
 
   /// Go to next step
   void nextStep() {
-    if (currentStep < 4) {
+    if (currentStep < 3) {
       goToStep(currentStep + 1);
     }
   }
@@ -44,13 +44,12 @@ mixin PostAnimalStateMixin<T extends StatefulWidget> on State<T> {
   /// Check if on first step
   bool get isFirstStep => currentStep == 0;
 
-  /// Check if on last step
-  bool get isLastStep => currentStep == 4;
+  /// Check if on last step (4 steps: 0-3)
+  bool get isLastStep => currentStep == 3;
 
   /// Get step label
   String getStepLabel(int step) {
-    const labels = ['Details', 'Health', 'Location', 'Media', 'Preview'];
+    const labels = ['Details', 'Health', 'Media', 'Preview'];
     return step >= 0 && step < labels.length ? labels[step] : '';
   }
 }
-
