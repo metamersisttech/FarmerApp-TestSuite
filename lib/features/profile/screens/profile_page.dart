@@ -14,6 +14,7 @@ import 'package:flutter_app/features/profile/widgets/kyc_status_card.dart';
 import 'package:flutter_app/features/profile/widgets/logout_button.dart';
 import 'package:flutter_app/features/profile/widgets/profile_header_card.dart';
 import 'package:flutter_app/features/profile/widgets/profile_menu_list.dart';
+import 'package:flutter_app/features/profile/screens/my_listings_page.dart';
 import 'package:flutter_app/features/sell/screens/post_animal_page.dart';
 
 /// Profile Page
@@ -140,8 +141,10 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   void _handleMyListings() {
-    // TODO: Navigate to my listings page
-    showSuccessToast('My Listings - Coming soon!');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MyListingsPage()),
+    );
   }
 
   void _handleSavedItems() {
