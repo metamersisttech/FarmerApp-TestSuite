@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/core/mixins/toast_mixin.dart';
-import 'package:flutter_app/features/home/controllers/animal_detail_controller.dart';
 import 'package:flutter_app/features/home/mixins/animal_detail_state_mixin.dart';
 import 'package:flutter_app/features/home/widgets/animal_detail/ai_price_estimate_card.dart';
 import 'package:flutter_app/features/home/widgets/animal_detail/animal_stats_row.dart';
@@ -16,6 +14,12 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 ///
 /// Displays comprehensive information about a livestock listing.
 /// Includes image gallery, price, stats, health info, seller info, and transport.
+/// 
+/// Architecture:
+/// - UI only (build methods)
+/// - Functionality in AnimalDetailStateMixin
+/// - Business logic in AnimalDetailController
+/// - Data operations in AnimalDetailService
 class AnimalDetailPage extends StatefulWidget {
   final int listingId;
 
@@ -29,106 +33,43 @@ class AnimalDetailPage extends StatefulWidget {
 }
 
 class _AnimalDetailPageState extends State<AnimalDetailPage>
-    with AnimalDetailStateMixin, ToastMixin {
-  late final AnimalDetailController _controller;
+    with AnimalDetailStateMixin {
+  
+  @override
+  int get listingId => widget.listingId;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimalDetailController();
-    initImageController();
+    initializeAnimalDetail();
 
-    // Fetch animal details
+    // Fetch animal details after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchDetails();
+      fetchDetails();
     });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    disposeImageController();
+    disposeAnimalDetail();
     super.dispose();
-  }
-
-  /// Fetch animal details from API
-  Future<void> _fetchDetails() async {
-    await _controller.fetchAnimalDetail(widget.listingId);
-
-    if (!mounted) return;
-
-    setState(() {});
-
-    if (_controller.errorMessage != null) {
-      showErrorToast(_controller.errorMessage!);
-    }
-  }
-
-  /// Handle back button tap
-  void _handleBackTap() {
-    Navigator.of(context).pop();
-  }
-
-  /// Handle share button tap
-  void _handleShareTap() {
-    _controller.shareAnimal();
-    showComingSoonAction('Share');
-  }
-
-  /// Handle favorite button tap
-  void _handleFavoriteTap() {
-    _controller.toggleFavorite();
-    setState(() {});
-    showSuccessToast(
-      _controller.isFavorite ? 'Added to favorites' : 'Removed from favorites',
-    );
-  }
-
-  /// Handle call button tap
-  void _handleCallTap() {
-    showComingSoonAction('Call');
-  }
-
-  /// Handle chat button tap
-  void _handleChatTap() {
-    showComingSoonAction('Chat');
-  }
-
-  /// Handle video button tap
-  void _handleVideoTap() {
-    showComingSoonAction('Video call');
-  }
-
-  /// Handle buy now button tap
-  void _handleBuyNowTap() {
-    showComingSoonAction('Buy Now');
-  }
-
-  /// Handle book transport tap
-  void _handleBookTransportTap() {
-    showComingSoonAction('Book Transport');
-  }
-
-  /// Handle seller contact tap
-  void _handleSellerContactTap() {
-    showComingSoonAction('Contact Seller');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: _controller.isLoading
+      body: controller.isLoading
           ? _buildLoadingState()
-          : _controller.errorMessage != null
+          : controller.errorMessage != null
               ? _buildErrorState()
               : _buildContent(),
-      bottomNavigationBar: _controller.hasData
+      bottomNavigationBar: controller.hasData
           ? BottomActionBar(
-              onCallTap: _handleCallTap,
-              onChatTap: _handleChatTap,
-              onVideoTap: _handleVideoTap,
-              onBuyNowTap: _handleBuyNowTap,
+              onCallTap: handleCallTap,
+              onChatTap: handleChatTap,
+              onVideoTap: handleVideoTap,
+              onBuyNowTap: handleBuyNowTap,
             )
           : null,
     );
@@ -167,7 +108,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
             ),
             const SizedBox(height: 8),
             Text(
-              _controller.errorMessage ?? 'An error occurred',
+              controller.errorMessage ?? 'An error occurred',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey.shade500,
@@ -179,12 +120,12 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 OutlinedButton(
-                  onPressed: _handleBackTap,
+                  onPressed: handleBackTap,
                   child: const Text('Go Back'),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
-                  onPressed: _fetchDetails,
+                  onPressed: fetchDetails,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.authPrimaryColor,
                   ),
@@ -200,7 +141,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
 
   /// Build main content
   Widget _buildContent() {
-    final animal = _controller.animalDetail;
+    final animal = controller.animalDetail;
     if (animal == null) return const SizedBox.shrink();
 
     return SingleChildScrollView(
@@ -213,10 +154,10 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
             currentIndex: currentImageIndex,
             pageController: imagePageController,
             onPageChanged: setImageIndex,
-            onBackTap: _handleBackTap,
-            onShareTap: _handleShareTap,
-            onFavoriteTap: _handleFavoriteTap,
-            isFavorite: _controller.isFavorite,
+            onBackTap: handleBackTap,
+            onShareTap: handleShareTap,
+            onFavoriteTap: handleFavoriteTap,
+            isFavorite: controller.isFavorite,
           ),
 
           // Basic Info (Name, Breed, Price)
@@ -254,7 +195,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
           if (animal.seller != null)
             SellerInfoCard(
               seller: animal.seller!,
-              onContactTap: _handleSellerContactTap,
+              onContactTap: handleSellerContactTap,
             ),
 
           // Transport Section
@@ -262,7 +203,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
             TransportSection(
               isAvailable: animal.transportAvailable,
               estimatedCost: animal.estimatedTransportCost,
-              onBookTap: _handleBookTransportTap,
+              onBookTap: handleBookTransportTap,
             ),
 
           // Bottom padding for bottom action bar
