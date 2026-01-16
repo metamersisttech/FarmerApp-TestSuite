@@ -1,58 +1,28 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/core/base/base_controller.dart';
-import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/home/services/home_service.dart';
 
 /// Controller for home page operations
+/// 
+/// Manages business logic and state for the home page.
+/// Uses HomeService for data operations.
 class HomeController extends BaseController {
-  final BackendHelper _backendHelper;
+  final HomeService _homeService;
 
-  int _currentBottomNavIndex = 0;
-  String _searchQuery = '';
   List<ListingModel> _listings = [];
 
-  HomeController({BackendHelper? backendHelper})
-      : _backendHelper = backendHelper ?? BackendHelper();
+  HomeController({HomeService? homeService})
+      : _homeService = homeService ?? HomeService();
 
   /// Get listings data
   List<ListingModel> get listings => _listings;
 
-  /// Current bottom navigation bar index
-  int get currentBottomNavIndex => _currentBottomNavIndex;
+  /// Get listings count
+  int get listingsCount => _listings.length;
 
-  /// Current search query
-  String get searchQuery => _searchQuery;
-
-  /// Set bottom navigation index
-  void setBottomNavIndex(int index) {
-    _currentBottomNavIndex = index;
-    notifyListeners();
-  }
-
-  /// Update search query
-  void updateSearchQuery(String query) {
-    _searchQuery = query;
-    notifyListeners();
-    // TODO: Implement search logic when backend is ready
-  }
-
-  /// Handle notification tap
-  void onNotificationTap() {
-    // TODO: Navigate to notifications screen
-    setError('Notifications feature coming soon!');
-  }
-
-  /// Handle profile tap
-  void onProfileTap() {
-    // TODO: Navigate to profile screen
-    setError('Profile feature coming soon!');
-  }
-
-  /// Handle wallet tap
-  void onWalletTap() {
-    // TODO: Navigate to wallet screen
-    setError('Wallet feature coming soon!');
-  }
+  /// Check if there are listings
+  bool get hasListings => _listings.isNotEmpty;
 
   /// Fetch listings from API
   Future<void> fetchListings() async {
@@ -62,23 +32,9 @@ class HomeController extends BaseController {
     clearError();
 
     try {
-      final response = await _backendHelper.getListings();
-
-      print("${response} response from getListings");
+      _listings = await _homeService.fetchListings();
 
       if (isDisposed) return;
-
-      List<dynamic> rawListings = [];
-      if (response is List) {
-        rawListings = response;
-      } else if (response is Map && response['results'] != null) {
-        rawListings = response['results'] as List;
-      }
-
-      // Parse raw data into ListingModel objects
-      _listings = rawListings
-          .map((item) => ListingModel.fromJson(item as Map<String, dynamic>))
-          .toList();
 
       if (kDebugMode) {
         print('[HomeController] Fetched ${_listings.length} listings');
@@ -88,13 +44,10 @@ class HomeController extends BaseController {
       }
 
       notifyListeners();
-    } on BackendException catch (e) {
-      if (!isDisposed) {
-        setError(e.message);
-      }
     } catch (e) {
       if (!isDisposed) {
-        setError('Failed to load listings');
+        final errorMessage = e.toString().replaceAll('Exception: ', '');
+        setError(errorMessage.isEmpty ? 'Failed to load listings' : errorMessage);
       }
       if (kDebugMode) {
         print('[HomeController] Error fetching listings: $e');
@@ -104,6 +57,100 @@ class HomeController extends BaseController {
         setLoading(false);
       }
     }
+  }
+
+  /// Search listings
+  Future<void> searchListings(String query) async {
+    if (isDisposed) return;
+
+    setLoading(true);
+    clearError();
+
+    try {
+      _listings = await _homeService.searchListings(query);
+
+      if (isDisposed) return;
+
+      if (kDebugMode) {
+        print('[HomeController] Search found ${_listings.length} listings');
+      }
+
+      notifyListeners();
+    } catch (e) {
+      if (!isDisposed) {
+        setError('Search failed');
+      }
+      if (kDebugMode) {
+        print('[HomeController] Error searching listings: $e');
+      }
+    } finally {
+      if (!isDisposed) {
+        setLoading(false);
+      }
+    }
+  }
+
+  /// Filter listings
+  Future<void> filterListings({
+    String? category,
+    String? animalType,
+    double? minPrice,
+    double? maxPrice,
+  }) async {
+    if (isDisposed) return;
+
+    setLoading(true);
+    clearError();
+
+    try {
+      _listings = await _homeService.filterListings(
+        category: category,
+        animalType: animalType,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+      );
+
+      if (isDisposed) return;
+
+      notifyListeners();
+    } catch (e) {
+      if (!isDisposed) {
+        setError('Filter failed');
+      }
+    } finally {
+      if (!isDisposed) {
+        setLoading(false);
+      }
+    }
+  }
+
+  /// Get featured listings
+  Future<void> fetchFeaturedListings() async {
+    if (isDisposed) return;
+
+    setLoading(true);
+    clearError();
+
+    try {
+      _listings = await _homeService.getFeaturedListings();
+
+      if (isDisposed) return;
+
+      notifyListeners();
+    } catch (e) {
+      if (!isDisposed) {
+        setError('Failed to load featured listings');
+      }
+    } finally {
+      if (!isDisposed) {
+        setLoading(false);
+      }
+    }
+  }
+
+  /// Refresh listings
+  Future<void> refreshListings() async {
+    return fetchListings();
   }
 }
 

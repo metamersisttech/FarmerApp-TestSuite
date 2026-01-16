@@ -186,7 +186,7 @@ class BackendHelper {
   /// GET /api/listings/
   Future<dynamic> getListings({Map<String, dynamic>? params}) async {
     try {
-      final response = await _client.get(ApiEndpoints.listings, params: params);
+      final response = await _client.get(ApiEndpoints.mylistings, params: params);
       return response.data;
     } on DioException catch (e) {
       throw _handleError(e);
