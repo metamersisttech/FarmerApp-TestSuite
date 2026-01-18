@@ -1,9 +1,6 @@
 import 'package:flutter_app/core/base/base_controller.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
 import 'package:flutter_app/features/auth/services/email_login_service.dart';
-
-import '../services/email_login_service.dart';
-
 /// Controller for email login operations
 class EmailLoginController extends BaseController {
   final EmailLoginService _emailLoginService;

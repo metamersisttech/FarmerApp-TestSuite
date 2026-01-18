@@ -3,6 +3,7 @@ import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/home/mixins/home_state_mixin.dart';
 import 'package:flutter_app/features/home/mixins/location_mixin.dart';
+import 'package:flutter_app/features/home/services/home_navigation_service.dart';
 import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_app/features/home/widgets/home_search_bar.dart';
 import 'package:flutter_app/features/home/widgets/profile_section.dart';
@@ -86,7 +87,11 @@ class _HomePageState extends State<HomePage>
                     _buildScrollingTemplates(),
 
                     // Quick Actions Section
-                    const QuickActionsSection(),
+                    QuickActionsSection(
+                      onMarketplaceTap: () {
+                        HomeNavigationService.toMarketplace(context);
+                      },
+                    ),
 
                     // Recent Listing Section
                     RecentListingSection(

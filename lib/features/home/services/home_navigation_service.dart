@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/sell/screens/post_animal_page.dart';
+import 'package:flutter_app/features/viewalllistings/screens/viewalllistings_page.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 
 /// Result of navigation action
@@ -80,6 +81,15 @@ class HomeNavigationService {
       context,
       AppRoutes.animalDetail,
       arguments: listingId,
+    );
+    return NavigationResult.success();
+  }
+
+  /// Navigate to Marketplace (View All Listings) screen
+  static NavigationResult toMarketplace(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ViewAllListingsPage()),
     );
     return NavigationResult.success();
   }

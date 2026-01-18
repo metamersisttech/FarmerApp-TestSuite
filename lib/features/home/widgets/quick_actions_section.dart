@@ -48,7 +48,7 @@ class QuickActionsSection extends StatelessWidget {
     final actions = [
       // Row 1
       QuickActionItem(
-        label: 'Marketplace',
+        label: 'Browse Livestock',
         icon: Icons.storefront_outlined,
         iconColor: const Color(0xFF4CAF50),
         backgroundColor: const Color(0xFFE8F5E9),
