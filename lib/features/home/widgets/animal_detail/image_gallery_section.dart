@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 
 /// Image Gallery Section for Animal Detail Page
 ///
@@ -40,8 +41,9 @@ class ImageGallerySection extends StatelessWidget {
               itemCount: imageUrls.length,
               onPageChanged: onPageChanged,
               itemBuilder: (context, index) {
+                final imageUrl = CommonHelper.getImageUrl(imageUrls[index]);
                 return Image.network(
-                  imageUrls[index],
+                  imageUrl,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   errorBuilder: (context, error, stackTrace) {
@@ -97,13 +99,13 @@ class ImageGallerySection extends StatelessWidget {
             ),
           ),
 
-          // Bottom: Thumbnails
+          // Bottom: Dot Indicators
           if (hasImages && imageUrls.length > 1)
             Positioned(
               bottom: 16,
               left: 0,
               right: 0,
-              child: _buildThumbnails(),
+              child: _buildDotIndicators(),
             ),
         ],
       ),
@@ -124,13 +126,13 @@ class ImageGallerySection extends StatelessWidget {
     );
   }
 
-  /// Build thumbnail indicators
-  Widget _buildThumbnails() {
+  /// Build dot indicators
+  Widget _buildDotIndicators() {
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.3),
+          color: Colors.black.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -146,25 +148,12 @@ class ImageGallerySection extends StatelessWidget {
                 );
               },
               child: Container(
-                width: isActive ? 32 : 24,
-                height: isActive ? 32 : 24,
+                width: isActive ? 10 : 8,
+                height: isActive ? 10 : 8,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: isActive ? Colors.white : Colors.transparent,
-                    width: 2,
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: Image.network(
-                    imageUrls[index],
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(color: Colors.grey.shade300);
-                    },
-                  ),
+                  shape: BoxShape.circle,
+                  color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.5),
                 ),
               ),
             );

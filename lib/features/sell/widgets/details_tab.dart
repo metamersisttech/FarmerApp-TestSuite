@@ -167,11 +167,7 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
       _weightError = null;
       _priceError = null;
 
-      // Validate Farm (required)
-      if (_selectedFarmId == null) {
-        _farmError = 'Please select a farm';
-        isValid = false;
-      }
+      // Farm is optional - no validation needed
 
       // Validate Animal Type (required)
       if (_selectedAnimalType == null || _selectedAnimalType!.isEmpty) {
@@ -191,18 +187,11 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
         isValid = false;
       }
 
-      // Validate Age (required)
-      if (_selectedAge == null || _selectedAge!.isEmpty) {
-        _ageError = 'Please select age';
-        isValid = false;
-      }
+      // Age is optional - no validation needed
 
-      // Validate Weight (required)
+      // Weight is optional - only validate if provided
       final weight = _weightController.text.trim();
-      if (weight.isEmpty) {
-        _weightError = 'Please enter weight';
-        isValid = false;
-      } else {
+      if (weight.isNotEmpty) {
         final weightValue = double.tryParse(weight);
         if (weightValue == null || weightValue <= 0) {
           _weightError = 'Please enter a valid weight';
@@ -282,28 +271,47 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
   /// Get form data as Map for API
   Map<String, dynamic> getFormData() {
     final ageMonths = _getAgeInMonths();
-    final ageYears = (ageMonths / 12).round();
+    final ageYears = ageMonths > 0 ? (ageMonths / 12).round() : 0;
+    final weight = double.tryParse(_weightController.text.trim());
 
     // Generate title from form data
-    final title = '${_selectedBreed ?? _selectedAnimalType} - $ageYears ${ageYears == 1 ? 'Year' : 'Years'} Old';
+    String title = _selectedBreed ?? _selectedAnimalType ?? 'Animal';
+    if (ageYears > 0) {
+      title += ' - $ageYears ${ageYears == 1 ? 'Year' : 'Years'} Old';
+    }
 
     // Generate description
-    final description =
-        'Healthy ${_selectedGender?.toLowerCase() ?? ''} ${_selectedBreed ?? _selectedAnimalType}. '
-        'Age: $ageYears ${ageYears == 1 ? 'year' : 'years'}. '
-        'Weight: ${_weightController.text.trim()} kg.';
+    final descParts = <String>[];
+    descParts.add('Healthy ${_selectedGender?.toLowerCase() ?? ''} ${_selectedBreed ?? _selectedAnimalType}.');
+    if (ageYears > 0) {
+      descParts.add('Age: $ageYears ${ageYears == 1 ? 'year' : 'years'}.');
+    }
+    if (weight != null && weight > 0) {
+      descParts.add('Weight: ${weight.toStringAsFixed(0)} kg.');
+    }
+    final description = descParts.join(' ');
 
-    return {
+    final data = <String, dynamic>{
       'title': title,
       'description': description,
-      'farm': _selectedFarmId,
       'animal': _selectedAnimalId, // Animal ID from selected breed
       'gender': _selectedGender?.toLowerCase(),
-      'age_months': ageMonths,
-      'weight_kg': double.tryParse(_weightController.text.trim()) ?? 0,
       'price': double.tryParse(_priceController.text.trim()) ?? 0,
       'currency': 'INR',
     };
+
+    // Add optional fields only if they have values
+    if (_selectedFarmId != null) {
+      data['farm'] = _selectedFarmId;
+    }
+    if (ageMonths > 0) {
+      data['age_months'] = ageMonths;
+    }
+    if (weight != null && weight > 0) {
+      data['weight_kg'] = weight;
+    }
+
+    return data;
   }
 
   @override
@@ -318,7 +326,7 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Farm Selection
-                _buildSectionTitle('Select Farm', isRequired: true),
+                _buildSectionTitle('Select Farm'),
                 const SizedBox(height: 12),
                 Container(
                   decoration: BoxDecoration(
@@ -563,7 +571,7 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionTitle('Age', isRequired: true),
+                          _buildSectionTitle('Age'),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<String>(
                             value: _selectedAge,
@@ -609,7 +617,7 @@ class _DetailsTabState extends State<DetailsTab> with ToastMixin {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionTitle('Weight (kg)', isRequired: true),
+                          _buildSectionTitle('Weight (kg)'),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _weightController,

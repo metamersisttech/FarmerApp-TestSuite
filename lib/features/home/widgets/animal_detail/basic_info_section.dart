@@ -27,28 +27,60 @@ class BasicInfoSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Name and Verified Badge Row
+          // First Row: Name + Verified Badge on left, Price on right
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Left side: Name and Verified Badge
               Expanded(
-                child: Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    if (isVerified) ...[
+                      const SizedBox(width: 8),
+                      _buildVerifiedBadge(),
+                    ],
+                  ],
                 ),
               ),
-              if (isVerified) ...[
-                const SizedBox(width: 8),
-                _buildVerifiedBadge(),
-              ],
+
+              // Right side: Price
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    price,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.authPrimaryColor,
+                    ),
+                  ),
+                  if (originalPrice != null)
+                    Text(
+                      originalPrice!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade500,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
 
-          // Breed and Gender
+          // Second Row: Breed and Gender
           if (breedGender != null && breedGender!.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(
@@ -59,35 +91,6 @@ class BasicInfoSection extends StatelessWidget {
               ),
             ),
           ],
-
-          const SizedBox(height: 12),
-
-          // Price Row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                price,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              if (originalPrice != null) ...[
-                const SizedBox(width: 8),
-                Text(
-                  originalPrice!,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade500,
-                    decoration: TextDecoration.lineThrough,
-                  ),
-                ),
-              ],
-            ],
-          ),
         ],
       ),
     );
@@ -95,31 +98,32 @@ class BasicInfoSection extends StatelessWidget {
 
   /// Build the verified badge
   Widget _buildVerifiedBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppTheme.authPrimaryColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.verified,
-            size: 14,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 18,
+          height: 18,
+          decoration: BoxDecoration(
+            color: AppTheme.authPrimaryColor,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.check,
+            size: 12,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(width: 4),
+        const Text(
+          'Verified',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
             color: AppTheme.authPrimaryColor,
           ),
-          const SizedBox(width: 4),
-          const Text(
-            'Verified',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.authPrimaryColor,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

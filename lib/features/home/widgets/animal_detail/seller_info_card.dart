@@ -118,12 +118,18 @@ class SellerInfoCard extends StatelessWidget {
                   ),
                 ),
 
-                // Contact Button
-                IconButton(
-                  onPressed: onContactTap,
-                  icon: Icon(
-                    Icons.copy,
-                    color: Colors.grey.shade600,
+                // Verified Badge
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppTheme.authPrimaryColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.verified_user_outlined,
+                    color: AppTheme.authPrimaryColor,
+                    size: 20,
                   ),
                 ),
               ],
