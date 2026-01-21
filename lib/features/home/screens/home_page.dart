@@ -91,6 +91,9 @@ class _HomePageState extends State<HomePage>
                       onMarketplaceTap: () {
                         HomeNavigationService.toMarketplace(context);
                       },
+                      onVetServicesTap: () {
+                        HomeNavigationService.toVetServices(context);
+                      },
                     ),
 
                     // Recent Listing Section

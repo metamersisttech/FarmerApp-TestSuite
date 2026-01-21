@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/sell/screens/post_animal_page.dart';
+import 'package:flutter_app/features/vet/screens/vet_services_page.dart';
 import 'package:flutter_app/features/viewalllistings/screens/viewalllistings_page.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 
@@ -90,6 +91,15 @@ class HomeNavigationService {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const ViewAllListingsPage()),
+    );
+    return NavigationResult.success();
+  }
+
+  /// Navigate to Vet Services screen
+  static NavigationResult toVetServices(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const VetServicesPage()),
     );
     return NavigationResult.success();
   }

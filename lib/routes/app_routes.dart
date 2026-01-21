@@ -11,6 +11,7 @@ import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/resetPassword/screens/reset_password_page.dart';
 import 'package:flutter_app/features/sell/screens/create_farm_page.dart';
+import 'package:flutter_app/features/vet/screens/vet_services_page.dart';
 
 /// App Routes
 ///
@@ -37,6 +38,7 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String createFarm = '/create-farm';
   static const String animalDetail = '/animal-detail';
+  static const String vetServices = '/vet-services';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -128,6 +130,9 @@ class AppRoutes {
           ),
           settings,
         );
+
+      case vetServices:
+        return _buildRoute(const VetServicesPage(), settings);
 
       default:
         return _buildRoute(
