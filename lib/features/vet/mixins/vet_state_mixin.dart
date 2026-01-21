@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/vet/controllers/vet_controller.dart';
 import 'package:flutter_app/features/vet/models/vet_model.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// Mixin for Vet Services page state management
 mixin VetStateMixin<T extends StatefulWidget> on State<T> {
@@ -43,6 +44,17 @@ mixin VetStateMixin<T extends StatefulWidget> on State<T> {
           content: Text('Booking appointment with ${vet.name}...'),
           backgroundColor: const Color(0xFF3B9B59),
         ),
+      );
+    }
+  }
+
+  /// Handle vet card tap - navigate to vet detail page
+  void handleVetCardTap(VetModel vet) {
+    if (mounted) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.vetDetail,
+        arguments: vet.id,
       );
     }
   }

@@ -5,6 +5,7 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 /// Card widget displaying vet information
 class VetCard extends StatelessWidget {
   final VetModel vet;
+  final VoidCallback? onTap;
   final VoidCallback? onCallTap;
   final VoidCallback? onVideoTap;
   final VoidCallback? onChatTap;
@@ -13,6 +14,7 @@ class VetCard extends StatelessWidget {
   const VetCard({
     super.key,
     required this.vet,
+    this.onTap,
     this.onCallTap,
     this.onVideoTap,
     this.onChatTap,
@@ -21,21 +23,23 @@ class VetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,6 +80,7 @@ class VetCard extends StatelessWidget {
           // Action row
           _buildActionRow(),
         ],
+        ),
       ),
     );
   }

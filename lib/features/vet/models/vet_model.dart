@@ -12,6 +12,18 @@ class VetModel {
   final bool isAvailable;
   final bool isVerified;
 
+  // Detail page fields
+  final String? bio;
+  final List<String> languages;
+  final String? clinicName;
+  final String? clinicAddress;
+  final String? workingHours;
+  final List<String> animalTypes;
+  final List<String> services;
+  final double? videoCallFee;
+  final double? homeVisitFee;
+  final String? phoneNumber;
+
   const VetModel({
     required this.id,
     required this.name,
@@ -24,6 +36,16 @@ class VetModel {
     required this.consultationFee,
     this.isAvailable = true,
     this.isVerified = false,
+    this.bio,
+    this.languages = const [],
+    this.clinicName,
+    this.clinicAddress,
+    this.workingHours,
+    this.animalTypes = const [],
+    this.services = const [],
+    this.videoCallFee,
+    this.homeVisitFee,
+    this.phoneNumber,
   });
 
   /// Create VetModel from JSON (for future API integration)
@@ -40,6 +62,25 @@ class VetModel {
       consultationFee: (json['consultation_fee'] as num).toDouble(),
       isAvailable: json['is_available'] as bool? ?? true,
       isVerified: json['is_verified'] as bool? ?? false,
+      bio: json['bio'] as String?,
+      languages: (json['languages'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      clinicName: json['clinic_name'] as String?,
+      clinicAddress: json['clinic_address'] as String?,
+      workingHours: json['working_hours'] as String?,
+      animalTypes: (json['animal_types'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      services: (json['services'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      videoCallFee: (json['video_call_fee'] as num?)?.toDouble(),
+      homeVisitFee: (json['home_visit_fee'] as num?)?.toDouble(),
+      phoneNumber: json['phone_number'] as String?,
     );
   }
 
@@ -57,6 +98,40 @@ class VetModel {
       'consultation_fee': consultationFee,
       'is_available': isAvailable,
       'is_verified': isVerified,
+      'bio': bio,
+      'languages': languages,
+      'clinic_name': clinicName,
+      'clinic_address': clinicAddress,
+      'working_hours': workingHours,
+      'animal_types': animalTypes,
+      'services': services,
+      'video_call_fee': videoCallFee,
+      'home_visit_fee': homeVisitFee,
+      'phone_number': phoneNumber,
     };
   }
+
+  /// Get initials from name for avatar fallback
+  String get initials {
+    return name
+        .split(' ')
+        .map((e) => e.isNotEmpty ? e[0] : '')
+        .take(2)
+        .join()
+        .toUpperCase();
+  }
+
+  /// Format consultation fee for display
+  String get formattedConsultationFee => '\u20B9${consultationFee.toInt()}';
+
+  /// Format video call fee for display
+  String? get formattedVideoCallFee =>
+      videoCallFee != null ? '\u20B9${videoCallFee!.toInt()}' : null;
+
+  /// Format home visit fee for display
+  String? get formattedHomeVisitFee =>
+      homeVisitFee != null ? '\u20B9${homeVisitFee!.toInt()}' : null;
+
+  /// Format languages as comma-separated string
+  String get languagesDisplay => languages.join(', ');
 }

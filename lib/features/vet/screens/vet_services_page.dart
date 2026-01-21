@@ -190,6 +190,7 @@ class _VetServicesPageState extends State<VetServicesPage> with VetStateMixin {
               final vet = filteredVets[index];
               return VetCard(
                 vet: vet,
+                onTap: () => handleVetCardTap(vet),
                 onCallTap: () => handleCallTap(vet),
                 onVideoTap: () => handleVideoTap(vet),
                 onChatTap: () => handleChatTap(vet),
