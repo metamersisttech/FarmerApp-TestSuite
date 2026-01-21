@@ -16,27 +16,38 @@ class BreedFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40,
-      child: ListView.builder(
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey[300]!,
+            width: 1,
+          ),
+        ),
+      ),
+      child: SizedBox(
+        height: 50,
+        child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: breeds.length,
         itemBuilder: (context, index) {
-          final breed = breeds[index];
-          final isSelected = breed == selectedBreed;
+            final breed = breeds[index];
+            final isSelected = breed == selectedBreed;
 
-          return Padding(
-            padding: EdgeInsets.only(
-              right: index < breeds.length - 1 ? 8 : 0,
-            ),
-            child: _BreedChip(
-              label: breed,
-              isSelected: isSelected,
-              onTap: () => onSelected?.call(breed),
-            ),
-          );
-        },
+            return Padding(
+              padding: EdgeInsets.only(
+                right: index < breeds.length - 1 ? 8 : 0,
+                bottom: 10,
+              ),
+              child: _BreedChip(
+                label: breed,
+                isSelected: isSelected,
+                onTap: () => onSelected?.call(breed),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

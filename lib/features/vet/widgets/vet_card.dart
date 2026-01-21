@@ -86,10 +86,11 @@ class VetCard extends StatelessWidget {
       height: 60,
       decoration: BoxDecoration(
         color: Colors.grey[200],
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: vet.profileImage != null
-          ? ClipOval(
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(12),
               child: Image.network(
                 vet.profileImage!,
                 fit: BoxFit.cover,
