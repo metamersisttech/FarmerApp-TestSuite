@@ -53,27 +53,30 @@ class _VaccinationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompleted = vaccination.isCompleted;
+    final bgColor = isCompleted
+        ? AppTheme.authPrimaryColor.withValues(alpha: 0.1)
+        : const Color(0xFFFFF3E0); // Light orange background
+    final iconColor = isCompleted
+        ? AppTheme.authPrimaryColor
+        : Colors.orange.shade700;
+    final icon = isCompleted ? Icons.check : Icons.calendar_today;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          // Checkmark Icon
+          // Icon
           Container(
-            width: 32,
-            height: 32,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: vaccination.isCompleted
-                  ? AppTheme.authPrimaryColor.withValues(alpha: 0.1)
-                  : Colors.orange.withValues(alpha: 0.1),
+              color: bgColor,
               shape: BoxShape.circle,
             ),
             child: Icon(
-              vaccination.isCompleted
-                  ? Icons.check
-                  : Icons.schedule,
-              color: vaccination.isCompleted
-                  ? AppTheme.authPrimaryColor
-                  : Colors.orange,
+              icon,
+              color: iconColor,
               size: 18,
             ),
           ),
@@ -89,9 +92,9 @@ class _VaccinationItem extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: vaccination.isCompleted
+                    color: isCompleted
                         ? AppTheme.textPrimary
-                        : Colors.orange.shade700,
+                        : Colors.orange.shade800,
                   ),
                 ),
                 if (vaccination.formattedDate.isNotEmpty) ...[

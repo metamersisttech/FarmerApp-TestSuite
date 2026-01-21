@@ -198,13 +198,12 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
               onContactTap: handleSellerContactTap,
             ),
 
-          // Transport Section
-          if (animal.transportAvailable)
-            TransportSection(
-              isAvailable: animal.transportAvailable,
-              estimatedCost: animal.estimatedTransportCost,
-              onBookTap: handleBookTransportTap,
-            ),
+          // Transport Section (hardcoded for now)
+          const TransportSection(
+            isAvailable: true,
+            estimatedCost: 3500,
+            onBookTap: null,
+          ),
 
           // Bottom padding for bottom action bar
           const SizedBox(height: 20),

@@ -108,11 +108,12 @@ class AnimalDetailModel {
     // Parse original price if exists
     double? parsedOriginalPrice = _parseDouble(json['original_price'] ?? json['originalPrice']);
 
-    // Parse images
+    // Parse images - check multiple possible field names
     List<String> images = [];
-    if (json['images'] is List) {
-      images = (json['images'] as List)
-          .map((e) => e is Map ? (e['url'] ?? e['image_url'] ?? '').toString() : e.toString())
+    final imageData = json['animal_images'] ?? json['images'] ?? json['image_urls'];
+    if (imageData is List) {
+      images = imageData
+          .map((e) => e is Map ? (e['url'] ?? e['image_url'] ?? e['image'] ?? '').toString() : e.toString())
           .where((url) => url.isNotEmpty)
           .toList();
     }

@@ -23,26 +23,25 @@ class TransportSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.amber.shade50,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.amber.shade200),
+          color: const Color(0xFFFFF8E7), // Light cream/peach background
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
             // Truck Icon
             Container(
-              width: 44,
-              height: 44,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: Colors.amber.shade100,
-                borderRadius: BorderRadius.circular(12),
+                color: const Color(0xFFFFE4B5), // Light orange
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                Icons.local_shipping,
-                color: Colors.amber.shade800,
-                size: 24,
+              child: const Icon(
+                Icons.local_shipping_outlined,
+                color: Color(0xFFD4860B), // Orange/amber
+                size: 22,
               ),
             ),
             const SizedBox(width: 12),
@@ -55,7 +54,7 @@ class TransportSection extends StatelessWidget {
                   const Text(
                     'Transport Available',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textPrimary,
                     ),
@@ -63,10 +62,10 @@ class TransportSection extends StatelessWidget {
                   if (estimatedCost != null) ...[
                     const SizedBox(height: 2),
                     Text(
-                      'Estimated: \u20B9${estimatedCost!.toStringAsFixed(0)} to your location',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade600,
+                      'Estimated: \u20B9${estimatedCost!.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')} to your location',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B8E7B), // Teal/grey-green
                       ),
                     ),
                   ],
@@ -75,21 +74,25 @@ class TransportSection extends StatelessWidget {
             ),
 
             // Book Button
-            OutlinedButton(
-              onPressed: onBookTap,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.amber.shade800,
-                side: BorderSide(color: Colors.amber.shade400),
+            GestureDetector(
+              onTap: onBookTap,
+              child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0D4), // Light orange background
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFFE8B44A), // Orange border
+                    width: 1,
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Book',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                child: const Text(
+                  'Book',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFFD4860B), // Orange text
+                  ),
                 ),
               ),
             ),

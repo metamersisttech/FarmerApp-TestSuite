@@ -11,6 +11,8 @@ import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/resetPassword/screens/reset_password_page.dart';
 import 'package:flutter_app/features/sell/screens/create_farm_page.dart';
+import 'package:flutter_app/features/vet/screens/vet_detail_page.dart';
+import 'package:flutter_app/features/vet/screens/vet_services_page.dart';
 
 /// App Routes
 ///
@@ -37,6 +39,8 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String createFarm = '/create-farm';
   static const String animalDetail = '/animal-detail';
+  static const String vetServices = '/vet-services';
+  static const String vetDetail = '/vet-detail';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -125,6 +129,24 @@ class AppRoutes {
         return _buildRoute(
           const Scaffold(
             body: Center(child: Text('Listing ID required for animal detail')),
+          ),
+          settings,
+        );
+
+      case vetServices:
+        return _buildRoute(const VetServicesPage(), settings);
+
+      case vetDetail:
+        final vetId = settings.arguments as int?;
+        if (vetId != null) {
+          return _buildRoute(
+            VetDetailPage(vetId: vetId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Vet ID required for vet detail')),
           ),
           settings,
         );

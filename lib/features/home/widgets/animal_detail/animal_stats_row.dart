@@ -70,9 +70,8 @@ class _StatBox extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 4),
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: const Color(0xFFE8E4D9), // Beige/tan color
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
