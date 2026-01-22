@@ -7,11 +7,12 @@ import 'package:flutter_app/features/home/services/home_navigation_service.dart'
 /// Mixin for view all listings page state management and business logic
 mixin ViewAllListingsStateMixin<T extends StatefulWidget> on State<T> {
   late ViewAllListingsController controller;
-  String searchQuery = '';
+  late TextEditingController searchController;
 
   /// Initialize controller
   void initializeController() {
     controller = ViewAllListingsController();
+    searchController = TextEditingController();
     // Add listener to rebuild UI when controller notifies changes
     controller.addListener(_onControllerUpdate);
   }
@@ -46,8 +47,7 @@ mixin ViewAllListingsStateMixin<T extends StatefulWidget> on State<T> {
 
   /// Handle search input for marketplace listings
   Future<void> handleListingsSearch(String value) async {
-    searchQuery = value;
-    await controller.searchListings(value);
+    await controller.setSearchQuery(value);
     
     if (mounted) {
       setState(() {});
@@ -61,27 +61,10 @@ mixin ViewAllListingsStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// Handle sort change
-  void handleSortChange(String sortBy) {
-    controller.setSortBy(sortBy);
+  /// Handle category selection
+  Future<void> handleCategorySelected(String category) async {
+    await controller.setSelectedCategory(category);
     
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  /// Handle filter apply
-  Future<void> handleFilterApply({
-    String? category,
-    double? minPrice,
-    double? maxPrice,
-  }) async {
-    await controller.filterListings(
-      category: category,
-      minPrice: minPrice,
-      maxPrice: maxPrice,
-    );
-
     if (mounted) {
       setState(() {});
     }
@@ -107,18 +90,13 @@ mixin ViewAllListingsStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// Show sort bottom sheet
-  void showSortBottomSheet(BuildContext context, Widget sortBottomSheet) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => sortBottomSheet,
-    );
-  }
-
-  /// Show filter bottom sheet (placeholder)
-  void showFilterBottomSheet() {
-    showSuccessMessage('Filter feature coming soon!');
+  /// Handle sort and filter apply
+  Future<void> handleSortFilterApply(String sortBy, String order) async {
+    await controller.setApiSorting(sortBy, order);
+    
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   /// Show error message
@@ -149,5 +127,6 @@ mixin ViewAllListingsStateMixin<T extends StatefulWidget> on State<T> {
   void disposeController() {
     controller.removeListener(_onControllerUpdate);
     controller.dispose();
+    searchController.dispose();
   }
 }
