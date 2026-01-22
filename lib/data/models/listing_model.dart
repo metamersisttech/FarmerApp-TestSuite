@@ -10,6 +10,11 @@ class ListingModel {
   final String location;
   final double rating;
   final bool isVerified;
+  final String? species;
+  final String? breed;
+  final String? gender;
+  final int? ageMonths;
+  final String? currency;
 
   ListingModel({
     required this.id,
@@ -20,48 +25,65 @@ class ListingModel {
     required this.location,
     this.rating = 0.0,
     this.isVerified = false,
+    this.species,
+    this.breed,
+    this.gender,
+    this.ageMonths,
+    this.currency,
   });
 
-  /// Create from JSON response
+  /// Create from JSON response (API format)
   factory ListingModel.fromJson(Map<String, dynamic> json) {
-    // Handle price formatting
+    // Handle price formatting with currency
     String formattedPrice;
     final priceValue = json['price'];
+    final currency = json['currency'] as String? ?? 'INR';
+    
     if (priceValue is num) {
-      formattedPrice = '\u20B9${priceValue.toStringAsFixed(0)}';
+      // Format price with currency symbol
+      final currencySymbol = currency == 'INR' ? '\u20B9' : currency;
+      formattedPrice = '$currencySymbol${priceValue.toStringAsFixed(0)}';
     } else if (priceValue is String) {
-      formattedPrice = priceValue.startsWith('\u20B9') ? priceValue : '\u20B9$priceValue';
+      // Parse string price
+      final numericPrice = double.tryParse(priceValue.replaceAll(RegExp(r'[^\d.]'), ''));
+      if (numericPrice != null) {
+        final currencySymbol = currency == 'INR' ? '\u20B9' : currency;
+        formattedPrice = '$currencySymbol${numericPrice.toStringAsFixed(0)}';
+      } else {
+        formattedPrice = priceValue.startsWith('\u20B9') ? priceValue : '\u20B9$priceValue';
+      }
     } else {
       formattedPrice = '\u20B90';
     }
 
-    // Handle age formatting - check age_months first, then age
+    // Handle age formatting from age_months
     String formattedAge;
     final ageMonths = json['age_months'];
-    final ageValue = json['age'];
+    
     if (ageMonths != null) {
       final months = ageMonths is num ? ageMonths.toInt() : int.tryParse(ageMonths.toString()) ?? 0;
       if (months >= 12) {
         final years = (months / 12).floor();
-        formattedAge = '$years ${years == 1 ? 'Year' : 'Years'}';
+        final remainingMonths = months % 12;
+        if (remainingMonths > 0) {
+          formattedAge = '$years ${years == 1 ? 'Year' : 'Years'} $remainingMonths ${remainingMonths == 1 ? 'Month' : 'Months'}';
+        } else {
+          formattedAge = '$years ${years == 1 ? 'Year' : 'Years'}';
+        }
       } else {
         formattedAge = '$months ${months == 1 ? 'Month' : 'Months'}';
       }
-    } else if (ageValue is num) {
-      formattedAge = '$ageValue Years';
-    } else if (ageValue is String) {
-      formattedAge = ageValue;
     } else {
       formattedAge = 'Unknown';
     }
 
-    // Handle image URL - use primary_image from API (already full URL)
-    final imageUrl = json['primary_image'] as String? ??
-                     json['image_url'] as String? ??
-                     json['image'] as String?;
+    // Handle image URL - use primary_image from API
+    final imageUrl = json['primary_image'] as String?;
 
-    // Handle location - check farm object first
+    // Location is not yet handled by API - keep as Unknown
     String location = 'Unknown';
+    
+    // Handle farm object if present (for future use)
     final farm = json['farm'];
     if (farm is Map && farm['address'] != null) {
       location = farm['address'].toString();
@@ -77,21 +99,31 @@ class ListingModel {
       price: formattedPrice,
       location: location,
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      isVerified: json['is_verified'] as bool? ?? json['verified'] as bool? ?? false,
+      // Map is_featured to isVerified as requested
+      isVerified: json['is_featured'] as bool? ?? json['is_verified'] as bool? ?? false,
+      species: json['species'] as String?,
+      breed: json['breed'] as String?,
+      gender: json['gender'] as String?,
+      ageMonths: json['age_months'] as int?,
+      currency: currency,
     );
   }
 
   /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'name': name,
-      'image_url': imageUrl,
-      'age': age,
+      'listing_id': id,
+      'title': name,
+      'primary_image': imageUrl,
+      'age_months': ageMonths,
       'price': price,
       'location': location,
       'rating': rating,
-      'is_verified': isVerified,
+      'is_featured': isVerified,
+      'species': species,
+      'breed': breed,
+      'gender': gender,
+      'currency': currency,
     };
   }
 

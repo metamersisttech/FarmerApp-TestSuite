@@ -6,7 +6,7 @@ class MyListingsService {
   final BackendHelper _backendHelper;
 
   MyListingsService({BackendHelper? backendHelper})
-      : _backendHelper = backendHelper ?? BackendHelper();
+    : _backendHelper = backendHelper ?? BackendHelper();
 
   /// Fetch user's own listings
   /// Optionally filter by status (active, sold, expired, etc.)
@@ -14,12 +14,12 @@ class MyListingsService {
     try {
       // Build query params if status is provided
       final params = status != null ? {'status': status} : null;
-      
-      final response = await _backendHelper.getListings(params: params);
+
+      final response = await _backendHelper.getMyListings(params: params);
 
       // Handle different response formats
       List<dynamic> rawListings = [];
-      
+
       if (response is List) {
         rawListings = response;
       } else if (response is Map && response['results'] != null) {

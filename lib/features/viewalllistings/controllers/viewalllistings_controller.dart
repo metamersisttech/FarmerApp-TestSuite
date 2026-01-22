@@ -11,7 +11,22 @@ class ViewAllListingsController extends BaseController {
   final ViewAllListingsService _service;
 
   List<ListingModel> _listings = [];
-  String _sortBy = 'relevance'; // relevance, price_low, price_high, newest
+  String _selectedCategory = 'All';
+  String _searchQuery = '';
+  
+  // API sorting parameters
+  String _apiSortBy = 'posted_at'; // price, posted_at, views
+  String _apiOrder = 'desc'; // asc, desc
+  
+  // Available categories
+  final List<String> _categories = [
+    'All',
+    'Cow',
+    'Buffalo',
+    'Goat',
+    'Sheep',
+    'Poultry',
+  ];
 
   ViewAllListingsController({ViewAllListingsService? service})
       : _service = service ?? ViewAllListingsService();
@@ -25,10 +40,22 @@ class ViewAllListingsController extends BaseController {
   /// Check if there are listings
   bool get hasListings => _listings.isNotEmpty;
 
-  /// Current sort option
-  String get sortBy => _sortBy;
+  /// Get available categories
+  List<String> get categories => _categories;
 
-  /// Fetch listings from service
+  /// Get selected category
+  String get selectedCategory => _selectedCategory;
+
+  /// Get API sort by parameter
+  String get apiSortBy => _apiSortBy;
+
+  /// Get API order parameter
+  String get apiOrder => _apiOrder;
+
+  /// Get current search query
+  String get searchQuery => _searchQuery;
+
+  /// Fetch listings from service with sorting and all filters
   Future<void> fetchListings() async {
     if (isDisposed) return;
 
@@ -38,9 +65,26 @@ class ViewAllListingsController extends BaseController {
     try {
       if (kDebugMode) {
         print('[ViewAllListingsController] Starting to fetch listings...');
+        print('[ViewAllListingsController] Sort by: $_apiSortBy, Order: $_apiOrder');
       }
 
-      _listings = await _service.fetchListings();
+      // Build params with all filters
+      final params = <String, dynamic>{
+        'sort_by': _apiSortBy,
+        'order': _apiOrder,
+      };
+
+      // Add search query if not empty
+      if (_searchQuery.isNotEmpty) {
+        params['search'] = _searchQuery;
+      }
+
+      // Add category filter if not 'All'
+      if (_selectedCategory != 'All') {
+        params['species'] = _selectedCategory;
+      }
+
+      _listings = await _service.fetchListings(params: params);
 
       if (isDisposed) return;
 
@@ -51,7 +95,6 @@ class ViewAllListingsController extends BaseController {
         }
       }
 
-      _applySorting();
       notifyListeners();
     } catch (e) {
       if (!isDisposed) {
@@ -68,115 +111,43 @@ class ViewAllListingsController extends BaseController {
     }
   }
 
-  /// Search listings
-  Future<void> searchListings(String query) async {
-    if (isDisposed) return;
-
-    setLoading(true);
-    clearError();
-
-    try {
-      _listings = await _service.searchListings(query);
-
-      if (isDisposed) return;
-
-      if (kDebugMode) {
-        print('[ViewAllListingsController] Search found ${_listings.length} listings');
-      }
-
-      _applySorting();
-      notifyListeners();
-    } catch (e) {
-      if (!isDisposed) {
-        setError('Search failed');
-      }
-      if (kDebugMode) {
-        print('[ViewAllListingsController] Error searching listings: $e');
-      }
-    } finally {
-      if (!isDisposed) {
-        setLoading(false);
-      }
-    }
-  }
-
-  /// Filter listings
-  Future<void> filterListings({
-    String? category,
-    String? animalType,
-    double? minPrice,
-    double? maxPrice,
-  }) async {
-    if (isDisposed) return;
-
-    setLoading(true);
-    clearError();
-
-    try {
-      _listings = await _service.filterListings(
-        category: category,
-        animalType: animalType,
-        minPrice: minPrice,
-        maxPrice: maxPrice,
-      );
-
-      if (isDisposed) return;
-
-      _applySorting();
-      notifyListeners();
-    } catch (e) {
-      if (!isDisposed) {
-        setError('Filter failed');
-      }
-    } finally {
-      if (!isDisposed) {
-        setLoading(false);
-      }
-    }
-  }
-
-  /// Change sort order
-  void setSortBy(String sortBy) {
-    if (_sortBy == sortBy) return;
+  /// Set search query and refresh listings
+  Future<void> setSearchQuery(String query) async {
+    if (_searchQuery == query) return;
     
-    _sortBy = sortBy;
-    _applySorting();
-    notifyListeners();
-  }
-
-  /// Apply sorting to listings
-  void _applySorting() {
-    switch (_sortBy) {
-      case 'price_low':
-        _listings.sort((a, b) {
-          final priceA = _extractPrice(a.price);
-          final priceB = _extractPrice(b.price);
-          return priceA.compareTo(priceB);
-        });
-        break;
-      case 'price_high':
-        _listings.sort((a, b) {
-          final priceA = _extractPrice(a.price);
-          final priceB = _extractPrice(b.price);
-          return priceB.compareTo(priceA);
-        });
-        break;
-      case 'newest':
-        // In real implementation, sort by creation date
-        _listings.sort((a, b) => b.id.compareTo(a.id));
-        break;
-      case 'relevance':
-      default:
-        // Keep original order or sort by rating
-        _listings.sort((a, b) => b.rating.compareTo(a.rating));
-        break;
+    _searchQuery = query;
+    
+    if (kDebugMode) {
+      print('[ViewAllListingsController] Search query updated: $query');
     }
+    
+    // Fetch with updated search query
+    return fetchListings();
   }
 
-  /// Extract numeric price from formatted string
-  double _extractPrice(String priceString) {
-    final cleaned = priceString.replaceAll(RegExp(r'[^\d]'), '');
-    return double.tryParse(cleaned) ?? 0;
+  /// Set selected category and filter listings
+  Future<void> setSelectedCategory(String category) async {
+    if (_selectedCategory == category) return;
+    
+    _selectedCategory = category;
+    
+    // Fetch with current sorting applied
+    return fetchListings();
+  }
+
+  /// Set API sorting parameters and refresh listings
+  Future<void> setApiSorting(String sortBy, String order) async {
+    if (_apiSortBy == sortBy && _apiOrder == order) return;
+
+    _apiSortBy = sortBy;
+    _apiOrder = order;
+
+    if (kDebugMode) {
+      print('[ViewAllListingsController] Updated sort: $sortBy, order: $order');
+    }
+
+    // Fetch with new sorting
+    return fetchListings();
   }
 
   /// Refresh listings

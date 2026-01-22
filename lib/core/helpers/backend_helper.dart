@@ -5,8 +5,8 @@
 library;
 
 import 'package:dio/dio.dart';
-import 'package:flutter_app/core/helpers/api_helper.dart';
 import 'package:flutter_app/core/constants/api_endpoints.dart';
+import 'package:flutter_app/core/helpers/api_helper.dart';
 
 /// Backend Helper
 /// Contains all API endpoint methods
@@ -21,9 +21,14 @@ class BackendHelper {
   /// POST /api/auth/send-login-otp/
   /// Request: { "phone": "1234567890" }
   /// Response: { "message": "...", "otp": "123456", "user_id": 1 }
-  Future<Map<String, dynamic>> postSendLoginOtp(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> postSendLoginOtp(
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final response = await _client.post(ApiEndpoints.sendLoginOtp, data: data);
+      final response = await _client.post(
+        ApiEndpoints.sendLoginOtp,
+        data: data,
+      );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -34,9 +39,14 @@ class BackendHelper {
   /// POST /api/auth/login/
   /// Request: { "phone": "1234567890", "otp": "123456" }
   /// Response: { "message": "...", "user": {...}, "tokens": {...} }
-  Future<Map<String, dynamic>> postVerifyLoginOtp(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> postVerifyLoginOtp(
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final response = await _client.post(ApiEndpoints.verifyLoginOtp, data: data);
+      final response = await _client.post(
+        ApiEndpoints.verifyLoginOtp,
+        data: data,
+      );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -69,9 +79,14 @@ class BackendHelper {
   /// POST /api/auth/token/refresh/
   /// Request: { "refresh": "..." }
   /// Response: { "access": "..." }
-  Future<Map<String, dynamic>> postRefreshToken(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> postRefreshToken(
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final response = await _client.post(ApiEndpoints.refreshToken, data: data);
+      final response = await _client.post(
+        ApiEndpoints.refreshToken,
+        data: data,
+      );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -82,9 +97,14 @@ class BackendHelper {
   /// POST /api/auth/password/reset/
   /// Request: { "email": "..." }
   /// Response: { "message": "...", "token": "..." }
-  Future<Map<String, dynamic>> postRequestPasswordReset(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> postRequestPasswordReset(
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final response = await _client.post(ApiEndpoints.forgotPassword, data: data);
+      final response = await _client.post(
+        ApiEndpoints.forgotPassword,
+        data: data,
+      );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -95,9 +115,14 @@ class BackendHelper {
   /// POST /api/auth/password/reset/confirm/
   /// Request: { "token": "...", "new_password": "...", "new_password_confirm": "..." }
   /// Response: { "message": "Password reset successfully." }
-  Future<Map<String, dynamic>> postConfirmPasswordReset(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> postConfirmPasswordReset(
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final response = await _client.post(ApiEndpoints.resetPassword, data: data);
+      final response = await _client.post(
+        ApiEndpoints.resetPassword,
+        data: data,
+      );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -119,9 +144,14 @@ class BackendHelper {
 
   /// Update user profile
   /// PATCH /api/users/profile/update/
-  Future<Map<String, dynamic>> putUpdateProfile(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> putUpdateProfile(
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final response = await _client.patch(ApiEndpoints.updateProfile, data: data);
+      final response = await _client.patch(
+        ApiEndpoints.updateProfile,
+        data: data,
+      );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -193,6 +223,20 @@ class BackendHelper {
     }
   }
 
+  // Get current user listings
+
+  Future<dynamic> getMyListings({Map<String, dynamic>? params}) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.mylistings,
+        params: params,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// Create a new animal listing
   /// POST /api/listings/
   /// Request body:
@@ -210,7 +254,9 @@ class BackendHelper {
   ///   "color": "Red and White",
   ///   "health_status": "healthy"
   /// }
-  Future<Map<String, dynamic>> postCreateListing(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> postCreateListing(
+    Map<String, dynamic> data,
+  ) async {
     try {
       final response = await _client.post(ApiEndpoints.listings, data: data);
       return response.data as Map<String, dynamic>;
@@ -233,9 +279,15 @@ class BackendHelper {
   /// Update an existing animal listing
   /// PATCH /api/listings/{id}/
   /// Request body: partial update fields
-  Future<Map<String, dynamic>> patchUpdateListing(int listingId, Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> patchUpdateListing(
+    int listingId,
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final response = await _client.patch('${ApiEndpoints.listings}$listingId/', data: data);
+      final response = await _client.patch(
+        '${ApiEndpoints.listings}$listingId/',
+        data: data,
+      );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -248,7 +300,10 @@ class BackendHelper {
   /// POST /api/upload/?category={category}
   /// Categories: listings, profile, documents, vet_certificates, general
   /// Response: { "key": "path/to/file.jpg", "url": "https://..." }
-  Future<Map<String, dynamic>> postUploadFile(String filePath, String category) async {
+  Future<Map<String, dynamic>> postUploadFile(
+    String filePath,
+    String category,
+  ) async {
     try {
       final response = await _client.uploadFile(
         '${ApiEndpoints.upload}?category=$category',
@@ -265,7 +320,10 @@ class BackendHelper {
   /// POST /api/upload/multiple/?category={category}
   /// Categories: listings, profile, documents, vet_certificates, general
   /// Response: { "uploaded": [{ "key": "...", "url": "..." }, ...], "count": N }
-  Future<List<Map<String, dynamic>>> postUploadMultipleFiles(List<String> filePaths, String category) async {
+  Future<List<Map<String, dynamic>>> postUploadMultipleFiles(
+    List<String> filePaths,
+    String category,
+  ) async {
     try {
       final formData = FormData.fromMap({
         'files': await Future.wait(
@@ -295,7 +353,8 @@ class BackendHelper {
       final data = error.response?.data;
       if (data is Map) {
         // Try different error message formats
-        message = data['message']?.toString() ??
+        message =
+            data['message']?.toString() ??
             data['detail']?.toString() ??
             data['error']?.toString() ??
             _extractFieldErrors(data) ??
@@ -323,7 +382,10 @@ class BackendHelper {
     data.forEach((key, value) {
       if (value is List && value.isNotEmpty) {
         errors.add(value.first.toString());
-      } else if (value is String && key != 'message' && key != 'detail' && key != 'error') {
+      } else if (value is String &&
+          key != 'message' &&
+          key != 'detail' &&
+          key != 'error') {
         errors.add(value);
       }
     });
@@ -337,11 +399,7 @@ class BackendException implements Exception {
   final int? statusCode;
   final dynamic data;
 
-  BackendException({
-    required this.message,
-    this.statusCode,
-    this.data,
-  });
+  BackendException({required this.message, this.statusCode, this.data});
 
   @override
   String toString() => message;

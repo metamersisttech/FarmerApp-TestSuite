@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/features/home/mixins/home_state_mixin.dart';
 import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_app/features/viewalllistings/mixins/viewalllistings_state_mixin.dart';
+import 'package:flutter_app/features/viewalllistings/widgets/category_filter_chips.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_card.dart';
-import 'package:flutter_app/features/viewalllistings/widgets/search_with_filters_bar.dart';
-import 'package:flutter_app/features/viewalllistings/widgets/sort_bottom_sheet.dart';
+import 'package:flutter_app/features/viewalllistings/widgets/listing_search_bar.dart';
+import 'package:flutter_app/features/viewalllistings/widgets/listing_sort_bottom_sheet.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// View All Listings Page
@@ -49,45 +50,29 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_outlined, color: AppTheme.textPrimary),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Browse Livestock',
-          style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(70),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: SearchWithFiltersBar(
-              searchQuery: searchQuery,
-              sortBy: controller.sortBy,
-              listingsCount: controller.listingsCount,
-              onSearchChanged: handleListingsSearch,
-              onSortTap: () => showSortBottomSheet(
-                context,
-                SortBottomSheet(
-                  currentSort: controller.sortBy,
-                  onSortSelected: handleSortChange,
-                ),
-              ),
-              onFilterTap: showFilterBottomSheet,
-            ),
-          ),
-        ),
-      ),
+      backgroundColor: Colors.grey[100],
+      appBar: _buildAppBar(),
       body: Column(
         children: [
+          // Search bar with filter button
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: ListingSearchBar(
+              controller: searchController,
+              onChanged: handleListingsSearch,
+              onFilterTap: _showSortFilterSheet,
+            ),
+          ),
+
+          // Category filter chips
+          CategoryFilterChips(
+            categories: controller.categories,
+            selectedCategory: controller.selectedCategory,
+            onSelected: handleCategorySelected,
+          ),
+
+          const SizedBox(height: 16),
+
           // Listings grid
           Expanded(
             child: _buildContent(),
@@ -99,6 +84,42 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
         currentIndex: currentBottomNavIndex,
         onTap: (index) => handleMarketplaceBottomNavigation(index, handleBottomNavTap),
       ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: AppTheme.primaryColor,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => Navigator.pop(context),
+      ),
+      title: const Text(
+        'Browse Livestock',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+      ),
+      centerTitle: true,
+    );
+  }
+
+  /// Show sort and filter bottom sheet
+  void _showSortFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return ListingSortBottomSheet(
+          currentSortBy: controller.apiSortBy,
+          currentOrder: controller.apiOrder,
+          onApply: handleSortFilterApply,
+        );
+      },
     );
   }
 
