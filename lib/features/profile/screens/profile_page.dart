@@ -21,6 +21,7 @@ import 'package:flutter_app/features/vet/controllers/vet_onboarding_controller.d
 import 'package:flutter_app/features/vet/screens/vet_onboarding_carousel_screen.dart';
 import 'package:flutter_app/features/vet/screens/vet_verification_status_screen.dart';
 import 'package:flutter_app/features/vet_dashboard/screens/vet_home_page.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/features/vet_dashboard/widgets/switch_mode_card.dart';
 
 /// Profile Page
@@ -235,8 +236,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   void _handleBookings() {
-    // TODO: Navigate to bookings page
-    showSuccessToast('My Bookings - Coming soon!');
+    Navigator.pushNamed(context, AppRoutes.myAppointments);
   }
 
   void _handleWallet() {
