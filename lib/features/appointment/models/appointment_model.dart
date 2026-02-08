@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/features/appointment/models/appointment_requestor_info.dart';
 
 /// Vet info embedded in an appointment response
 class AppointmentVetInfo {
@@ -49,6 +50,7 @@ class AppointmentListingInfo {
 class AppointmentModel {
   final int appointmentId;
   final AppointmentVetInfo vet;
+  final AppointmentRequestorInfo? requestor;
   final AppointmentListingInfo? listing;
   final String mode;
   final String status;
@@ -67,6 +69,7 @@ class AppointmentModel {
   const AppointmentModel({
     required this.appointmentId,
     required this.vet,
+    this.requestor,
     this.listing,
     required this.mode,
     required this.status,
@@ -92,6 +95,19 @@ class AppointmentModel {
       status == 'REQUESTED' || status == 'CONFIRMED';
 
   bool get canChat => status == 'CONFIRMED';
+
+  // ─── Vet-Side Computed Helpers ───
+
+  bool get isVetSide => requestor != null;
+
+  String get displayName =>
+      isVetSide ? (requestor?.name ?? '') : vet.name;
+
+  bool get canApprove => status == 'REQUESTED';
+
+  bool get canReject => status == 'REQUESTED';
+
+  bool get canComplete => status == 'CONFIRMED';
 
   String get displayStatus {
     switch (status) {
@@ -234,11 +250,20 @@ class AppointmentModel {
       );
     }
 
+    // Parse requestor (present on vet-side responses)
+    AppointmentRequestorInfo? requestorInfo;
+    if (json['requestor'] is Map<String, dynamic>) {
+      requestorInfo = AppointmentRequestorInfo.fromJson(
+        json['requestor'] as Map<String, dynamic>,
+      );
+    }
+
     return AppointmentModel(
       appointmentId: json['appointment_id'] as int? ?? 0,
       vet: AppointmentVetInfo.fromJson(
         json['vet'] as Map<String, dynamic>? ?? {},
       ),
+      requestor: requestorInfo,
       listing: listingInfo,
       mode: json['mode'] as String? ?? 'in_person',
       status: json['status'] as String? ?? 'REQUESTED',

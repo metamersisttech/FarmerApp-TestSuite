@@ -25,6 +25,11 @@ import 'package:flutter_app/features/vet/models/vet_model.dart';
 import 'package:flutter_app/features/appointment/screens/book_appointment_screen.dart';
 import 'package:flutter_app/features/appointment/screens/my_appointments_screen.dart';
 import 'package:flutter_app/features/appointment/screens/appointment_detail_screen.dart';
+import 'package:flutter_app/features/appointment/screens/vet_appointments_screen.dart';
+import 'package:flutter_app/features/appointment/screens/approve_appointment_screen.dart';
+import 'package:flutter_app/features/appointment/screens/reject_appointment_screen.dart';
+import 'package:flutter_app/features/appointment/screens/complete_appointment_screen.dart';
+import 'package:flutter_app/features/appointment/models/appointment_model.dart';
 
 /// App Routes
 ///
@@ -63,6 +68,10 @@ class AppRoutes {
   static const String bookAppointment = '/book-appointment';
   static const String myAppointments = '/my-appointments';
   static const String appointmentDetail = '/appointment-detail';
+  static const String vetAppointments = '/vet-appointments';
+  static const String vetApproveAppointment = '/vet-approve-appointment';
+  static const String vetRejectAppointment = '/vet-reject-appointment';
+  static const String vetCompleteAppointment = '/vet-complete-appointment';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -235,6 +244,56 @@ class AppRoutes {
         return _buildRoute(
           const Scaffold(
             body: Center(child: Text('Appointment ID required')),
+          ),
+          settings,
+        );
+
+      case vetAppointments:
+        return _buildRoute(const VetAppointmentsScreen(), settings);
+
+      case vetApproveAppointment:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final appointment = args?['appointment'] as AppointmentModel?;
+        final vetId = args?['vetId'] as int?;
+        if (appointment != null && vetId != null) {
+          return _buildRoute(
+            ApproveAppointmentScreen(appointment: appointment, vetId: vetId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Appointment and vet ID required')),
+          ),
+          settings,
+        );
+
+      case vetRejectAppointment:
+        final appointment = settings.arguments as AppointmentModel?;
+        if (appointment != null) {
+          return _buildRoute(
+            RejectAppointmentScreen(appointment: appointment),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Appointment required for rejection')),
+          ),
+          settings,
+        );
+
+      case vetCompleteAppointment:
+        final appointment = settings.arguments as AppointmentModel?;
+        if (appointment != null) {
+          return _buildRoute(
+            CompleteAppointmentScreen(appointment: appointment),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Appointment required for completion')),
           ),
           settings,
         );

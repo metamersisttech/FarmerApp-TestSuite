@@ -67,6 +67,14 @@ class ApiEndpoints {
   static String appointmentById(int id) => 'appointments/$id/';
   static String appointmentCancel(int id) => 'appointments/$id/cancel/';
 
+  // ============ Vet Appointment Endpoints ============
+  static const String vetAppointments = 'appointments/vet/';
+  static String vetAvailableSlots(int vetId) =>
+      'appointments/vet/$vetId/available-slots/';
+  static String appointmentApprove(int id) => 'appointments/$id/approve/';
+  static String appointmentReject(int id) => 'appointments/$id/reject/';
+  static String appointmentComplete(int id) => 'appointments/$id/complete/';
+
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here
 
