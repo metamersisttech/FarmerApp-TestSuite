@@ -21,6 +21,10 @@ import 'package:flutter_app/features/vet/screens/vet_profile_screen.dart';
 import 'package:flutter_app/features/vet/screens/vet_availability_screen.dart';
 import 'package:flutter_app/features/vet/screens/vet_pricing_screen.dart';
 import 'package:flutter_app/features/vet/models/vet_verification_status_model.dart';
+import 'package:flutter_app/features/vet/models/vet_model.dart';
+import 'package:flutter_app/features/appointment/screens/book_appointment_screen.dart';
+import 'package:flutter_app/features/appointment/screens/my_appointments_screen.dart';
+import 'package:flutter_app/features/appointment/screens/appointment_detail_screen.dart';
 
 /// App Routes
 ///
@@ -56,6 +60,9 @@ class AppRoutes {
   static const String vetProfile = '/vet-profile';
   static const String vetAvailability = '/vet-availability';
   static const String vetPricing = '/vet-pricing';
+  static const String bookAppointment = '/book-appointment';
+  static const String myAppointments = '/my-appointments';
+  static const String appointmentDetail = '/appointment-detail';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -198,6 +205,39 @@ class AppRoutes {
 
       case vetPricing:
         return _buildRoute(const VetPricingScreen(), settings);
+
+      case bookAppointment:
+        final vet = settings.arguments as VetModel?;
+        if (vet != null) {
+          return _buildRoute(
+            BookAppointmentScreen(vet: vet),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Vet info required for booking')),
+          ),
+          settings,
+        );
+
+      case myAppointments:
+        return _buildRoute(const MyAppointmentsScreen(), settings);
+
+      case appointmentDetail:
+        final appointmentId = settings.arguments as int?;
+        if (appointmentId != null) {
+          return _buildRoute(
+            AppointmentDetailScreen(appointmentId: appointmentId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Appointment ID required')),
+          ),
+          settings,
+        );
 
       default:
         return _buildRoute(

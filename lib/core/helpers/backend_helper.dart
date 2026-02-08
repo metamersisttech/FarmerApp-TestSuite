@@ -500,6 +500,99 @@ class BackendHelper {
     }
   }
 
+  // ============ Public Vet Endpoints (Browse) ============
+
+  /// Get paginated vet list
+  /// GET /api/vets/
+  Future<Map<String, dynamic>> getVets({Map<String, dynamic>? params}) async {
+    try {
+      final response = await _client.get(ApiEndpoints.vets, params: params);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get vet detail by ID (public)
+  /// GET /api/vets/{id}/
+  Future<Map<String, dynamic>> getVetById(int vetId) async {
+    try {
+      final response = await _client.get(ApiEndpoints.vetById(vetId));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get vet public availability
+  /// GET /api/vets/{id}/availability/
+  Future<List<dynamic>> getVetPublicAvailability(int vetId) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.vetPublicAvailability(vetId),
+      );
+      return response.data as List<dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Appointment Endpoints ============
+
+  /// Get user's appointments (paginated, supports ?status= filter)
+  /// GET /api/appointments/
+  Future<Map<String, dynamic>> getAppointments({
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.appointments,
+        params: params,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get appointment by ID
+  /// GET /api/appointments/{id}/
+  Future<Map<String, dynamic>> getAppointmentById(int id) async {
+    try {
+      final response = await _client.get(ApiEndpoints.appointmentById(id));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Create appointment
+  /// POST /api/appointments/
+  Future<Map<String, dynamic>> postCreateAppointment(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.appointments,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Cancel appointment
+  /// POST /api/appointments/{id}/cancel/
+  Future<Map<String, dynamic>> postCancelAppointment(int id) async {
+    try {
+      final response = await _client.post(ApiEndpoints.appointmentCancel(id));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Error Handling ============
 
   /// Handle Dio errors and extract message
