@@ -81,10 +81,10 @@ class AppointmentService {
       await _initializeAuth();
 
       final data = <String, dynamic>{
-        'vet': vetId,
+        'vet_id': vetId,
         'mode': mode,
       };
-      if (listingId != null) data['listing'] = listingId;
+      if (listingId != null) data['listing_id'] = listingId;
       if (notes != null && notes.isNotEmpty) data['notes'] = notes;
 
       final json = await _backendHelper.postCreateAppointment(data);

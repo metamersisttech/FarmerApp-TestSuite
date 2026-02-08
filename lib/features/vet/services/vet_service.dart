@@ -95,17 +95,31 @@ class VetService {
         params['specialization'] = specialization;
       }
 
-      final json = await _backendHelper.getVets(params: params);
+      final data = await _backendHelper.getVets(params: params);
 
-      final results = json['results'] as List<dynamic>? ?? [];
+      // Handle both plain List and paginated Map responses
+      List<dynamic> results;
+      int? totalCount;
+      String? nextPageUrl;
+
+      if (data is List) {
+        results = data;
+      } else if (data is Map<String, dynamic>) {
+        results = data['results'] as List<dynamic>? ?? [];
+        totalCount = data['count'] as int?;
+        nextPageUrl = data['next'] as String?;
+      } else {
+        results = [];
+      }
+
       final vets = results
           .map((e) => VetModel.fromJson(e as Map<String, dynamic>))
           .toList();
 
       return VetServiceResult.success(
         vets: vets,
-        totalCount: json['count'] as int? ?? vets.length,
-        nextPageUrl: json['next'] as String?,
+        totalCount: totalCount ?? vets.length,
+        nextPageUrl: nextPageUrl,
       );
     } on BackendException catch (e) {
       return VetServiceResult.error(e.message);

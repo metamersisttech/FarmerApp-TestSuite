@@ -4,6 +4,58 @@ This document serves as a step-wise implementation guide for building the Vet on
 
 ---
 
+## Completion Status
+
+- [x] **Phase 1: Vet Onboarding & Verification** (Steps 1.1-1.6) — 16 new files, 4 modified
+- [x] **Phase 2: Vet Profile & Availability Setup** (Steps 2.1-2.3) — 11 new files, 4 modified
+- [x] **Phase 3: Browse & Book Vet Appointments** (Steps 3.1-3.5) — 11 new files, 4 modified
+- [x] **Phase 4: Vet Appointment Management** (Steps 4.1-4.4) — 15 new files, 5 modified
+- [x] **Phase 5: Appointment Chat** (Step 5.1) — 5 new files, 6 modified
+- [ ] **Phase 6: Role Switching** (Step 6.1) — NEXT
+
+### Phase 4 Files Created
+- `lib/features/appointment/models/appointment_requestor_info.dart`
+- `lib/features/appointment/models/available_slot_model.dart`
+- `lib/features/appointment/models/available_slots_response.dart`
+- `lib/features/appointment/controllers/vet_appointment_controller.dart`
+- `lib/features/appointment/mixins/vet_appointments_state_mixin.dart`
+- `lib/features/appointment/mixins/approve_appointment_state_mixin.dart`
+- `lib/features/appointment/mixins/reject_appointment_state_mixin.dart`
+- `lib/features/appointment/mixins/complete_appointment_state_mixin.dart`
+- `lib/features/appointment/widgets/vet_request_summary_card.dart`
+- `lib/features/appointment/widgets/time_slot_grid.dart`
+- `lib/features/appointment/widgets/vet_appointment_card.dart`
+- `lib/features/appointment/screens/vet_appointments_screen.dart`
+- `lib/features/appointment/screens/approve_appointment_screen.dart`
+- `lib/features/appointment/screens/reject_appointment_screen.dart`
+- `lib/features/appointment/screens/complete_appointment_screen.dart`
+
+### Phase 4 Files Modified
+- `lib/features/appointment/models/appointment_model.dart` (added requestor field + vet-side helpers)
+- `lib/core/constants/api_endpoints.dart` (5 vet appointment endpoints)
+- `lib/core/helpers/backend_helper.dart` (5 vet appointment methods)
+- `lib/features/appointment/services/appointment_service.dart` (extended AppointmentResult + 5 vet methods)
+- `lib/routes/app_routes.dart` (4 vet appointment routes)
+
+### Phase 3 Files Created
+- `lib/features/appointment/models/appointment_model.dart`
+- `lib/features/appointment/models/appointment_listing_item.dart`
+- `lib/features/appointment/controllers/appointment_controller.dart`
+- `lib/features/appointment/services/appointment_service.dart`
+- `lib/features/appointment/mixins/book_appointment_state_mixin.dart`
+- `lib/features/appointment/mixins/my_appointments_state_mixin.dart`
+- `lib/features/appointment/mixins/appointment_detail_state_mixin.dart`
+- `lib/features/appointment/widgets/consultation_mode_selector.dart`
+- `lib/features/appointment/widgets/appointment_vet_info_card.dart`
+- `lib/features/appointment/widgets/appointment_status_chips.dart`
+- `lib/features/appointment/widgets/appointment_card.dart`
+- `lib/features/appointment/widgets/appointment_status_header.dart`
+- `lib/features/appointment/screens/book_appointment_screen.dart`
+- `lib/features/appointment/screens/my_appointments_screen.dart`
+- `lib/features/appointment/screens/appointment_detail_screen.dart`
+
+---
+
 # FLOW 1: VET ONBOARDING & VERIFICATION
 
 ## Step 1.1: Vet Onboarding Entry Point

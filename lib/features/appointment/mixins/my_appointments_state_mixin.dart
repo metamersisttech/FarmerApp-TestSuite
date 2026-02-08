@@ -85,13 +85,13 @@ mixin MyAppointmentsStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// Handle chat tap (placeholder)
+  /// Handle chat tap — navigate to chat screen
   void handleChatTap(AppointmentModel appointment) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening chat with ${appointment.vet.name}...'),
-        backgroundColor: const Color(0xFF3B9B59),
-      ),
+    if (!appointment.canChat) return;
+    Navigator.pushNamed(
+      context,
+      AppRoutes.appointmentChat,
+      arguments: appointment,
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/appointment/models/appointment_model.dart';
 import 'package:flutter_app/features/appointment/services/appointment_service.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Mixin for Appointment Detail screen state management
@@ -112,14 +113,13 @@ mixin AppointmentDetailStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// Handle chat (placeholder)
+  /// Handle chat — navigate to chat screen
   void handleChat() {
-    if (appointment != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Opening chat with ${appointment!.vet.name}...'),
-          backgroundColor: AppTheme.primaryColor,
-        ),
+    if (appointment != null && appointment!.canChat && mounted) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.appointmentChat,
+        arguments: appointment,
       );
     }
   }

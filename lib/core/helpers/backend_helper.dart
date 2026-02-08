@@ -502,12 +502,12 @@ class BackendHelper {
 
   // ============ Public Vet Endpoints (Browse) ============
 
-  /// Get paginated vet list
+  /// Get vet list (may be paginated Map or plain List)
   /// GET /api/vets/
-  Future<Map<String, dynamic>> getVets({Map<String, dynamic>? params}) async {
+  Future<dynamic> getVets({Map<String, dynamic>? params}) async {
     try {
       final response = await _client.get(ApiEndpoints.vets, params: params);
-      return response.data as Map<String, dynamic>;
+      return response.data;
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -672,6 +672,70 @@ class BackendHelper {
       final response = await _client.post(
         ApiEndpoints.appointmentComplete(id),
         data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Appointment Chat Endpoints ============
+
+  /// Get messages for an appointment
+  /// GET /api/appointments/{id}/messages/
+  Future<Map<String, dynamic>> getAppointmentMessages(
+    int appointmentId,
+  ) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.appointmentMessages(appointmentId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Send a message on an appointment
+  /// POST /api/appointments/{id}/messages/
+  Future<Map<String, dynamic>> postSendMessage(
+    int appointmentId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.appointmentMessages(appointmentId),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get unread message count for an appointment
+  /// GET /api/appointments/{id}/messages/unread-count/
+  Future<Map<String, dynamic>> getUnreadMessageCount(
+    int appointmentId,
+  ) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.appointmentUnreadCount(appointmentId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Mark all messages as read for an appointment
+  /// POST /api/appointments/{id}/messages/read/
+  Future<Map<String, dynamic>> postMarkMessagesRead(
+    int appointmentId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.appointmentMarkRead(appointmentId),
       );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {

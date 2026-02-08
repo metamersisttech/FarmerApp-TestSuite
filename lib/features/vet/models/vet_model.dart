@@ -90,11 +90,23 @@ class VetModel {
 
   /// Create VetModel from API JSON response
   factory VetModel.fromJson(Map<String, dynamic> json) {
-    // Handle name from user object or direct name field
+    // Handle name from user object or flat fields
     String name;
     if (json['user'] is Map<String, dynamic>) {
+      // Nested user object (some API formats)
       final user = json['user'] as Map<String, dynamic>;
       name = _formatUsername(user['username'] as String? ?? 'Unknown');
+    } else if (json['user_first_name'] != null || json['user_last_name'] != null) {
+      // Flat fields: user_first_name + user_last_name
+      final first = json['user_first_name'] as String? ?? '';
+      final last = json['user_last_name'] as String? ?? '';
+      name = '$first $last'.trim();
+      if (name.isEmpty) {
+        name = _formatUsername(json['user_name'] as String? ?? 'Unknown');
+      }
+    } else if (json['user_name'] != null) {
+      // Flat field: user_name only
+      name = _formatUsername(json['user_name'] as String);
     } else {
       name = json['name'] as String? ?? 'Unknown';
     }

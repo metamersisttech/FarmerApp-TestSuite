@@ -75,6 +75,13 @@ class ApiEndpoints {
   static String appointmentReject(int id) => 'appointments/$id/reject/';
   static String appointmentComplete(int id) => 'appointments/$id/complete/';
 
+  // ============ Appointment Chat Endpoints ============
+  static String appointmentMessages(int id) => 'appointments/$id/messages/';
+  static String appointmentUnreadCount(int id) =>
+      'appointments/$id/messages/unread-count/';
+  static String appointmentMarkRead(int id) =>
+      'appointments/$id/messages/read/';
+
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here
 

@@ -79,14 +79,13 @@ mixin VetAppointmentsStateMixin<T extends StatefulWidget> on State<T> {
     });
   }
 
-  /// Chat placeholder
+  /// Handle chat tap — navigate to chat screen
   void handleChatTap(AppointmentModel appointment) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            'Opening chat with ${appointment.requestor?.name ?? "user"}...'),
-        backgroundColor: const Color(0xFF3B9B59),
-      ),
+    if (!appointment.canChat) return;
+    Navigator.pushNamed(
+      context,
+      AppRoutes.appointmentChat,
+      arguments: appointment,
     );
   }
 

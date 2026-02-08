@@ -29,6 +29,7 @@ import 'package:flutter_app/features/appointment/screens/vet_appointments_screen
 import 'package:flutter_app/features/appointment/screens/approve_appointment_screen.dart';
 import 'package:flutter_app/features/appointment/screens/reject_appointment_screen.dart';
 import 'package:flutter_app/features/appointment/screens/complete_appointment_screen.dart';
+import 'package:flutter_app/features/appointment/screens/appointment_chat_screen.dart';
 import 'package:flutter_app/features/appointment/models/appointment_model.dart';
 
 /// App Routes
@@ -72,6 +73,7 @@ class AppRoutes {
   static const String vetApproveAppointment = '/vet-approve-appointment';
   static const String vetRejectAppointment = '/vet-reject-appointment';
   static const String vetCompleteAppointment = '/vet-complete-appointment';
+  static const String appointmentChat = '/appointment-chat';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -294,6 +296,21 @@ class AppRoutes {
         return _buildRoute(
           const Scaffold(
             body: Center(child: Text('Appointment required for completion')),
+          ),
+          settings,
+        );
+
+      case appointmentChat:
+        final appointment = settings.arguments as AppointmentModel?;
+        if (appointment != null) {
+          return _buildRoute(
+            AppointmentChatScreen(appointment: appointment),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Appointment required for chat')),
           ),
           settings,
         );
