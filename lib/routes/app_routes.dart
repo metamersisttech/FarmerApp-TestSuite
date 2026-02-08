@@ -13,6 +13,14 @@ import 'package:flutter_app/features/resetPassword/screens/reset_password_page.d
 import 'package:flutter_app/features/sell/screens/create_farm_page.dart';
 import 'package:flutter_app/features/vet/screens/vet_detail_page.dart';
 import 'package:flutter_app/features/vet/screens/vet_services_page.dart';
+import 'package:flutter_app/features/vet/screens/vet_onboarding_carousel_screen.dart';
+import 'package:flutter_app/features/vet/screens/vet_document_upload_screen.dart';
+import 'package:flutter_app/features/vet/screens/vet_verification_status_screen.dart';
+import 'package:flutter_app/features/vet/screens/vet_document_reupload_screen.dart';
+import 'package:flutter_app/features/vet/screens/vet_profile_screen.dart';
+import 'package:flutter_app/features/vet/screens/vet_availability_screen.dart';
+import 'package:flutter_app/features/vet/screens/vet_pricing_screen.dart';
+import 'package:flutter_app/features/vet/models/vet_verification_status_model.dart';
 
 /// App Routes
 ///
@@ -41,6 +49,13 @@ class AppRoutes {
   static const String animalDetail = '/animal-detail';
   static const String vetServices = '/vet-services';
   static const String vetDetail = '/vet-detail';
+  static const String vetOnboardingCarousel = '/vet-onboarding-carousel';
+  static const String vetDocumentUpload = '/vet-document-upload';
+  static const String vetVerificationStatus = '/vet-verification-status';
+  static const String vetDocumentReupload = '/vet-document-reupload';
+  static const String vetProfile = '/vet-profile';
+  static const String vetAvailability = '/vet-availability';
+  static const String vetPricing = '/vet-pricing';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -150,6 +165,39 @@ class AppRoutes {
           ),
           settings,
         );
+
+      case vetOnboardingCarousel:
+        return _buildRoute(const VetOnboardingCarouselScreen(), settings);
+
+      case vetDocumentUpload:
+        return _buildRoute(const VetDocumentUploadScreen(), settings);
+
+      case vetVerificationStatus:
+        return _buildRoute(const VetVerificationStatusScreen(), settings);
+
+      case vetDocumentReupload:
+        final status = settings.arguments as VetVerificationStatusModel?;
+        if (status != null) {
+          return _buildRoute(
+            VetDocumentReuploadScreen(verificationStatus: status),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Verification status required')),
+          ),
+          settings,
+        );
+
+      case vetProfile:
+        return _buildRoute(const VetProfileScreen(), settings);
+
+      case vetAvailability:
+        return _buildRoute(const VetAvailabilityScreen(), settings);
+
+      case vetPricing:
+        return _buildRoute(const VetPricingScreen(), settings);
 
       default:
         return _buildRoute(

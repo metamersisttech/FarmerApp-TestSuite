@@ -343,6 +343,163 @@ class BackendHelper {
     }
   }
 
+  // ============ Vet Onboarding Endpoints ============
+
+  /// Get vet verification status
+  /// GET /api/auth/vet/verification-status/
+  Future<Map<String, dynamic>> getVetVerificationStatus() async {
+    try {
+      final response = await _client.get(ApiEndpoints.vetVerificationStatus);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Submit role upgrade request
+  /// POST /api/auth/role/upgrade/
+  Future<Map<String, dynamic>> postRoleUpgrade(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(ApiEndpoints.roleUpgrade, data: data);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Resubmit documents for a role upgrade request
+  /// PATCH /api/auth/role/upgrade/{id}/
+  Future<Map<String, dynamic>> patchRoleUpgrade(
+    int requestId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.roleUpgradeById(requestId),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Vet Profile Endpoints ============
+
+  /// Get vet profile (own)
+  /// GET /api/vets/me/
+  Future<Map<String, dynamic>> getVetProfile() async {
+    try {
+      final response = await _client.get(ApiEndpoints.vetProfile);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update vet profile
+  /// PATCH /api/vets/me/
+  Future<Map<String, dynamic>> patchVetProfile(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.vetProfile,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Vet Availability Endpoints ============
+
+  /// Get vet availability slots
+  /// GET /api/vets/me/availability/
+  Future<List<dynamic>> getVetAvailability() async {
+    try {
+      final response = await _client.get(ApiEndpoints.vetAvailability);
+      return response.data as List<dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Add a new availability slot
+  /// POST /api/vets/me/availability/
+  Future<Map<String, dynamic>> postVetAvailability(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.vetAvailability,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update an availability slot
+  /// PATCH /api/vets/me/availability/{id}/
+  Future<Map<String, dynamic>> patchVetAvailability(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.vetAvailabilityById(id),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Delete an availability slot
+  /// DELETE /api/vets/me/availability/{id}/
+  Future<void> deleteVetAvailability(int id) async {
+    try {
+      await _client.delete(ApiEndpoints.vetAvailabilityById(id));
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Vet Pricing Endpoints ============
+
+  /// Get vet pricing
+  /// GET /api/vets/me/pricing/
+  Future<Map<String, dynamic>> getVetPricing() async {
+    try {
+      final response = await _client.get(ApiEndpoints.vetPricing);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update vet pricing
+  /// PATCH /api/vets/me/pricing/
+  Future<Map<String, dynamic>> patchVetPricing(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.vetPricing,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Error Handling ============
 
   /// Handle Dio errors and extract message

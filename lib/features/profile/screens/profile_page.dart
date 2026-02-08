@@ -16,6 +16,10 @@ import 'package:flutter_app/features/profile/widgets/profile_header_card.dart';
 import 'package:flutter_app/features/profile/widgets/profile_menu_list.dart';
 import 'package:flutter_app/features/profile/screens/my_listings_page.dart';
 import 'package:flutter_app/features/sell/screens/post_animal_page.dart';
+import 'package:flutter_app/features/vet/widgets/become_vet_card.dart';
+import 'package:flutter_app/features/vet/controllers/vet_onboarding_controller.dart';
+import 'package:flutter_app/features/vet/screens/vet_onboarding_carousel_screen.dart';
+import 'package:flutter_app/features/vet/screens/vet_verification_status_screen.dart';
 
 /// Profile Page
 /// 
@@ -34,6 +38,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage>
     with ProfileStateMixin, ToastMixin {
   late final ProfileController _controller;
+  bool _isBecomeVetLoading = false;
 
   @override
   void initState() {
@@ -137,6 +142,47 @@ class _ProfilePageState extends State<ProfilePage>
     } else {
       // TODO: Navigate to KYC verification page
       showSuccessToast('KYC Verification - Coming soon!');
+    }
+  }
+
+  void _handleBecomeVet() async {
+    setState(() => _isBecomeVetLoading = true);
+
+    try {
+      final controller = VetOnboardingController();
+      final result = await controller.checkVerificationStatus();
+
+      if (!mounted) {
+        controller.dispose();
+        return;
+      }
+      setState(() => _isBecomeVetLoading = false);
+
+      if (result.success && result.verificationStatus != null) {
+        final status = result.verificationStatus!;
+        if (status.hasApplied) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const VetVerificationStatusScreen(),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const VetOnboardingCarouselScreen(),
+            ),
+          );
+        }
+      } else {
+        showErrorToast(result.message ?? 'Failed to check vet status');
+      }
+      controller.dispose();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isBecomeVetLoading = false);
+      showErrorToast('Failed to check vet status');
     }
   }
 
@@ -317,9 +363,17 @@ class _ProfilePageState extends State<ProfilePage>
                             status: profile?.kycStatus,
                             onTap: _handleKycTap,
                           ),
-                          
+
                           const SizedBox(height: 16),
-                          
+
+                          // Become a Vet Card
+                          BecomeVetCard(
+                            onTap: _handleBecomeVet,
+                            isLoading: _isBecomeVetLoading,
+                          ),
+
+                          const SizedBox(height: 16),
+
                           // Menu List
                           ProfileMenuList(
                             menuItems: ProfileMenuItem.defaultMenuItems(

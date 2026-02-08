@@ -46,6 +46,17 @@ class ApiEndpoints {
   // Get user by ID
   static String userById(int id) => 'users/$id/';
 
+  // ============ Vet Onboarding Endpoints ============
+  static const String vetVerificationStatus = 'auth/vet/verification-status/';
+  static const String roleUpgrade = 'auth/role/upgrade/';
+  static String roleUpgradeById(int id) => 'auth/role/upgrade/$id/';
+
+  // ============ Vet Profile & Availability Endpoints ============
+  static const String vetProfile = 'vets/me/';
+  static const String vetAvailability = 'vets/me/availability/';
+  static String vetAvailabilityById(int id) => 'vets/me/availability/$id/';
+  static const String vetPricing = 'vets/me/pricing/';
+
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here
 
