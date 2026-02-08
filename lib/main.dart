@@ -28,20 +28,29 @@ Future<void> main() async {
     }
   }
 
-  runApp(MyApp(user: user));
+  // Check stored app mode for vet dashboard routing
+  final appMode = user != null ? await commonHelper.getAppMode() : 'farmer';
+
+  runApp(MyApp(user: user, appMode: appMode));
 }
 
 class MyApp extends StatelessWidget {
   final UserModel? user;
+  final String appMode;
 
-  const MyApp({super.key, this.user});
+  const MyApp({super.key, this.user, this.appMode = 'farmer'});
 
   @override
   Widget build(BuildContext context) {
-    // Determine initial route based on user existence
-    // If user exists in localStorage → Home
-    // If user NOT exists → Login
-    final String initialRoute = user != null ? AppRoutes.home : AppRoutes.login;
+    // Determine initial route based on user existence and app mode
+    String initialRoute;
+    if (user == null) {
+      initialRoute = AppRoutes.login;
+    } else if (appMode == 'vet') {
+      initialRoute = AppRoutes.vetHome;
+    } else {
+      initialRoute = AppRoutes.home;
+    }
 
     return MaterialApp(
       title: 'Flutter App',

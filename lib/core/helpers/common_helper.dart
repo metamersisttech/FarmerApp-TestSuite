@@ -14,6 +14,7 @@ class CommonHelper {
   static const String _userKey = 'logged_in_user';
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
+  static const String _appModeKey = 'app_mode';
 
   final FlutterSecureStorage _storage;
 
@@ -104,6 +105,25 @@ class CommonHelper {
   /// Clear all auth data (for logout)
   Future<void> clearAll() async {
     await clearUser();
+    await _storage.delete(key: _appModeKey);
+  }
+
+  // ============ App Mode Management ============
+
+  /// Get current app mode ('farmer' or 'vet'). Defaults to 'farmer'.
+  Future<String> getAppMode() async {
+    final mode = await _storage.read(key: _appModeKey);
+    return mode ?? 'farmer';
+  }
+
+  /// Set app mode ('farmer' or 'vet')
+  Future<void> setAppMode(String mode) async {
+    await _storage.write(key: _appModeKey, value: mode);
+  }
+
+  /// Check if currently in vet mode
+  Future<bool> isVetMode() async {
+    return (await getAppMode()) == 'vet';
   }
 
   // ============ Image URL Helper ============

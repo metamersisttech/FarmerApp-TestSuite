@@ -20,6 +20,8 @@ import 'package:flutter_app/features/vet/widgets/become_vet_card.dart';
 import 'package:flutter_app/features/vet/controllers/vet_onboarding_controller.dart';
 import 'package:flutter_app/features/vet/screens/vet_onboarding_carousel_screen.dart';
 import 'package:flutter_app/features/vet/screens/vet_verification_status_screen.dart';
+import 'package:flutter_app/features/vet_dashboard/screens/vet_home_page.dart';
+import 'package:flutter_app/features/vet_dashboard/widgets/switch_mode_card.dart';
 
 /// Profile Page
 /// 
@@ -39,6 +41,7 @@ class _ProfilePageState extends State<ProfilePage>
     with ProfileStateMixin, ToastMixin {
   late final ProfileController _controller;
   bool _isBecomeVetLoading = false;
+  bool _isApprovedVet = false;
 
   @override
   void initState() {
@@ -55,10 +58,11 @@ class _ProfilePageState extends State<ProfilePage>
 
   Future<void> _loadData() async {
     setLoading(true);
-    
+
     await Future.wait([
       _controller.loadProfile(),
       _controller.loadMenuCounts(),
+      _checkVetApprovalStatus(),
     ]);
 
     if (!mounted) return;
@@ -72,6 +76,19 @@ class _ProfilePageState extends State<ProfilePage>
     }
 
     setLoading(false);
+  }
+
+  Future<void> _checkVetApprovalStatus() async {
+    try {
+      final controller = VetOnboardingController();
+      final result = await controller.checkVerificationStatus();
+      if (result.success && result.verificationStatus != null) {
+        _isApprovedVet = result.verificationStatus!.isApproved;
+      }
+      controller.dispose();
+    } catch (_) {
+      // Silently fail — default to showing BecomeVetCard
+    }
   }
 
   Future<void> _handleRefresh() async {
@@ -183,6 +200,25 @@ class _ProfilePageState extends State<ProfilePage>
       if (!mounted) return;
       setState(() => _isBecomeVetLoading = false);
       showErrorToast('Failed to check vet status');
+    }
+  }
+
+  void _handleSwitchToVet() async {
+    setState(() => _isBecomeVetLoading = true);
+
+    try {
+      await CommonHelper().setAppMode('vet');
+      if (!mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const VetHomePage()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isBecomeVetLoading = false);
+      showErrorToast('Failed to switch to vet mode');
     }
   }
 
@@ -366,11 +402,18 @@ class _ProfilePageState extends State<ProfilePage>
 
                           const SizedBox(height: 16),
 
-                          // Become a Vet Card
-                          BecomeVetCard(
-                            onTap: _handleBecomeVet,
-                            isLoading: _isBecomeVetLoading,
-                          ),
+                          // Become a Vet / Switch to Vet Mode
+                          if (_isApprovedVet)
+                            SwitchModeCard(
+                              targetMode: 'vet',
+                              onTap: _handleSwitchToVet,
+                              isLoading: _isBecomeVetLoading,
+                            )
+                          else
+                            BecomeVetCard(
+                              onTap: _handleBecomeVet,
+                              isLoading: _isBecomeVetLoading,
+                            ),
 
                           const SizedBox(height: 16),
 

@@ -261,7 +261,7 @@ class AppointmentService {
         appointmentId,
         {
           'scheduled_date': scheduledDate,
-          'start_time': startTime,
+          'scheduled_start_time': startTime,
         },
       );
       final appointment = AppointmentModel.fromJson(json);
