@@ -132,41 +132,61 @@ class HomeService {
         return [];
       }
       
-      // Step 2: Get cached listings from viewalllistings cache
-      final cacheKey = 'listings:order=desc&sort_by=posted_at';
-      print('[HomeService] 🔑 Looking for cache key: $cacheKey');
+      // Step 2: Try multiple cache keys to find cached listings
+      // Users might have browsed with different sort orders/filters
+      final cacheKeysToTry = [
+        'listings:all',  // Try unfiltered first
+        'listings:order=desc&sort_by=posted_at',  // Most common sort
+        'listings:order=asc&sort_by=posted_at',
+        'listings:order=desc&sort_by=price',
+        'listings:order=asc&sort_by=price',
+      ];
       
-      final cachedListings = await _cacheManager.get<List<ListingModel>>(
-        cacheKey,
-        (data) => _parseListingsFromCache(data),
-      );
-
-      if (cachedListings == null || cachedListings.isEmpty) {
-        print('[HomeService] ⚠️ No cached listings in $cacheKey, trying listings:all');
+      List<ListingModel>? cachedListings;
+      String? foundKey;
+      
+      for (final cacheKey in cacheKeysToTry) {
+        print('[HomeService] 🔑 Trying cache key: $cacheKey');
         
-        // Fallback to listings:all
-        final fallbackListings = await _cacheManager.get<List<ListingModel>>(
-          'listings:all',
-          (data) => _parseListingsFromCache(data),
-        );
-        
-        if (fallbackListings == null || fallbackListings.isEmpty) {
-          print('[HomeService] ❌ No cached listings available');
-          print('[HomeService] 📱 Recently viewed requires cached data - clearing stale IDs');
-          // Clear stale recently viewed IDs since cache is empty
-          await _cacheManager.clearRecentlyViewed();
-          return [];
+        try {
+          cachedListings = await _cacheManager.get<List<ListingModel>>(
+            cacheKey,
+            (data) => _parseListingsFromCache(data),
+          );
+          
+          if (cachedListings != null) {
+            print('[HomeService] 📦 Cache returned ${cachedListings.length} listings for key: $cacheKey');
+          } else {
+            print('[HomeService] ❌ Cache returned null for key: $cacheKey');
+          }
+          
+          if (cachedListings != null && cachedListings.isNotEmpty) {
+            foundKey = cacheKey;
+            print('[HomeService] ✅ Found ${cachedListings.length} cached listings in $foundKey');
+            break;
+          }
+        } catch (e) {
+          print('[HomeService] ❌ Error reading cache key $cacheKey: $e');
         }
-        
-        print('[HomeService] 📦 Found ${fallbackListings.length} listings in fallback cache');
-        return _filterAndSortByViewedIds(fallbackListings, viewedIds);
       }
 
-      print('[HomeService] ✅ Found ${cachedListings.length} cached listings in $cacheKey');
-      final allListings = cachedListings;
+      if (cachedListings == null || cachedListings.isEmpty) {
+        print('[HomeService] ⚠️ No cached listings found in any cache key');
+        print('[HomeService] 🌐 Recently viewed IDs are preserved but no listing data cached yet');
+        print('[HomeService] 💡 User needs to browse listings page to populate cache');
+        
+        // DON'T clear recently viewed IDs - they should persist
+        // User just needs to browse listings again to populate cache
+        return [];
+      }
+      
+      print('[HomeService] 🔄 Starting to filter ${cachedListings.length} listings by ${viewedIds.length} viewed IDs...');
       
       // Step 3: Filter to only show listings that were tracked
-      return _filterAndSortByViewedIds(allListings, viewedIds);
+      final result = _filterAndSortByViewedIds(cachedListings, viewedIds);
+      
+      print('[HomeService] ✅ Returning ${result.length} recently viewed listings');
+      return result;
     } catch (e) {
       print('[HomeService] ❌ Error getting recently viewed: $e');
       print('[HomeService] Stack trace: ${StackTrace.current}');
