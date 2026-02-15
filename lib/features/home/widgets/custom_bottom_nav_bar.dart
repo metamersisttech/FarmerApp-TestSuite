@@ -4,8 +4,9 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 /// Custom Bottom Navigation Bar for Home Page
 ///
 /// Features:
-/// - 4 navigation items (Home, Listings, AI, Community)
+/// - 4 navigation items (Home, Listings, Community, Profile)
 /// - Icon-only design with subtle backgrounds
+/// - Notched center for FAB
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int)? onTap;
@@ -18,55 +19,51 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: AppTheme.borderColor,
-            width: 1,
-          ),
-        ),
-      ),
-      child: SafeArea(
-        child: SizedBox(
-          height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // 1. Home
-              _NavBarItem(
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home_rounded,
-                isActive: currentIndex == 0,
-                onTap: () => onTap?.call(0),
-              ),
+    return BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 8.0,
+      color: Colors.white,
+      elevation: 8,
+      child: SizedBox(
+        height: 65,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // 1. Home
+            _NavBarItem(
+              icon: Icons.home_outlined,
+              activeIcon: Icons.home_rounded,
+              isActive: currentIndex == 0,
+              onTap: () => onTap?.call(0),
+            ),
 
-              // 2. Listings/Farm
-              _NavBarItem(
-                icon: Icons.storefront_outlined,
-                activeIcon: Icons.storefront_rounded,
-                isActive: currentIndex == 1,
-                onTap: () => onTap?.call(1),
-              ),
+            // 2. Listings/Farm
+            _NavBarItem(
+              icon: Icons.storefront_outlined,
+              activeIcon: Icons.storefront_rounded,
+              isActive: currentIndex == 1,
+              onTap: () => onTap?.call(1),
+            ),
 
-              // 3. AI Tools
-              _NavBarItem(
-                icon: Icons.auto_awesome_outlined,
-                activeIcon: Icons.auto_awesome,
-                isActive: currentIndex == 2,
-                onTap: () => onTap?.call(2),
-              ),
+            // Center space for FAB
+            const SizedBox(width: 56),
 
-              // 4. Community
-              _NavBarItem(
-                icon: Icons.groups_outlined,
-                activeIcon: Icons.groups_rounded,
-                isActive: currentIndex == 3,
-                onTap: () => onTap?.call(3),
-              ),
-            ],
-          ),
+            // 3. Community (moved from index 3)
+            _NavBarItem(
+              icon: Icons.groups_outlined,
+              activeIcon: Icons.groups_rounded,
+              isActive: currentIndex == 2,
+              onTap: () => onTap?.call(2),
+            ),
+
+            // 4. Profile (NEW - replaces AI Tools)
+            _NavBarItem(
+              icon: Icons.person_outline,
+              activeIcon: Icons.person,
+              isActive: currentIndex == 3,
+              onTap: () => onTap?.call(3),
+            ),
+          ],
         ),
       ),
     );

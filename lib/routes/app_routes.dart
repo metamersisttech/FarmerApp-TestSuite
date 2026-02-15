@@ -33,6 +33,7 @@ import 'package:flutter_app/features/appointment/screens/appointment_chat_screen
 import 'package:flutter_app/features/appointment/models/appointment_model.dart';
 import 'package:flutter_app/features/vet_dashboard/screens/vet_home_page.dart';
 import 'package:flutter_app/features/vet_dashboard/screens/vet_dashboard_profile_page.dart';
+import 'package:flutter_app/features/recentlyviewed/screens/recentlyviewed_page.dart';
 
 /// App Routes
 ///
@@ -78,6 +79,7 @@ class AppRoutes {
   static const String appointmentChat = '/appointment-chat';
   static const String vetHome = '/vet-home';
   static const String vetDashboardProfile = '/vet-dashboard-profile';
+  static const String recentlyViewed = '/recently-viewed';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -324,6 +326,9 @@ class AppRoutes {
 
       case vetDashboardProfile:
         return _buildRoute(const VetDashboardProfilePage(), settings);
+
+      case recentlyViewed:
+        return _buildRoute(const RecentlyViewedPage(), settings);
 
       default:
         return _buildRoute(

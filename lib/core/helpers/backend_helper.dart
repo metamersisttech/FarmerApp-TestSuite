@@ -223,6 +223,31 @@ class BackendHelper {
     }
   }
 
+  /// Bulk fetch listings by IDs (for delta sync)
+  /// GET /api/listings/bulk/?ids=1,2,3
+  /// Response: Array of listing objects
+  /// 
+  /// TODO: Backend to implement this endpoint
+  /// For now, will fallback to fetching individual listings
+  Future<dynamic> getBulkListings(List<int> ids) async {
+    try {
+      if (ids.isEmpty) {
+        return [];
+      }
+      
+      // Convert IDs to comma-separated string
+      final idsParam = ids.join(',');
+      
+      final response = await _client.get(
+        ApiEndpoints.listingsBulk,
+        params: {'ids': idsParam},
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // Get current user listings
 
   Future<dynamic> getMyListings({Map<String, dynamic>? params}) async {

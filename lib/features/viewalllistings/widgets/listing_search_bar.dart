@@ -9,6 +9,7 @@ class ListingSearchBar extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onFilterTap;
   final bool enabled;
+  final bool showFilterButton;
 
   const ListingSearchBar({
     super.key,
@@ -18,6 +19,7 @@ class ListingSearchBar extends StatelessWidget {
     this.onTap,
     this.onFilterTap,
     this.enabled = true,
+    this.showFilterButton = true,
   });
 
   @override
@@ -61,32 +63,34 @@ class ListingSearchBar extends StatelessWidget {
           ),
         ),
         
-        const SizedBox(width: 12),
-        
-        // Filter button
-        GestureDetector(
-          onTap: onFilterTap,
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.tune,
-              color: Colors.white,
-              size: 24,
+        // Filter button (conditionally shown)
+        if (showFilterButton) ...[
+          const SizedBox(width: 12),
+          
+          GestureDetector(
+            onTap: onFilterTap,
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.tune,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }

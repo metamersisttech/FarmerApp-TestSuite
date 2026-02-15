@@ -54,6 +54,17 @@ dependencies:
   # Image Picker
   image_picker: ^1.0.7             # Pick images from camera/gallery
 
+
+  cloud_firestore: ^6.1.1
+
+  #Caching packages
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  cached_network_image: ^3.4.1
+
+  # Recommended for shimmer effect
+  shimmer: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

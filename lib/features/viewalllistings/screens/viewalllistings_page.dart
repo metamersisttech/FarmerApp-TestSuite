@@ -16,8 +16,9 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 /// Architecture:
 /// - UI only in this file (build methods)
 /// - Business logic in ViewAllListingsStateMixin
-/// - Data management in ViewAllListingsController
+/// - Data management in ViewAllListingsController (with Firebase sync)
 /// - Data fetching in ViewAllListingsService
+/// - Cache-first strategy with automatic invalidation via Firebase
 class ViewAllListingsPage extends StatefulWidget {
   const ViewAllListingsPage({super.key});
 
@@ -31,6 +32,12 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
   @override
   void initState() {
     super.initState();
+    
+    // Initialize controller with Firebase sync (see mixin for implementation)
+    // This will:
+    // 1. Create controller with firebaseSync instance
+    // 2. Register Firebase listener for automatic cache invalidation
+    // 3. Fetch initial listings (cache-first strategy)
     initializeController();
     initializeHomeController();
     

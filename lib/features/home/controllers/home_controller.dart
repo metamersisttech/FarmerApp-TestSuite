@@ -11,12 +11,16 @@ class HomeController extends BaseController {
   final HomeService _homeService;
 
   List<ListingModel> _listings = [];
+  List<ListingModel> _recentlyViewedListings = [];
 
   HomeController({HomeService? homeService})
       : _homeService = homeService ?? HomeService();
 
   /// Get listings data
   List<ListingModel> get listings => _listings;
+
+  /// Get recently viewed listings
+  List<ListingModel> get recentlyViewedListings => _recentlyViewedListings;
 
   /// Get listings count
   int get listingsCount => _listings.length;
@@ -151,6 +155,44 @@ class HomeController extends BaseController {
   /// Refresh listings
   Future<void> refreshListings() async {
     return fetchListings();
+  }
+
+  /// Fetch recently viewed listings from cache
+  Future<void> fetchRecentlyViewedListings() async {
+    if (isDisposed) return;
+
+    try {
+      _recentlyViewedListings = await _homeService.getRecentlyViewedListings();
+
+      if (isDisposed) return;
+
+      if (kDebugMode) {
+        print('[HomeController] Fetched ${_recentlyViewedListings.length} recently viewed listings');
+      }
+
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('[HomeController] Error fetching recently viewed: $e');
+      }
+    }
+  }
+
+  /// Track a viewed listing
+  Future<void> trackViewedListing(int listingId) async {
+    if (isDisposed) return;
+
+    try {
+      await _homeService.trackViewedListing(listingId);
+
+      if (kDebugMode) {
+        print('[HomeController] Tracked viewed listing: $listingId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('[HomeController] Error tracking viewed listing: $e');
+      }
+    }
   }
 }
 

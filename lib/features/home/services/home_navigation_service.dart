@@ -3,6 +3,7 @@ import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/sell/screens/post_animal_page.dart';
 import 'package:flutter_app/features/vet/screens/vet_services_page.dart';
 import 'package:flutter_app/features/viewalllistings/screens/viewalllistings_page.dart';
+import 'package:flutter_app/features/recentlyviewed/screens/recentlyviewed_page.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 
 /// Result of navigation action
@@ -100,6 +101,15 @@ class HomeNavigationService {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const VetServicesPage()),
+    );
+    return NavigationResult.success();
+  }
+
+  /// Navigate to Recently Viewed Listings screen
+  static NavigationResult toRecentlyViewed(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RecentlyViewedPage()),
     );
     return NavigationResult.success();
   }

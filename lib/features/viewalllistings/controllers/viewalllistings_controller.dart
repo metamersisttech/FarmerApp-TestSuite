@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_app/core/base/base_controller.dart';
 import 'package:flutter_app/data/models/listing_model.dart';
 import 'package:flutter_app/features/viewalllistings/services/viewalllistings_service.dart';
+import 'package:flutter_app/core/services/firebase_cache_sync_service.dart';
+import 'package:flutter_app/features/viewalllistings/services/lisiting_cache_service.dart';
 
 /// Controller for view all listings page operations
 /// 
@@ -9,6 +11,8 @@ import 'package:flutter_app/features/viewalllistings/services/viewalllistings_se
 /// Uses ViewAllListingsService for data operations.
 class ViewAllListingsController extends BaseController {
   final ViewAllListingsService _service;
+  final ListingCacheService _cacheService = ListingCacheService();
+  final FirebaseCacheSyncService _firebaseSync;
 
   List<ListingModel> _listings = [];
   String _selectedCategory = 'All';
@@ -28,8 +32,19 @@ class ViewAllListingsController extends BaseController {
     'Poultry',
   ];
 
-  ViewAllListingsController({ViewAllListingsService? service})
-      : _service = service ?? ViewAllListingsService();
+  ViewAllListingsController(this._firebaseSync, {ViewAllListingsService? service})
+    : _service = service ?? ViewAllListingsService();
+
+  /// Initialize controller (call from initState)
+  void init() {
+  // Register for automatic refresh on cache invalidation
+    _firebaseSync.addInvalidationListener('listings', _autoRefresh);
+  
+  // Load initial data
+    fetchListings();
+  }
+  
+
 
   /// Get listings data
   List<ListingModel> get listings => _listings;
@@ -84,7 +99,9 @@ class ViewAllListingsController extends BaseController {
         params['species'] = _selectedCategory;
       }
 
-      _listings = await _service.fetchListings(params: params);
+      // OLD: _listings = await _service.fetchListings(params: params);
+// NEW:
+      _listings = await _cacheService.getListings(params: params);
 
       if (isDisposed) return;
 
@@ -154,4 +171,17 @@ class ViewAllListingsController extends BaseController {
   Future<void> refreshListings() async {
     return fetchListings();
   }
+
+/// Called automatically when Firebase invalidates cache
+  Future<void> _autoRefresh() async {
+    print('🔄 Auto-refreshing listings (Firebase trigger)...');
+    await fetchListings();
+  }
+  @override
+  void dispose() {
+    _firebaseSync.removeInvalidationListener('listings', _autoRefresh);
+    super.dispose();
+  }
+
+
 }

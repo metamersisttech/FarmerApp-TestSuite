@@ -5,16 +5,36 @@ import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_app/core/cache/cache_manager.dart';
+import 'package:flutter_app/core/services/firebase_cache_sync_service.dart';
 
 /// Global navigation key for accessing navigation context from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+/// Global route observer for detecting page visibility changes
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
+// Create global instance for dependency injection
+final FirebaseCacheSyncService firebaseSync = FirebaseCacheSyncService();
+
 /// Main entry point for the Flutter app
 ///
-/// Initializes Firebase, checks auth state, and runs the app.
+/// Initializes Firebase, cache system, and checks auth state.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase
   await Firebase.initializeApp();
+  print('✅ Firebase initialized');
+  
+  // Initialize cache manager (Hive) - must be before app runs
+  await CacheManager().initialize();
+  print('✅ Cache manager initialized');
+  
+  // Initialize Firebase cache sync service (realtime listeners)
+  firebaseSync.initialize();
+  print('✅ Firebase sync initialized');
 
   // Check if user exists in localStorage
   final commonHelper = CommonHelper();
@@ -58,6 +78,9 @@ class MyApp extends StatelessWidget {
 
       // Global navigation key
       navigatorKey: navigatorKey,
+      
+      // Route observer for page visibility detection
+      navigatorObservers: [routeObserver],
 
       // Theme configuration
       theme: AppTheme.lightTheme,
