@@ -4,13 +4,13 @@ import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/home/mixins/home_state_mixin.dart';
 import 'package:flutter_app/features/home/mixins/location_mixin.dart';
 import 'package:flutter_app/features/home/services/home_navigation_service.dart';
-import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_app/features/home/widgets/home_search_bar.dart';
 import 'package:flutter_app/features/home/widgets/profile_section.dart';
 import 'package:flutter_app/features/home/widgets/quick_actions_section.dart';
 import 'package:flutter_app/features/home/widgets/recent_listing_section.dart';
 import 'package:flutter_app/features/home/widgets/recently_viewed_section.dart';
 import 'package:flutter_app/features/home/widgets/scrolling_templates.dart';
+import 'package:flutter_app/features/viewalllistings/screens/viewalllistings_page.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/main.dart' show routeObserver;
 
@@ -27,8 +27,9 @@ import 'package:flutter_app/main.dart' show routeObserver;
 /// - API calls in HomeService
 class HomePage extends StatefulWidget {
   final UserModel? user;
+  final Function(int)? onNavigateToTab;
 
-  const HomePage({super.key, this.user});
+  const HomePage({super.key, this.user, this.onNavigateToTab});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -102,9 +103,10 @@ class _HomePageState extends State<HomePage>
                         user?.username ?? 
                         'Guest';
 
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: SafeArea(
+    return Material(
+      color: Colors.grey[100], // Match the background color
+      child: Padding(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         child: Column(
           children: [
             // Fixed Header: Profile Section with Search Bar
@@ -125,8 +127,14 @@ class _HomePageState extends State<HomePage>
 
                     // Quick Actions Section
                     QuickActionsSection(
-                      onMarketplaceTap: () {
-                        HomeNavigationService.toMarketplace(context);
+                      onMarketplaceTap: () async {
+                        final selectedTab = await Navigator.push<int>(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ViewAllListingsPage()),
+                        );
+                        if (selectedTab != null && widget.onNavigateToTab != null) {
+                          widget.onNavigateToTab!(selectedTab);
+                        }
                       },
                       onVetServicesTap: () {
                         HomeNavigationService.toVetServices(context);
@@ -143,39 +151,31 @@ class _HomePageState extends State<HomePage>
                       },
                     ),
 
-                    // Recent Listing Section
+                    // Fresh Recommendations Section
                     RecentListingSection(
+                      title: 'Fresh recommendations',
                       listings: homeController.listings,
                       isLoading: homeController.isLoading,
-                      onActionPressed: () {
-                        HomeNavigationService.toMarketplace(context);
+                      onActionPressed: () async {
+                        final selectedTab = await Navigator.push<int>(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ViewAllListingsPage()),
+                        );
+                        if (selectedTab != null && widget.onNavigateToTab != null) {
+                          widget.onNavigateToTab!(selectedTab);
+                        }
                       },
                       onListingTap: handleListingTap,
                     ),
+                    
+                    // Add bottom padding for the bottom nav bar
+                    const SizedBox(height: 80),
                   ],
                 ),
               ),
             ),
           ],
         ),
-      ),
-      // Floating Add Button - Centered in Bottom Nav Bar
-      floatingActionButton: FloatingActionButton(
-        onPressed: handleAddTap,
-        backgroundColor: Colors.green,
-        elevation: 6,
-        shape: const CircleBorder(),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 32,
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      // Bottom Navigation Bar
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentBottomNavIndex,
-        onTap: handleBottomNavTap,
       ),
     );
   }
@@ -190,105 +190,18 @@ class _HomePageState extends State<HomePage>
           firstName: displayName,
           location: currentLocationText,
           onLocationTap: handleLocationTap,
+          onNotificationTap: handleNotificationTap,
+          notificationCount: 3,
         ),
 
-        // Search Bar with Favorite and Notification icons
+        // Search Bar
         Positioned(
           bottom: -20,
           left: 20,
           right: 20,
-          child: Row(
-            children: [
-              // Search Bar
-              Expanded(
-                child: HomeSearchBar(onChanged: handleSearch),
-              ),
-              const SizedBox(width: 12),
-              
-              // Favorite Icon
-              _buildActionIcon(
-                icon: Icons.favorite_border,
-                onTap: () {
-                  // Handle favorite tap - will be implemented in mixin
-                  final result = HomeNavigationService.toSaved(context);
-                  if (!result.success && result.message != null) {
-                    showComingSoonMessage(result.message!.replaceAll(' feature coming soon!', ''));
-                  }
-                },
-              ),
-              const SizedBox(width: 12),
-              
-              // Notification Icon with badge
-              _buildActionIcon(
-                icon: Icons.notifications_outlined,
-                onTap: handleNotificationTap,
-                badgeCount: 3,
-              ),
-            ],
-          ),
+          child: HomeSearchBar(onChanged: handleSearch),
         ),
       ],
-    );
-  }
-
-  /// Build action icon button with optional badge
-  Widget _buildActionIcon({
-    required IconData icon,
-    required VoidCallback onTap,
-    int? badgeCount,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(
-              icon,
-              color: AppTheme.authPrimaryColor,
-              size: 24,
-            ),
-          ),
-          if (badgeCount != null && badgeCount > 0)
-            Positioned(
-              right: -4,
-              top: -4,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                constraints: const BoxConstraints(
-                  minWidth: 20,
-                  minHeight: 20,
-                ),
-                child: Center(
-                  child: Text(
-                    badgeCount > 99 ? '99+' : badgeCount.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 

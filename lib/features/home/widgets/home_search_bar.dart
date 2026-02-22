@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/features/search/screens/search_page.dart';
 
 /// Search bar widget for home page
 class HomeSearchBar extends StatelessWidget {
@@ -19,29 +20,32 @@ class HomeSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(23),
-      ),
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-        onChanged: onChanged,
-        onTap: onTap,
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
-          prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 22),
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 14,
-          ),
+    return GestureDetector(
+      onTap: () {
+        // Navigate to full search page
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SearchPage()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(23),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.search, color: Colors.grey[400], size: 22),
+            const SizedBox(width: 12),
+            Text(
+              hintText,
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 16,
+              ),
+            ),
+          ],
         ),
       ),
     );

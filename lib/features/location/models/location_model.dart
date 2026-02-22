@@ -1,4 +1,5 @@
 /// Location models for India address system
+library;
 
 /// State model
 class StateModel {

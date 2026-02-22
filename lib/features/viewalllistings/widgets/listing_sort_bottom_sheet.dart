@@ -136,7 +136,7 @@ class _ListingSortBottomSheetState extends State<ListingSortBottomSheet> {
                     option['icon'] as IconData,
                     option['sortBy'] as String,
                     option['order'] as String,
-                  )).toList(),
+                  )),
                 ],
               ),
             ),

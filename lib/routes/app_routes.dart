@@ -7,10 +7,10 @@ import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
 import 'package:flutter_app/features/editprofile/screens/edit_profile_page.dart';
 import 'package:flutter_app/features/forgotPassword/screens/forgot_password_page.dart';
 import 'package:flutter_app/features/home/screens/animal_detail_page.dart';
-import 'package:flutter_app/features/home/screens/home_page.dart';
+import 'package:flutter_app/features/home/screens/main_shell_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
 import 'package:flutter_app/features/resetPassword/screens/reset_password_page.dart';
-import 'package:flutter_app/features/sell/screens/create_farm_page.dart';
+import 'package:flutter_app/features/postlistings/screens/create_farm_page.dart';
 import 'package:flutter_app/features/vet/screens/vet_detail_page.dart';
 import 'package:flutter_app/features/vet/screens/vet_services_page.dart';
 import 'package:flutter_app/features/vet/screens/vet_onboarding_carousel_screen.dart';
@@ -34,6 +34,7 @@ import 'package:flutter_app/features/appointment/models/appointment_model.dart';
 import 'package:flutter_app/features/vet_dashboard/screens/vet_home_page.dart';
 import 'package:flutter_app/features/vet_dashboard/screens/vet_dashboard_profile_page.dart';
 import 'package:flutter_app/features/recentlyviewed/screens/recentlyviewed_page.dart';
+import 'package:flutter_app/features/editlistings/screens/edit_listing_page.dart';
 
 /// App Routes
 ///
@@ -80,6 +81,7 @@ class AppRoutes {
   static const String vetHome = '/vet-home';
   static const String vetDashboardProfile = '/vet-dashboard-profile';
   static const String recentlyViewed = '/recently-viewed';
+  static const String editListingDetails = '/edit-listing-details';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -129,7 +131,7 @@ class AppRoutes {
         if (args is Map<String, dynamic>) {
           user = args['user'] as UserModel?;
         }
-        return _buildRoute(HomePage(user: user), settings);
+        return _buildRoute(MainShellPage(user: user), settings);
 
       case profile:
         return _buildRoute(const ProfilePage(), settings);
@@ -329,6 +331,23 @@ class AppRoutes {
 
       case recentlyViewed:
         return _buildRoute(const RecentlyViewedPage(), settings);
+
+      case editListingDetails:
+        final listingId = settings.arguments is int
+            ? settings.arguments as int
+            : (settings.arguments as Map<String, dynamic>?)?['listingId'] as int?;
+        if (listingId != null) {
+          return _buildRoute(
+            EditListingPage(listingId: listingId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Listing ID required for edit')),
+          ),
+          settings,
+        );
 
       default:
         return _buildRoute(

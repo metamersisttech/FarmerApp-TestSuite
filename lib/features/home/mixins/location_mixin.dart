@@ -23,30 +23,32 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
     try {
       // Check current permission status
       final currentPermission = await _locationService.checkPermission();
-      
+
       print('📍 Current location permission: $currentPermission');
-      
+
       // If user has granted permanent permission, auto-fetch location
-      if (currentPermission == LocationPermission.always || 
+      if (currentPermission == LocationPermission.always ||
           currentPermission == LocationPermission.whileInUse) {
         print('✅ Location permission already granted, fetching location...');
         await fetchAndDisplayCurrentLocation();
         return;
       }
-      
+
       print('⚠️ Location permission not granted, showing dialog...');
-      
+
       // Show dialog for denied permissions
-      final shouldEnable = await LocationService.showLocationPermissionDialog(context);
-      
+      final shouldEnable = await LocationService.showLocationPermissionDialog(
+        context,
+      );
+
       print('👤 User response to dialog: $shouldEnable');
-      
+
       if (shouldEnable && mounted) {
         // User clicked "Enable" - request permission
         final result = await _locationService.requestLocationAccess();
-        
+
         if (!mounted) return;
-        
+
         if (result.success) {
           _showSuccessToast('Location access enabled');
           await fetchAndDisplayCurrentLocation();
@@ -78,9 +80,9 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
   }
 
   void _showInfoToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   /// Fetch current location and display it
@@ -125,15 +127,15 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
   /// Shows dialog automatically if location is turned off
   Future<void> checkLocationServiceStatus() async {
     if (!mounted) return;
-    
+
     // Wait a bit for the page to settle before showing dialog
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     if (!mounted) return;
-    
+
     // Check if location services are enabled
     final serviceEnabled = await _locationService.isLocationServiceEnabled();
-    
+
     if (!serviceEnabled) {
       print('🔴 Location services are disabled, showing dialog...');
       showLocationOffDialog();
@@ -147,9 +149,7 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         contentPadding: const EdgeInsets.all(24),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -168,7 +168,7 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Title
             const Text(
               'Device location is off',
@@ -180,10 +180,10 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            
+
             // Description
             Text(
-              'Share your current location to easily buy and sell near you',
+              'Share your current location to easily buy and postlistings near you',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -192,7 +192,7 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            
+
             // Enable Location Button
             SizedBox(
               width: double.infinity,
@@ -215,15 +215,12 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
                 ),
                 child: const Text(
                   'Enable Location',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
             const SizedBox(height: 12),
-            
+
             // Cancel Button
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -246,17 +243,17 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
   Future<void> handleLocationTap() async {
     final selectedLocation = await Navigator.push<LocationData>(
       context,
-      MaterialPageRoute(
-        builder: (context) => const LocationPage(),
-      ),
+      MaterialPageRoute(builder: (context) => const LocationPage()),
     );
-    
+
     if (selectedLocation != null && mounted) {
       setState(() {
         _currentLocationText = selectedLocation.displayLocation;
       });
-      
-      _showSuccessToast('Location updated to ${selectedLocation.displayLocation}');
+
+      _showSuccessToast(
+        'Location updated to ${selectedLocation.displayLocation}',
+      );
     }
   }
 }

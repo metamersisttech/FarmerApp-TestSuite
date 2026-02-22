@@ -5,8 +5,8 @@ import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
-import 'package:flutter_app/features/home/screens/home_page.dart';
 import 'package:flutter_app/features/vet_dashboard/screens/vet_home_page.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// Service for handling auth-related navigation
 class AuthNavigationService {
@@ -76,9 +76,7 @@ class AuthNavigationService {
     // If no user passed, try to get from CommonHelper
     final commonHelper = CommonHelper();
     UserModel? userToPass = user;
-    if (userToPass == null) {
-      userToPass = await commonHelper.getLoggedInUser();
-    }
+    userToPass ??= await commonHelper.getLoggedInUser();
 
     // Check if user was in vet mode
     final mode = await commonHelper.getAppMode();
@@ -90,10 +88,12 @@ class AuthNavigationService {
         (route) => false,
       );
     } else {
-      Navigator.pushAndRemoveUntil(
+      // Use named route to navigate to MainShellPage with bottom nav
+      Navigator.pushNamedAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => HomePage(user: userToPass)),
+        AppRoutes.home,
         (route) => false,
+        arguments: {'user': userToPass},
       );
     }
   }

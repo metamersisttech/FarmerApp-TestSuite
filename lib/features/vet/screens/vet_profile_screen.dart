@@ -294,7 +294,7 @@ class _VetProfileScreenState extends State<VetProfileScreen>
                 Switch(
                   value: profile.available,
                   onChanged: _handleToggleAvailability,
-                  activeColor: AppTheme.authPrimaryColor,
+                  activeThumbColor: AppTheme.authPrimaryColor,
                 ),
               ],
             ),

@@ -370,7 +370,7 @@ class _ImageUploadPickerState extends State<ImageUploadPicker> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Icon(
-          Icons.close,
+          Icons.delete,
           color: Colors.white,
           size: 16,
         ),
@@ -500,15 +500,11 @@ class _ImageUploadPickerState extends State<ImageUploadPicker> {
 class _ImageSourceOption extends StatelessWidget {
   final IconData icon;
   final String title;
-  final Color? iconColor;
-  final Color? textColor;
   final VoidCallback onTap;
 
   const _ImageSourceOption({
     required this.icon,
     required this.title,
-    this.iconColor,
-    this.textColor,
     required this.onTap,
   });
 
@@ -522,16 +518,16 @@ class _ImageSourceOption extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: iconColor ?? Colors.black87,
+              color: Colors.black87,
               size: 24,
             ),
             const SizedBox(width: 16),
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: textColor ?? Colors.black87,
+                color: Colors.black87,
               ),
             ),
           ],

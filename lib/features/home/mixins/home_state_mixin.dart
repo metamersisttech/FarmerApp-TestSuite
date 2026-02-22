@@ -21,6 +21,35 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
   /// Initialize home controller
   void initializeHomeController() {
     homeController = HomeController();
+    // Add listener to rebuild when controller state changes
+    homeController.addListener(_onHomeControllerChanged);
+  }
+
+  /// Handle home controller state changes
+  void _onHomeControllerChanged() {
+    if (mounted) {
+      setState(() {
+        // Rebuild when controller state changes
+      });
+
+      // Show error if any (and clear it after showing)
+      if (homeController.errorMessage != null) {
+        // Use showErrorToast from ToastMixin if available
+        try {
+          // This requires ToastMixin to be mixed in the using class
+          (this as dynamic).showErrorToast(homeController.errorMessage!);
+        } catch (e) {
+          // Fallback to SnackBar if ToastMixin not available
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(homeController.errorMessage!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        homeController.clearError();
+      }
+    }
   }
 
   /// Load user data from storage
@@ -47,21 +76,7 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
   /// Fetch listings from API
   Future<void> fetchListings() async {
     await homeController.fetchListings();
-
-    if (!mounted) return;
-
-    setState(() {});
-
-    if (homeController.errorMessage != null) {
-      _showErrorToast(homeController.errorMessage!);
-    }
-  }
-
-  // Toast helper method (to be overridden by ToastMixin in the using class)
-  void _showErrorToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
+    // No need for setState - listener handles it
   }
 
   /// Handle listing tap
@@ -119,15 +134,15 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
         fetchRecentlyViewedListings();
         return;
       case 1:
-        // Listings/Chat
-        result = HomeNavigationService.toChat(context);
-        break;
+        // Favorite/Saved
+        handleFavoriteTap();
+        return;
       case 2:
-        // Community (moved from index 3)
+        // Community
         result = HomeNavigationService.toMyAds(context);
         break;
       case 3:
-        // Profile (NEW)
+        // Profile
         handleProfileTap();
         return;
       default:
@@ -237,6 +252,7 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
 
   /// Dispose controller
   void disposeHomeController() {
+    homeController.removeListener(_onHomeControllerChanged);
     homeController.dispose();
   }
 }

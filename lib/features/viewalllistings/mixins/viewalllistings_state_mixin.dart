@@ -102,13 +102,9 @@ mixin ViewAllListingsStateMixin<T extends StatefulWidget> on State<T> {
 
   /// Handle bottom navigation with custom logic for marketplace page
   void handleMarketplaceBottomNavigation(int index, Function(int) defaultHandler) {
-    if (index == 0) {
-      // Navigate back to home page
-      Navigator.pop(context);
-    } else {
-      // Use the default handler from HomeStateMixin for other tabs
-      defaultHandler(index);
-    }
+    // For all navigation items, pop back to MainShellPage and let it handle the tab switching
+    // Pass the target tab index as a result
+    Navigator.pop(context, index);
   }
 
   /// Handle sort and filter apply

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/home/mixins/home_state_mixin.dart';
 import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
+import 'package:flutter_app/features/postlistings/screens/post_animal_page.dart';
 import 'package:flutter_app/features/viewalllistings/mixins/viewalllistings_state_mixin.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/category_filter_chips.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_card.dart';
@@ -59,6 +60,7 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: _buildAppBar(),
+      resizeToAvoidBottomInset: false, // Keep bottom nav static when keyboard appears
       body: Column(
         children: [
           // Search bar with filter button
@@ -86,11 +88,50 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
           ),
         ],
       ),
+      // Floating Add Button (Sell)
+      floatingActionButton: _buildSellButton(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       // Bottom Navigation Bar
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: currentBottomNavIndex,
         onTap: (index) => handleMarketplaceBottomNavigation(index, handleBottomNavTap),
       ),
+    );
+  }
+
+  /// Build Sell button (Floating Action Button)
+  Widget _buildSellButton(BuildContext context) {
+    return SizedBox(
+      width: 56,
+      height: 56,
+      child: CustomPaint(
+        painter: _TriColorBorderPainter(),
+        child: Container(
+          margin: const EdgeInsets.all(5),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+          ),
+          child: IconButton(
+            onPressed: _handleSellTap,
+            icon: const Icon(
+              Icons.add,
+              color: AppTheme.authPrimaryColor,
+              size: 28,
+            ),
+            padding: EdgeInsets.zero,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Handle Sell button tap
+  void _handleSellTap() {
+    // Navigate to post animal page
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PostAnimalPage()),
     );
   }
 
@@ -223,4 +264,55 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
       ),
     );
   }
+}
+
+/// Custom painter for three-color segmented circular border
+class _TriColorBorderPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final strokeWidth = 5.0;
+
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    // Draw three arcs (120 degrees each = 2.094 radians)
+    const sweepAngle = 2.094; // 120 degrees in radians
+    
+    // Segment 1: Green/Teal (AppTheme.authPrimaryColor) - top
+    paint.color = AppTheme.authPrimaryColor;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+      -1.571, // Start at top (-90 degrees)
+      sweepAngle,
+      false,
+      paint,
+    );
+
+    // Segment 2: Orange - bottom right
+    paint.color = Colors.orange;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+      0.523, // Start after first segment
+      sweepAngle,
+      false,
+      paint,
+    );
+
+    // Segment 3: Deep Purple - bottom left
+    paint.color = Colors.deepPurple;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+      2.618, // Start after second segment
+      sweepAngle,
+      false,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

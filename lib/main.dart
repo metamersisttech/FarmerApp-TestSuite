@@ -5,7 +5,6 @@ import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_app/core/cache/cache_manager.dart';
 import 'package:flutter_app/core/services/firebase_cache_sync_service.dart';
 

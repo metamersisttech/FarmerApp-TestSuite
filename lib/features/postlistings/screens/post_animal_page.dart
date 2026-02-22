@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
-import 'package:flutter_app/features/sell/controllers/post_animal_controller.dart';
-import 'package:flutter_app/features/sell/mixins/post_animal_state_mixin.dart';
-import 'package:flutter_app/features/sell/widgets/details_tab.dart';
-import 'package:flutter_app/features/sell/widgets/health_tab.dart';
-import 'package:flutter_app/features/sell/widgets/media_tab.dart';
-import 'package:flutter_app/features/sell/widgets/preview_tab.dart';
-import 'package:flutter_app/features/sell/widgets/step_indicator.dart';
+import 'package:flutter_app/features/postlistings/controllers/post_animal_controller.dart';
+import 'package:flutter_app/features/postlistings/details/screens/details_page.dart';
+import 'package:flutter_app/features/postlistings/health/screens/health_page.dart';
+import 'package:flutter_app/features/postlistings/media/screens/media_page.dart';
+import 'package:flutter_app/features/postlistings/mixins/post_animal_state_mixin.dart';
+import 'package:flutter_app/features/postlistings/preview/screens/preview_page.dart';
+import 'package:flutter_app/features/postlistings/widgets/step_indicator.dart';
 
 /// Post Animal Page
 ///
@@ -38,7 +38,7 @@ class _PostAnimalPageState extends State<PostAnimalPage>
     super.dispose();
   }
 
-  /// Handle listing created from Details tab
+  /// Handle listing created from Details page
   void _onListingCreated(int listingId) {
     setState(() {
       _listingId = listingId;
@@ -49,8 +49,8 @@ class _PostAnimalPageState extends State<PostAnimalPage>
 
   /// Handle publish action
   void _handlePublish() {
-    // Listing is already saved, just navigate back
-    Navigator.pop(context);
+    // Listing is already saved, navigate back and return true to indicate success
+    Navigator.pop(context, true);
   }
 
   /// Handle close/cancel
@@ -80,14 +80,11 @@ class _PostAnimalPageState extends State<PostAnimalPage>
               onPageChanged: updateStep,
               children: [
                 // Step 0: Details (POST creates listing)
-                DetailsTab(
-                  onNext: _onListingCreated,
-                  onPrevious: null,
-                ),
+                DetailsPage(onNext: _onListingCreated, onPrevious: null),
 
                 // Step 1: Health (PATCH updates listing)
                 _listingId != null
-                    ? HealthTab(
+                    ? HealthPage(
                         listingId: _listingId!,
                         onNext: nextStep,
                         onPrevious: previousStep,
@@ -96,7 +93,7 @@ class _PostAnimalPageState extends State<PostAnimalPage>
 
                 // Step 2: Media (PATCH updates listing)
                 _listingId != null
-                    ? MediaTab(
+                    ? MediaPage(
                         listingId: _listingId!,
                         onNext: nextStep,
                         onPrevious: previousStep,
@@ -105,7 +102,7 @@ class _PostAnimalPageState extends State<PostAnimalPage>
 
                 // Step 3: Preview (fetch and display)
                 _listingId != null
-                    ? PreviewTab(
+                    ? PreviewPage(
                         listingId: _listingId!,
                         onPrevious: previousStep,
                         onPublish: _handlePublish,
@@ -119,7 +116,7 @@ class _PostAnimalPageState extends State<PostAnimalPage>
     );
   }
 
-  /// Build placeholder widget for tabs before listing is created
+  /// Build placeholder widget for pages before listing is created
   Widget _buildPlaceholder(String stepName) {
     return Center(
       child: Column(

@@ -1,54 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/data/models/listing_model.dart';
 import 'package:flutter_app/features/home/services/home_navigation_service.dart';
 import 'package:flutter_app/features/profile/controllers/my_listings_controller.dart';
+import 'package:flutter_app/features/profile/mixins/my_listings_state_mixin.dart';
+import 'package:flutter_app/features/profile/widgets/listing_shimmer_card.dart';
+import 'package:flutter_app/features/profile/widgets/listings_count_header.dart';
+import 'package:flutter_app/features/profile/widgets/listings_filter_menu.dart';
+import 'package:flutter_app/features/profile/widgets/my_listings_empty_state.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/shared/widgets/cards/listing_card.dart';
 
 /// My Listings Page - Displays all user's listings
 class MyListingsPage extends StatefulWidget {
-  const MyListingsPage({super.key});
+  final bool showBackButton;
+  
+  const MyListingsPage({
+    super.key,
+    this.showBackButton = false,
+  });
 
   @override
   State<MyListingsPage> createState() => _MyListingsPageState();
 }
 
-class _MyListingsPageState extends State<MyListingsPage> {
+class _MyListingsPageState extends State<MyListingsPage>
+    with MyListingsStateMixin, ToastMixin {
   late MyListingsController _controller;
-  String? _selectedFilter;
 
   @override
   void initState() {
     super.initState();
     _controller = MyListingsController();
-    
+
+    // Add listener to rebuild when controller state changes
+    _controller.addListener(_onControllerChanged);
+
     // Fetch listings after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchListings();
     });
   }
 
+  @override
+  void dispose() {
+    _controller.removeListener(_onControllerChanged);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  /// Handle controller state changes
+  void _onControllerChanged() {
+    if (mounted) {
+      setState(() {
+        // Rebuild when controller state changes
+      });
+
+      // Show error if any (and clear it after showing)
+      if (_controller.errorMessage != null) {
+        showErrorToast(_controller.errorMessage!);
+        _controller.clearError();
+      }
+    }
+  }
+
   /// Fetch listings from API
   Future<void> _fetchListings() async {
-    await _controller.fetchMyListings(status: _selectedFilter);
-
-    if (!mounted) return;
-
-    // Show error if any
-    if (_controller.errorMessage != null) {
-      _showErrorSnackBar(_controller.errorMessage!);
-    }
-
-    setState(() {});
+    await _controller.fetchMyListings(status: selectedFilter);
+    // No need for setState - listener handles it
   }
 
   /// Handle refresh
   Future<void> _handleRefresh() async {
     await _controller.refreshListings();
-    
-    if (!mounted) return;
-    
-    setState(() {});
+    // No need for setState - listener handles it
   }
 
   /// Handle listing tap
@@ -58,80 +84,57 @@ class _MyListingsPageState extends State<MyListingsPage> {
 
   /// Handle filter change
   void _handleFilterChange(String? filter) {
-    setState(() {
-      _selectedFilter = filter;
-    });
+    setFilter(filter); // From mixin
     _fetchListings();
-  }
-
-  /// Show error snackbar
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: _buildAppBar(),
-      body: RefreshIndicator(
-        onRefresh: _handleRefresh,
-        child: _buildBody(),
-      ),
-    );
-  }
-
-  /// Build the app bar
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppTheme.authPrimaryColor,
-      foregroundColor: Colors.white,
-      elevation: 0,
-      title: const Text(
-        'My Listings',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+    return Material(
+      color: Colors.grey[100],
+      child: Container(
+        color: Colors.grey[100], // Add light grey background
+        child: RefreshIndicator(
+          onRefresh: _handleRefresh,
+          child: CustomScrollView(
+            slivers: [
+              // App Bar as Sliver
+              SliverAppBar(
+                backgroundColor: AppTheme.authPrimaryColor,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                pinned: true,
+                automaticallyImplyLeading: widget.showBackButton, // Show back button based on parameter
+                leading: widget.showBackButton
+                    ? IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => Navigator.of(context).pop(),
+                      )
+                    : null,
+                title: const Text(
+                  'My Listings',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                centerTitle: true,
+                actions: [
+                  // Filter button
+                  ListingsFilterMenu(
+                    currentFilter: selectedFilter,
+                    onFilterChanged: _handleFilterChange,
+                  ),
+                ],
+              ),
+              // Body content as sliver
+              SliverFillRemaining(
+                child: _buildBody(),
+              ),
+            ],
+          ),
         ),
       ),
-      centerTitle: true,
-      actions: [
-        // Filter button
-        PopupMenuButton<String>(
-          icon: const Icon(Icons.filter_list, color: Colors.white),
-          onSelected: _handleFilterChange,
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: null,
-              child: Text('All Listings'),
-            ),
-            const PopupMenuItem(
-              value: 'active',
-              child: Text('Active'),
-            ),
-            const PopupMenuItem(
-              value: 'sold',
-              child: Text('Sold'),
-            ),
-            const PopupMenuItem(
-              value: 'expired',
-              child: Text('Expired'),
-            ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -154,136 +157,18 @@ class _MyListingsPageState extends State<MyListingsPage> {
       padding: const EdgeInsets.all(20),
       itemCount: 5,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => _buildShimmerCard(),
-    );
-  }
-
-  /// Build shimmer loading card
-  Widget _buildShimmerCard() {
-    return Container(
-      height: 120,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          Container(
-            width: 96,
-            height: 96,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  height: 16,
-                  width: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  height: 14,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  height: 18,
-                  width: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      itemBuilder: (context, index) => const ListingShimmerCard(),
     );
   }
 
   /// Build empty state
   Widget _buildEmptyState() {
-    return Center(
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Padding(
-          padding: const EdgeInsets.all(40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.post_add,
-                size: 80,
-                color: Colors.grey.shade300,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                _selectedFilter != null
-                    ? 'No ${_selectedFilter} listings'
-                    : 'No listings yet',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                _selectedFilter != null
-                    ? 'Try changing the filter to see other listings'
-                    : 'Start posting your animals for sale',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey.shade500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton.icon(
-                onPressed: () {
-                  // Navigate to create listing
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.authPrimaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                icon: const Icon(Icons.add),
-                label: const Text(
-                  'Create Listing',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return MyListingsEmptyState(
+      filterStatus: selectedFilter,
+      onCreateListing: () {
+        // Navigate to create listing
+        Navigator.pop(context);
+      },
     );
   }
 
@@ -292,18 +177,7 @@ class _MyListingsPageState extends State<MyListingsPage> {
     return Column(
       children: [
         // Listings count header
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          child: Text(
-            '${_controller.listingsCount} ${_controller.listingsCount == 1 ? 'Listing' : 'Listings'}',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
-            ),
-          ),
-        ),
+        ListingsCountHeader(count: _controller.listingsCount),
         // Listings list
         Expanded(
           child: ListView.separated(
@@ -312,20 +186,60 @@ class _MyListingsPageState extends State<MyListingsPage> {
             separatorBuilder: (context, index) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final listing = _controller.listings[index];
-              return ListingCard(
-                imageUrl: listing.imageUrl,
-                name: listing.name,
-                age: listing.age,
-                price: listing.price,
-                location: listing.location,
-                rating: listing.rating,
-                isVerified: listing.isVerified,
-                onTap: () => _handleListingTap(listing),
+              return Stack(
+                children: [
+                  ListingCard(
+                    imageUrl: listing.imageUrl,
+                    name: listing.name,
+                    age: listing.age,
+                    price: listing.price,
+                    location: listing.location,
+                    rating: listing.rating,
+                    isVerified: listing.isVerified,
+                    onTap: () => _handleListingTap(listing),
+                  ),
+                  // Edit icon button overlay
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Material(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      elevation: 2,
+                      child: InkWell(
+                        onTap: () => _handleEditListing(listing),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.edit,
+                            size: 18,
+                            color: AppTheme.authPrimaryColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
           ),
         ),
       ],
     );
+  }
+
+  /// Handle edit listing
+  Future<void> _handleEditListing(ListingModel listing) async {
+    final result = await Navigator.pushNamed(
+      context, 
+      AppRoutes.editListingDetails, 
+      arguments: listing.id,
+    );
+    
+    // Refresh listings if the edit was successful
+    if (result == true && mounted) {
+      await _fetchListings();
+    }
   }
 }
