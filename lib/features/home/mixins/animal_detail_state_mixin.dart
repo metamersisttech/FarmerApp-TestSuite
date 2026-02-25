@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/home/controllers/animal_detail_controller.dart';
+import 'package:flutter_app/features/messaging/services/messaging_service.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// Mixin for Animal Detail page functionality and coordination
 /// Contains all business logic coordination and UI event handlers
@@ -69,9 +71,36 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
     showComingSoonAction('Call');
   }
 
-  /// Handle chat button tap
-  void handleChatTap() {
-    showComingSoonAction('Chat');
+  /// Handle chat button tap - start or open conversation with seller
+  Future<void> handleChatTap() async {
+    if (!mounted) return;
+
+    // Show a brief loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Opening chat...'),
+        duration: Duration(seconds: 1),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    final messagingService = MessagingService();
+    final result = await messagingService.startConversation(listingId);
+
+    if (!mounted) return;
+
+    // Dismiss the loading snackbar
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    if (result.success && result.conversation != null) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.directChat,
+        arguments: result.conversation,
+      );
+    } else {
+      showErrorToast(result.message ?? 'Failed to start conversation');
+    }
   }
 
   /// Handle video button tap

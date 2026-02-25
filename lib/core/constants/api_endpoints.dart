@@ -83,6 +83,15 @@ class ApiEndpoints {
   static String appointmentMarkRead(int id) =>
       'appointments/$id/messages/read/';
 
+  // ============ Direct Messaging Endpoints ============
+  static const String conversations = 'messages/conversations/';
+  static String conversationById(int id) => 'messages/conversations/$id/';
+  static String conversationMessages(int id) =>
+      'messages/conversations/$id/messages/';
+  static String conversationMarkRead(int id) =>
+      'messages/conversations/$id/messages/read/';
+  static String listingChat(int listingId) => 'listings/$listingId/chat/';
+
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here
 

@@ -35,6 +35,9 @@ import 'package:flutter_app/features/vet_dashboard/screens/vet_home_page.dart';
 import 'package:flutter_app/features/vet_dashboard/screens/vet_dashboard_profile_page.dart';
 import 'package:flutter_app/features/recentlyviewed/screens/recentlyviewed_page.dart';
 import 'package:flutter_app/features/editlistings/screens/edit_listing_page.dart';
+import 'package:flutter_app/features/messaging/models/conversation_model.dart';
+import 'package:flutter_app/features/messaging/screens/conversations_page.dart';
+import 'package:flutter_app/features/messaging/screens/direct_chat_screen.dart';
 
 /// App Routes
 ///
@@ -82,6 +85,8 @@ class AppRoutes {
   static const String vetDashboardProfile = '/vet-dashboard-profile';
   static const String recentlyViewed = '/recently-viewed';
   static const String editListingDetails = '/edit-listing-details';
+  static const String conversations = '/conversations';
+  static const String directChat = '/direct-chat';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -345,6 +350,24 @@ class AppRoutes {
         return _buildRoute(
           const Scaffold(
             body: Center(child: Text('Listing ID required for edit')),
+          ),
+          settings,
+        );
+
+      case conversations:
+        return _buildRoute(const ConversationsPage(), settings);
+
+      case directChat:
+        final conversation = settings.arguments as Conversation?;
+        if (conversation != null) {
+          return _buildRoute(
+            DirectChatScreen(conversation: conversation),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Conversation required for chat')),
           ),
           settings,
         );

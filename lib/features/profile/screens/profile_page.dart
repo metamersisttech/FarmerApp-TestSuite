@@ -248,6 +248,10 @@ class _ProfilePageState extends State<ProfilePage>
     Navigator.pushNamed(context, AppRoutes.myAppointments);
   }
 
+  void _handleMessages() {
+    Navigator.pushNamed(context, AppRoutes.conversations);
+  }
+
   void _handleWallet() {
     // TODO: Navigate to wallet page
     showSuccessToast('Wallet & Payments - Coming soon!');
@@ -397,6 +401,7 @@ class _ProfilePageState extends State<ProfilePage>
                               onMyListingsTap: _handleMyListings,
                               onSavedItemsTap: _handleSavedItems,
                               onBookingsTap: _handleBookings,
+                              onMessagesTap: _handleMessages,
                               onWalletTap: _handleWallet,
                               onReviewsTap: _handleReviews,
                               onNotificationsTap: _handleNotifications,

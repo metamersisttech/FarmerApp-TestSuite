@@ -768,6 +768,114 @@ class BackendHelper {
     }
   }
 
+  // ============ Direct Messaging Endpoints ============
+
+  /// Start or get conversation from a listing
+  /// POST /api/listings/{listing_id}/chat/
+  Future<Map<String, dynamic>> postStartConversation(int listingId) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.listingChat(listingId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Check if conversation exists with listing seller
+  /// GET /api/listings/{listing_id}/chat/
+  Future<Map<String, dynamic>> getListingConversation(int listingId) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.listingChat(listingId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get all conversations (inbox)
+  /// GET /api/messages/conversations/
+  Future<dynamic> getConversations() async {
+    try {
+      final response = await _client.get(ApiEndpoints.conversations);
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get conversation detail
+  /// GET /api/messages/conversations/{id}/
+  Future<Map<String, dynamic>> getConversationById(
+    int conversationId,
+  ) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.conversationById(conversationId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get messages for a conversation (paginated)
+  /// GET /api/messages/conversations/{id}/messages/?limit=50&before=<message_id>
+  Future<dynamic> getConversationMessages(
+    int conversationId, {
+    int? limit,
+    int? beforeMessageId,
+  }) async {
+    try {
+      final params = <String, dynamic>{};
+      if (limit != null) params['limit'] = limit;
+      if (beforeMessageId != null) params['before'] = beforeMessageId;
+
+      final response = await _client.get(
+        ApiEndpoints.conversationMessages(conversationId),
+        params: params,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Send a message in a conversation
+  /// POST /api/messages/conversations/{id}/messages/
+  Future<Map<String, dynamic>> postConversationMessage(
+    int conversationId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.conversationMessages(conversationId),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Mark conversation messages as read
+  /// POST /api/messages/conversations/{id}/messages/read/
+  Future<Map<String, dynamic>> postConversationMarkRead(
+    int conversationId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.conversationMarkRead(conversationId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Error Handling ============
 
   /// Handle Dio errors and extract message
