@@ -103,6 +103,13 @@ class SearchController extends ChangeNotifier {
       // Add to recent searches
       await addToRecentSearches(query);
 
+      if (kDebugMode) {
+        print('🔍 [SearchController] Searching with:');
+        print('   Query: $query');
+        print('   Location: $_currentLocation');
+        print('   Category: $_selectedCategory');
+      }
+
       // Search animals using the service
       _searchResults = await _searchService.searchAnimals(
         query: query,

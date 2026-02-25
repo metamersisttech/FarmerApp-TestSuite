@@ -44,7 +44,20 @@ class APIClient {
           if (_authToken != null) {
             options.headers['Authorization'] = 'Bearer $_authToken';
           }
-          _logRequest(options.method, options.path, options.data);
+          
+          // Enhanced logging for GET requests with query parameters
+          if (kDebugMode) {
+            print('┌─────────────────────────────────────────');
+            print('│ 🚀 REQUEST: ${options.method} ${options.uri}');
+            if (options.queryParameters.isNotEmpty) {
+              print('│ 🔍 Query Params: ${options.queryParameters}');
+            }
+            if (options.data != null) {
+              print('│ 📦 Data: ${options.data}');
+            }
+            print('└─────────────────────────────────────────');
+          }
+          
           return handler.next(options);
         },
         onResponse: (response, handler) {
@@ -169,17 +182,6 @@ class APIClient {
   }
 
   // ============ Logging ============
-
-  void _logRequest(String method, String path, dynamic data) {
-    if (kDebugMode) {
-      print('┌─────────────────────────────────────────');
-      print('│ 🚀 REQUEST: $method ${ApiConfig.baseUrl}$path');
-      if (data != null) {
-        print('│ 📦 Data: $data');
-      }
-      print('└─────────────────────────────────────────');
-    }
-  }
 
   void _logResponse(Response response) {
     if (kDebugMode) {

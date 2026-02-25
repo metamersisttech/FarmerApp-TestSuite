@@ -6,36 +6,72 @@ import 'package:flutter_app/core/helpers/backend_helper.dart';
 class SearchService {
   final BackendHelper _backendHelper = BackendHelper();
 
+  /// Known species list for intelligent search
+  static const List<String> _knownSpecies = [
+    'cow',
+    'buffalo',
+    'sheep',
+    'goat',
+    'pig',
+    'chicken',
+    'horse',
+    'camel',
+    'cattle',
+    'poultry',
+  ];
+
   /// Search animals by species or breed name
   /// 
   /// Parameters:
   /// - query: Search query string (species or breed name)
   /// - location: Optional location filter
-  /// - category: Optional category filter
+  /// - category: Optional category filter (species)
   /// 
-  /// Returns: List of search results from animals endpoint
+  /// Returns: List of search results from listings endpoint
+  /// 
+  /// API Example: GET /api/listings/?species=cow&breed=jersey
   Future<List<dynamic>> searchAnimals({
     required String query,
     String? location,
     String? category,
   }) async {
     try {
-      // Build query parameters for the animals endpoint
-      final params = <String, dynamic>{
-        'search': query, // Search by name/breed
-      };
+      // Build query parameters for the listings endpoint
+      final params = <String, dynamic>{};
       
-      // Add optional filters
+      // If category is explicitly provided, use it as species filter
+      if (category != null && category.isNotEmpty) {
+        params['species'] = category.toLowerCase();
+        
+        // If query is also provided, treat it as breed
+        if (query.isNotEmpty) {
+          params['breed'] = query.toLowerCase();
+        }
+      } else if (query.isNotEmpty) {
+        // No category provided - intelligently detect if query is species or breed
+        final queryLower = query.toLowerCase().trim();
+        
+        // Check if query matches a known species
+        if (_knownSpecies.contains(queryLower)) {
+          // Query is a species
+          params['species'] = queryLower;
+        } else {
+          // Query is likely a breed - search by breed
+          params['breed'] = queryLower;
+        }
+      }
+      
+      // Add optional location filter
       if (location != null && location.isNotEmpty) {
         params['location'] = location;
       }
-      
-      if (category != null && category.isNotEmpty) {
-        params['category'] = category;
-      }
 
-      // Call getAnimals from backend helper with search params
-      final response = await _backendHelper.getAnimals(params: params);
+      // Debug: Print params being sent
+      print('🔍 [SearchService] Calling getListings with params: $params');
+      
+      // Call getListings from backend helper with filter params
+      // Example: GET /api/listings/?species=cow&breed=jersey
+      final response = await _backendHelper.getListings(params: params);
       
       // Handle both paginated and non-paginated responses
       if (response is Map) {

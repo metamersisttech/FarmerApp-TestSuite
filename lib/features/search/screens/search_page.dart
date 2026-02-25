@@ -1,8 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/features/search/controllers/search_controller.dart'
+    as search;
+import 'package:flutter_app/features/search/screens/search_results_page.dart';
 import 'package:flutter_app/features/search/widgets/popular_categories_section.dart';
 import 'package:flutter_app/features/search/widgets/recent_searches_section.dart';
 import 'package:flutter_app/features/search/widgets/search_location_bar.dart';
 import 'package:flutter_app/features/search/widgets/search_app_bar.dart';
+import 'package:flutter_app/features/search/widgets/search_filters_sheet.dart';
 
 /// Search Page
 ///
@@ -11,12 +16,8 @@ import 'package:flutter_app/features/search/widgets/search_app_bar.dart';
 /// - Location selector
 /// - Recent searches with clear all
 /// - Popular categories (Cow, Sheep, Buffalo, Goat)
-///
-/// Architecture:
-/// - UI only in this file (build methods)
-/// - Business logic in SearchStateMixin (to be added)
-/// - Data management in SearchController (to be added)
-/// - Search service for API calls (to be added)
+/// - Real-time search with debouncing
+/// - Loading states
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -27,31 +28,60 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  final search.SearchController _controller = search.SearchController();
   
-  // Mock data for recent searches (will be replaced with actual data from controller)
-  final List<String> _recentSearches = [
-    'Jersey Cow',
-    'Buffalo',
-    'Goat breeds',
-    'Sheep for sale',
-  ];
+  Timer? _debounceTimer;
   
-  String _currentLocation = 'Bangalore, IN';
-
   @override
   void initState() {
     super.initState();
+    
+    // Load recent searches
+    _controller.loadRecentSearches();
+    
     // Auto-focus search bar when page opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocusNode.requestFocus();
     });
+    
+    // Add listener to controller for updates
+    _controller.addListener(_onControllerUpdate);
+    
+    // Add listener to search field for debounced suggestions
+    _searchController.addListener(_onSearchTextChanged);
   }
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
+    _searchController.removeListener(_onSearchTextChanged);
     _searchController.dispose();
     _searchFocusNode.dispose();
+    _controller.removeListener(_onControllerUpdate);
+    _controller.dispose();
     super.dispose();
+  }
+
+  /// Called when controller notifies changes
+  void _onControllerUpdate() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  /// Called when search text changes (for debounced suggestions)
+  void _onSearchTextChanged() {
+    // Cancel previous timer
+    _debounceTimer?.cancel();
+    
+    // Start new timer (300ms debounce)
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      final query = _searchController.text.trim();
+      if (query.isNotEmpty) {
+        // Get suggestions
+        _controller.getSuggestions(query);
+      }
+    });
   }
 
   /// Handle back button press
@@ -60,16 +90,42 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   /// Handle search submission
-  void _handleSearch(String query) {
+  Future<void> _handleSearch(String query) async {
     if (query.trim().isEmpty) return;
     
-    // TODO: Implement search logic
-    print('🔍 Searching for: $query');
+    // Unfocus keyboard
+    _searchFocusNode.unfocus();
     
-    // For now, just show a message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Searching for: $query')),
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(
+          color: Colors.white,
+        ),
+      ),
     );
+    
+    // Perform search
+    await _controller.search(query);
+    
+    // Close loading dialog
+    if (mounted) {
+      Navigator.pop(context);
+      
+      // Navigate to results page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SearchResultsPage(
+            query: query,
+            results: _controller.searchResults,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+    }
   }
 
   /// Handle recent search tap
@@ -79,14 +135,14 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   /// Handle clear all recent searches
-  void _handleClearAllSearches() {
-    setState(() {
-      _recentSearches.clear();
-    });
+  Future<void> _handleClearAllSearches() async {
+    await _controller.clearRecentSearches();
     
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Recent searches cleared')),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Recent searches cleared')),
+      );
+    }
   }
 
   /// Handle location tap
@@ -100,7 +156,37 @@ class _SearchPageState extends State<SearchPage> {
   /// Handle category tap
   void _handleCategoryTap(String category) {
     _searchController.text = category;
+    _controller.setCategory(category);
     _handleSearch(category);
+  }
+
+  /// Handle filter tap
+  void _handleFilterTap() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return SearchFiltersSheet(
+          currentLocation: _controller.currentLocation,
+          currentCategory: _controller.selectedCategory,
+          onLocationChanged: (location) {
+            if (location != null) {
+              _controller.updateLocation(location);
+            }
+          },
+          onCategoryChanged: (category) {
+            _controller.setCategory(category);
+          },
+          onApply: () {
+            // Rerun search with new filters if there's a query
+            if (_searchController.text.isNotEmpty) {
+              _handleSearch(_searchController.text);
+            }
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -115,6 +201,7 @@ class _SearchPageState extends State<SearchPage> {
             focusNode: _searchFocusNode,
             onBack: _handleBack,
             onSearch: _handleSearch,
+            onFilterTap: _handleFilterTap, // Add filter button
           ),
 
           // Scrollable Content
@@ -130,7 +217,7 @@ class _SearchPageState extends State<SearchPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: SearchLocationBar(
-                      location: _currentLocation,
+                      location: _controller.currentLocation,
                       onTap: _handleLocationTap,
                     ),
                   ),
@@ -138,9 +225,9 @@ class _SearchPageState extends State<SearchPage> {
                   const SizedBox(height: 24),
 
                   // Recent Searches Section
-                  if (_recentSearches.isNotEmpty)
+                  if (_controller.recentSearches.isNotEmpty)
                     RecentSearchesSection(
-                      searches: _recentSearches,
+                      searches: _controller.recentSearches,
                       onSearchTap: _handleRecentSearchTap,
                       onClearAll: _handleClearAllSearches,
                     ),
