@@ -6,12 +6,13 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 /// Custom app bar with:
 /// - Back arrow button on left
 /// - Search input field in center
-/// - Search icon button on right
+/// - Filter and Search icon buttons on right
 class SearchAppBar extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final VoidCallback onBack;
   final ValueChanged<String> onSearch;
+  final VoidCallback? onFilterTap;
 
   const SearchAppBar({
     super.key,
@@ -19,6 +20,7 @@ class SearchAppBar extends StatelessWidget {
     required this.focusNode,
     required this.onBack,
     required this.onSearch,
+    this.onFilterTap,
   });
 
   @override
@@ -98,18 +100,37 @@ class SearchAppBar extends StatelessWidget {
 
           const SizedBox(width: 8),
 
+          // Filter Button (optional)
+          if (onFilterTap != null)
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: IconButton(
+                onPressed: onFilterTap,
+                icon: const Icon(Icons.tune),
+                color: AppTheme.authPrimaryColor,
+                padding: EdgeInsets.zero,
+              ),
+            ),
+
+          if (onFilterTap != null) const SizedBox(width: 8),
+
           // Search Button
           Container(
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white, // White background for search button
-              borderRadius: BorderRadius.circular(24), // Circular button
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
             ),
             child: IconButton(
               onPressed: () => onSearch(controller.text),
               icon: const Icon(Icons.search),
-              color: AppTheme.authPrimaryColor, // Green icon on white background
+              color: AppTheme.authPrimaryColor,
               padding: EdgeInsets.zero,
             ),
           ),
