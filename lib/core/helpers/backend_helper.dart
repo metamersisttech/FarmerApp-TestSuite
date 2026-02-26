@@ -876,6 +876,37 @@ class BackendHelper {
     }
   }
 
+  // ============ FCM Endpoints ============
+
+  /// Register FCM token with backend
+  /// POST /api/fcm/register/
+  Future<Map<String, dynamic>> postFcmRegister(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(ApiEndpoints.fcmRegister, data: data);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Unregister FCM token from backend
+  /// POST /api/fcm/unregister/
+  Future<Map<String, dynamic>> postFcmUnregister(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.fcmUnregister,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Error Handling ============
 
   /// Handle Dio errors and extract message

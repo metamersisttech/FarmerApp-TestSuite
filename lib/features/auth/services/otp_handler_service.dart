@@ -3,6 +3,7 @@ import 'package:flutter_app/core/helpers/api_helper.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
+import 'package:flutter_app/core/services/fcm_service.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
 
 /// Result of OTP operations
@@ -107,6 +108,9 @@ class OtpHandlerService {
         accessToken: accessToken,
         refreshToken: refreshToken,
       );
+
+      // Register FCM token (fire-and-forget)
+      FCMService().registerToken();
 
       // Return success with fresh user data
       return OtpResult.success(user: user);

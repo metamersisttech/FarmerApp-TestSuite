@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
+import 'package:flutter_app/core/services/fcm_service.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_app/features/profile/widgets/logout_button.dart';
@@ -91,6 +92,9 @@ class _VetDashboardProfilePageState extends State<VetDashboardProfilePage>
             onPressed: () async {
               Navigator.pop(dialogContext);
               setState(() => _isLoading = true);
+
+              // Unregister FCM token before clearing auth
+              await FCMService().unregisterToken();
 
               await CommonHelper().clearAll();
 

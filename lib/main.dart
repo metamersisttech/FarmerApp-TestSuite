@@ -7,6 +7,7 @@ import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/core/cache/cache_manager.dart';
 import 'package:flutter_app/core/services/firebase_cache_sync_service.dart';
+import 'package:flutter_app/core/services/fcm_service.dart';
 
 /// Global navigation key for accessing navigation context from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -44,6 +45,18 @@ Future<void> main() async {
     final token = await commonHelper.getAccessToken();
     if (token != null) {
       APIClient().setAuthorization(token);
+    }
+  }
+
+  // Initialize FCM service
+  await FCMService().initialize();
+  print('✅ FCM service initialized');
+
+  // If user is already logged in, register/refresh FCM token
+  if (user != null) {
+    final token = await commonHelper.getAccessToken();
+    if (token != null) {
+      FCMService().registerToken(); // fire-and-forget
     }
   }
 

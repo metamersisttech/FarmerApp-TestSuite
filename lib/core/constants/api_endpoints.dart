@@ -92,6 +92,12 @@ class ApiEndpoints {
       'messages/conversations/$id/messages/read/';
   static String listingChat(int listingId) => 'listings/$listingId/chat/';
 
+  // ============ FCM Endpoints ============
+  static const String fcmRegister = 'fcm/register/';
+  static const String fcmUnregister = 'fcm/unregister/';
+  static const String fcmTokens = 'fcm/tokens/';
+  static const String fcmTest = 'fcm/test/';
+
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here
 

@@ -3,6 +3,7 @@ import 'package:flutter_app/core/helpers/api_helper.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
+import 'package:flutter_app/core/services/fcm_service.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
 
 /// Result of email login operation
@@ -80,6 +81,9 @@ class EmailLoginService {
         accessToken: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
       );
+
+      // Register FCM token (fire-and-forget)
+      FCMService().registerToken();
 
       // Return success with fresh user data
       return EmailLoginResult.success(user: freshUser);
