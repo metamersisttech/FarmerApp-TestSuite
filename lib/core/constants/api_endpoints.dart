@@ -34,6 +34,9 @@ class ApiEndpoints {
   static const String listings = 'listings/';
   static const String mylistings = 'listings/my/';
   static const String listingsBulk = 'listings/bulk/'; // Bulk fetch for delta sync (TODO: Backend to implement)
+  static String listingPublish(int id) => 'listings/$id/publish/';
+  static String listingUnpublish(int id) => 'listings/$id/unpublish/';
+  static String listingSold(int id) => 'listings/$id/sold/';
 
   // ============ Upload Endpoints ============
   static const String upload = 'upload/';

@@ -53,10 +53,30 @@ class MyListingsService {
     }
   }
 
+  /// Publish a listing
+  Future<void> publishListing(int listingId) async {
+    try {
+      await _backendHelper.postPublishListing(listingId);
+    } catch (e) {
+      print('[MyListingsService] Error publishing listing: $e');
+      rethrow;
+    }
+  }
+
+  /// Unpublish a listing
+  Future<void> unpublishListing(int listingId) async {
+    try {
+      await _backendHelper.postUnpublishListing(listingId);
+    } catch (e) {
+      print('[MyListingsService] Error unpublishing listing: $e');
+      rethrow;
+    }
+  }
+
   /// Mark a listing as sold
   Future<void> markAsSold(int listingId) async {
     try {
-      await _backendHelper.patchUpdateListing(listingId, {'status': 'sold'});
+      await _backendHelper.postMarkListingSold(listingId);
     } catch (e) {
       print('[MyListingsService] Error marking listing as sold: $e');
       rethrow;

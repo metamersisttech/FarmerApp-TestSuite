@@ -6,7 +6,6 @@ import 'package:flutter_app/features/vet/models/vet_verification_status_model.da
 import 'package:flutter_app/features/vet/mixins/vet_verification_status_state_mixin.dart';
 import 'package:flutter_app/features/vet/widgets/verification/vet_document_status_card.dart';
 import 'package:flutter_app/routes/app_routes.dart';
-import 'package:flutter_app/features/vet/screens/vet_document_reupload_screen.dart';
 
 /// Screen displaying current vet verification status
 /// Shows different UI for PENDING, APPROVED, and REJECTED states
@@ -56,13 +55,10 @@ class _VetVerificationStatusScreenState
 
   void _handleResubmit() {
     if (verificationStatus == null) return;
-    Navigator.push(
+    Navigator.pushNamed(
       context,
-      MaterialPageRoute(
-        builder: (_) => VetDocumentReuploadScreen(
-          verificationStatus: verificationStatus!,
-        ),
-      ),
+      AppRoutes.vetDocumentReupload,
+      arguments: verificationStatus!,
     ).then((_) => _loadStatus());
   }
 
@@ -76,10 +72,6 @@ class _VetVerificationStatusScreenState
 
   void _handleBackToProfile() {
     Navigator.popUntil(context, (route) => route.isFirst || route.settings.name == '/profile');
-    // If we couldn't pop to profile, just pop all vet screens
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    }
   }
 
   @override

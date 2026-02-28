@@ -6,7 +6,7 @@ import 'package:flutter_app/shared/widgets/media/image_upload_picker.dart';
 import 'package:flutter_app/features/vet/controllers/vet_onboarding_controller.dart';
 import 'package:flutter_app/features/vet/mixins/vet_document_upload_state_mixin.dart';
 import 'package:flutter_app/features/vet/models/vet_role_upgrade_request_model.dart';
-import 'package:flutter_app/features/vet/screens/vet_verification_status_screen.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// Screen for uploading vet credentials and documents
 class VetDocumentUploadScreen extends StatefulWidget {
@@ -102,12 +102,7 @@ class _VetDocumentUploadScreenState extends State<VetDocumentUploadScreen>
 
     if (result.success) {
       showSuccessToast('Application submitted successfully!');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const VetVerificationStatusScreen(),
-        ),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.vetVerificationStatus);
     } else {
       showErrorToast(result.message ?? 'Failed to submit application');
     }

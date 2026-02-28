@@ -308,6 +308,13 @@ class _VetPricingScreenState extends State<VetPricingScreen>
           TextFormField(
             controller: controller,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) return null;
+              final number = double.tryParse(value.trim());
+              if (number == null) return 'Enter a valid number';
+              if (number <= 0) return 'Must be greater than zero';
+              return null;
+            },
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),

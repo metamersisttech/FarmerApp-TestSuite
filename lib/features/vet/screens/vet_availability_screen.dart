@@ -84,7 +84,7 @@ class _VetAvailabilityScreenState extends State<VetAvailabilityScreen>
 
                   // Day picker
                   DropdownButtonFormField<int>(
-                    initialValue: selectedDay,
+                    value: selectedDay,
                     decoration: InputDecoration(
                       labelText: 'Day of Week',
                       filled: true,

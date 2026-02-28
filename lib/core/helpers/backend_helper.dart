@@ -319,6 +319,39 @@ class BackendHelper {
     }
   }
 
+  /// Publish a listing
+  /// POST /api/listings/{id}/publish/
+  Future<Map<String, dynamic>> postPublishListing(int listingId) async {
+    try {
+      final response = await _client.post(ApiEndpoints.listingPublish(listingId));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Unpublish a listing
+  /// POST /api/listings/{id}/unpublish/
+  Future<Map<String, dynamic>> postUnpublishListing(int listingId) async {
+    try {
+      final response = await _client.post(ApiEndpoints.listingUnpublish(listingId));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Mark a listing as sold
+  /// POST /api/listings/{id}/sold/
+  Future<Map<String, dynamic>> postMarkListingSold(int listingId) async {
+    try {
+      final response = await _client.post(ApiEndpoints.listingSold(listingId));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Upload Endpoints ============
 
   /// Upload a single file

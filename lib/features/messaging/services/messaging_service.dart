@@ -135,6 +135,9 @@ class MessagingService {
         beforeMessageId: beforeMessageId,
       );
 
+      debugPrint('[MessagingService] Raw getMessages response type: ${data.runtimeType}');
+      debugPrint('[MessagingService] Raw getMessages data: $data');
+
       List<dynamic> results;
       if (data is List) {
         results = data;

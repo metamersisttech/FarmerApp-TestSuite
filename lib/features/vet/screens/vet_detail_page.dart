@@ -44,7 +44,7 @@ class _VetDetailPageState extends State<VetDetailPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: AppTheme.backgroundColor,
       body: isLoading
           ? _buildLoadingState()
           : errorMessage != null
