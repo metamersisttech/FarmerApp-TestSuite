@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/home/controllers/animal_detail_controller.dart';
+import 'package:flutter_app/features/home/widgets/animal_detail/bid_price_bottom_sheet.dart';
 import 'package:flutter_app/features/messaging/services/messaging_service.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 
@@ -108,9 +109,20 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
     showComingSoonAction('Video call');
   }
 
-  /// Handle buy now button tap
+  /// Handle buy now button tap - opens bid pricing bottom sheet
   void handleBuyNowTap() {
-    showComingSoonAction('Buy Now');
+    final animal = controller.animalDetail;
+    if (animal == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => BidPriceBottomSheet(
+        listedPrice: animal.price,
+        animalTitle: animal.title,
+      ),
+    );
   }
 
   /// Handle book transport tap
