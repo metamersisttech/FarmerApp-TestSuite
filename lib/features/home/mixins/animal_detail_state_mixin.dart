@@ -168,7 +168,7 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
         SnackBar(
           content: Text('$actionName coming soon!'),
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+          margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
         ),
       );
     }
@@ -182,7 +182,7 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
           content: Text(message),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+          margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
         ),
       );
     }
@@ -196,7 +196,7 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
           content: Text(message),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+          margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
         ),
       );
     }

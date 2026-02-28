@@ -70,7 +70,7 @@ mixin DirectChatStateMixin<T extends StatefulWidget> on State<T> {
       for (final msg in result.messages!) {
         final body = msg.body.length > 30 ? '${msg.body.substring(0, 30)}...' : msg.body;
         debugPrint('[DirectChat] msg#${msg.messageId}: fromUser.id=${msg.fromUser.id}, '
-            'fromUser.name=${msg.fromUser.displayName}, '
+            'fromUser.name=${msg.fromUser.name}, '
             'isMine=${msg.isMine(_currentUserId ?? 0)}, '
             'body="$body"');
       }
