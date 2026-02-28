@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
+import 'package:flutter_app/features/bidding/services/bid_service.dart';
 import 'package:flutter_app/features/home/controllers/animal_detail_controller.dart';
 import 'package:flutter_app/features/home/widgets/animal_detail/bid_price_bottom_sheet.dart';
 import 'package:flutter_app/features/messaging/services/messaging_service.dart';
@@ -10,6 +12,10 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
   late AnimalDetailController controller;
   int currentImageIndex = 0;
   late PageController imagePageController;
+  bool _isOwner = false;
+
+  /// Whether the current user owns this listing
+  bool get isOwner => _isOwner;
 
   /// Get the listing ID (must be implemented by the screen)
   int get listingId;
@@ -29,6 +35,18 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
   /// Fetch animal details from API
   Future<void> fetchDetails() async {
     await controller.fetchAnimalDetail(listingId);
+
+    if (!mounted) return;
+
+    // Check ownership
+    try {
+      final user = await CommonHelper().getLoggedInUser();
+      if (user != null && controller.animalDetail?.seller != null) {
+        _isOwner = controller.animalDetail!.seller!.id == user.id;
+      }
+    } catch (_) {
+      // Silently fail ownership check
+    }
 
     if (!mounted) return;
 
@@ -53,11 +71,11 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
   /// Handle favorite button tap
   Future<void> handleFavoriteTap() async {
     await controller.toggleFavorite();
-    
+
     if (!mounted) return;
-    
+
     setState(() {});
-    
+
     if (controller.errorMessage != null) {
       showErrorToast(controller.errorMessage!);
     } else {
@@ -114,6 +132,8 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
     final animal = controller.animalDetail;
     if (animal == null) return;
 
+    final bidService = BidService();
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -121,7 +141,26 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
       builder: (context) => BidPriceBottomSheet(
         listedPrice: animal.price,
         animalTitle: animal.title,
+        listingId: listingId,
+        onSubmit: (bidPrice, message) => bidService.placeBid(
+          listingId: listingId,
+          bidPrice: bidPrice,
+          message: message,
+        ),
       ),
+    ).then((result) {
+      if (result == true && mounted) {
+        showSuccessToast('Bid placed successfully!');
+      }
+    });
+  }
+
+  /// Handle view bids tap (for owner) - navigate to listing bids screen
+  void handleViewBidsTap() {
+    Navigator.pushNamed(
+      context,
+      AppRoutes.listingBids,
+      arguments: listingId,
     );
   }
 

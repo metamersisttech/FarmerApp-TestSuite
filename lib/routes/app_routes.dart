@@ -38,6 +38,8 @@ import 'package:flutter_app/features/editlistings/screens/edit_listing_page.dart
 import 'package:flutter_app/features/messaging/models/conversation_model.dart';
 import 'package:flutter_app/features/messaging/screens/conversations_page.dart';
 import 'package:flutter_app/features/messaging/screens/direct_chat_screen.dart';
+import 'package:flutter_app/features/bidding/screens/my_bids_page.dart';
+import 'package:flutter_app/features/bidding/screens/listing_bids_page.dart';
 
 /// App Routes
 ///
@@ -87,6 +89,8 @@ class AppRoutes {
   static const String editListingDetails = '/edit-listing-details';
   static const String conversations = '/conversations';
   static const String directChat = '/direct-chat';
+  static const String myBids = '/my-bids';
+  static const String listingBids = '/listing-bids';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -368,6 +372,24 @@ class AppRoutes {
         return _buildRoute(
           const Scaffold(
             body: Center(child: Text('Conversation required for chat')),
+          ),
+          settings,
+        );
+
+      case myBids:
+        return _buildRoute(const MyBidsPage(), settings);
+
+      case listingBids:
+        final listingId = settings.arguments as int?;
+        if (listingId != null) {
+          return _buildRoute(
+            ListingBidsPage(listingId: listingId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Listing ID required for bids')),
           ),
           settings,
         );

@@ -70,6 +70,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
               onChatTap: handleChatTap,
               onVideoTap: handleVideoTap,
               onBuyNowTap: handleBuyNowTap,
+              isOwner: isOwner,
+              onViewBidsTap: handleViewBidsTap,
             )
           : null,
     );

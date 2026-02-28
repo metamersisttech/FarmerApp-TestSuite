@@ -38,6 +38,14 @@ class ApiEndpoints {
   static String listingUnpublish(int id) => 'listings/$id/unpublish/';
   static String listingSold(int id) => 'listings/$id/sold/';
 
+  // ============ Bidding Endpoints ============
+  static String listingBids(int listingId) => 'listings/$listingId/bids/';
+  static const String myBids = 'listings/my-bids/';
+  static String listingBidsList(int listingId) => 'listings/$listingId/bids/list/';
+  static String bidCancel(int listingId, int bidId) => 'listings/$listingId/bids/$bidId/cancel/';
+  static String bidApprove(int listingId, int bidId) => 'listings/$listingId/bids/$bidId/approve/';
+  static String bidReject(int listingId, int bidId) => 'listings/$listingId/bids/$bidId/reject/';
+
   // ============ Upload Endpoints ============
   static const String upload = 'upload/';
   static const String uploadMultiple = 'upload/multiple/';

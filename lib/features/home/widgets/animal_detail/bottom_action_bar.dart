@@ -4,11 +4,15 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 /// Bottom Action Bar for Animal Detail Page
 ///
 /// Fixed bottom bar with Call, Chat, Video, and Buy Now buttons.
+/// Shows "View Bids" instead of "Buy Now" when the current user owns the listing.
 class BottomActionBar extends StatelessWidget {
   final VoidCallback? onCallTap;
   final VoidCallback? onChatTap;
   final VoidCallback? onVideoTap;
   final VoidCallback? onBuyNowTap;
+  final bool isOwner;
+  final VoidCallback? onViewBidsTap;
+  final int bidCount;
 
   const BottomActionBar({
     super.key,
@@ -16,6 +20,9 @@ class BottomActionBar extends StatelessWidget {
     this.onChatTap,
     this.onVideoTap,
     this.onBuyNowTap,
+    this.isOwner = false,
+    this.onViewBidsTap,
+    this.bidCount = 0,
   });
 
   @override
@@ -36,45 +43,68 @@ class BottomActionBar extends StatelessWidget {
         top: false,
         child: Row(
           children: [
-            // Call Button
-            _ActionIconButton(
-              icon: Icons.call_outlined,
-              onTap: onCallTap,
-            ),
-            const SizedBox(width: 12),
-            // Chat Button
-            _ActionIconButton(
-              icon: Icons.chat_bubble_outline,
-              onTap: onChatTap,
-            ),
-            const SizedBox(width: 12),
-            // Video Button
-            _ActionIconButton(
-              icon: Icons.videocam_outlined,
-              onTap: onVideoTap,
-            ),
-            const SizedBox(width: 16),
-            // Buy Now Button
-            Expanded(
-              child: ElevatedButton(
-                onPressed: onBuyNowTap,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.authPrimaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Buy Now',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+            if (!isOwner) ...[
+              // Call Button
+              _ActionIconButton(
+                icon: Icons.call_outlined,
+                onTap: onCallTap,
               ),
+              const SizedBox(width: 12),
+              // Chat Button
+              _ActionIconButton(
+                icon: Icons.chat_bubble_outline,
+                onTap: onChatTap,
+              ),
+              const SizedBox(width: 12),
+              // Video Button
+              _ActionIconButton(
+                icon: Icons.videocam_outlined,
+                onTap: onVideoTap,
+              ),
+              const SizedBox(width: 16),
+            ],
+            // Main action button
+            Expanded(
+              child: isOwner
+                  ? ElevatedButton.icon(
+                      onPressed: onViewBidsTap,
+                      icon: const Icon(Icons.gavel, size: 20),
+                      label: Text(
+                        bidCount > 0 ? 'View Bids ($bidCount)' : 'View Bids',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.authPrimaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                    )
+                  : ElevatedButton(
+                      onPressed: onBuyNowTap,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.authPrimaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Buy Now',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),

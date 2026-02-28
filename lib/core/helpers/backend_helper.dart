@@ -352,6 +352,104 @@ class BackendHelper {
     }
   }
 
+  // ============ Bidding Endpoints ============
+
+  /// Place a bid on a listing
+  /// POST /api/listings/{listingId}/bids/
+  Future<Map<String, dynamic>> postPlaceBid(
+    int listingId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.listingBids(listingId),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get current user's bids
+  /// GET /api/listings/my-bids/
+  Future<dynamic> getMyBids({Map<String, dynamic>? params}) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.myBids,
+        params: params,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Cancel a bid
+  /// POST /api/listings/{listingId}/bids/{bidId}/cancel/
+  Future<Map<String, dynamic>> postCancelBid(
+    int listingId,
+    int bidId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.bidCancel(listingId, bidId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get bids for a listing (seller view)
+  /// GET /api/listings/{listingId}/bids/list/
+  Future<dynamic> getListingBids(
+    int listingId, {
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.listingBidsList(listingId),
+        params: params,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Approve a bid
+  /// POST /api/listings/{listingId}/bids/{bidId}/approve/
+  Future<Map<String, dynamic>> postApproveBid(
+    int listingId,
+    int bidId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.bidApprove(listingId, bidId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Reject a bid
+  /// POST /api/listings/{listingId}/bids/{bidId}/reject/
+  Future<Map<String, dynamic>> postRejectBid(
+    int listingId,
+    int bidId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.bidReject(listingId, bidId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Upload Endpoints ============
 
   /// Upload a single file

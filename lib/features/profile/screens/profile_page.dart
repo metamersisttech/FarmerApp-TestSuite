@@ -239,6 +239,10 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  void _handleMyBids() {
+    Navigator.pushNamed(context, AppRoutes.myBids);
+  }
+
   void _handleSavedItems() {
     // TODO: Navigate to saved items page
     showSuccessToast('Saved Items - Coming soon!');
@@ -401,6 +405,7 @@ class _ProfilePageState extends State<ProfilePage>
                               onMyListingsTap: _handleMyListings,
                               onSavedItemsTap: _handleSavedItems,
                               onBookingsTap: _handleBookings,
+                              onMyBidsTap: _handleMyBids,
                               onMessagesTap: _handleMessages,
                               onWalletTap: _handleWallet,
                               onReviewsTap: _handleReviews,
