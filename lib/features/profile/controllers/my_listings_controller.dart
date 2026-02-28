@@ -77,6 +77,58 @@ class MyListingsController extends BaseController {
     }
   }
 
+  /// Publish a listing
+  Future<bool> publishListing(int listingId) async {
+    if (isDisposed) return false;
+
+    clearError();
+
+    try {
+      await _myListingsService.publishListing(listingId);
+
+      if (isDisposed) return false;
+
+      final index = _listings.indexWhere((listing) => listing.id == listingId);
+      if (index != -1) {
+        _listings[index] = _listings[index].copyWith(listingStatus: 'PUBLISHED');
+        notifyListeners();
+      }
+
+      return true;
+    } catch (e) {
+      if (isDisposed) return false;
+
+      setError('Failed to publish listing: $e');
+      return false;
+    }
+  }
+
+  /// Unpublish a listing
+  Future<bool> unpublishListing(int listingId) async {
+    if (isDisposed) return false;
+
+    clearError();
+
+    try {
+      await _myListingsService.unpublishListing(listingId);
+
+      if (isDisposed) return false;
+
+      final index = _listings.indexWhere((listing) => listing.id == listingId);
+      if (index != -1) {
+        _listings[index] = _listings[index].copyWith(listingStatus: 'DRAFT');
+        notifyListeners();
+      }
+
+      return true;
+    } catch (e) {
+      if (isDisposed) return false;
+
+      setError('Failed to unpublish listing: $e');
+      return false;
+    }
+  }
+
   /// Mark a listing as sold
   Future<bool> markAsSold(int listingId) async {
     if (isDisposed) return false;
@@ -88,19 +140,16 @@ class MyListingsController extends BaseController {
 
       if (isDisposed) return false;
 
-      // Update listing status locally
       final index = _listings.indexWhere((listing) => listing.id == listingId);
       if (index != -1) {
-        // Create a new listing with updated status
-        // Note: You may need to add a copyWith method to ListingModel
-        _listings[index] = _listings[index];
+        _listings[index] = _listings[index].copyWith(listingStatus: 'SOLD');
         notifyListeners();
       }
-      
+
       return true;
     } catch (e) {
       if (isDisposed) return false;
-      
+
       setError('Failed to mark listing as sold: $e');
       return false;
     }

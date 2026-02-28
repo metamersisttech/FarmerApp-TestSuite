@@ -198,27 +198,17 @@ class _MyListingsPageState extends State<MyListingsPage>
                     isVerified: listing.isVerified,
                     onTap: () => _handleListingTap(listing),
                   ),
-                  // Edit icon button overlay
+                  // Status badge (top-left)
                   Positioned(
                     top: 8,
-                    right: 8,
-                    child: Material(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      elevation: 2,
-                      child: InkWell(
-                        onTap: () => _handleEditListing(listing),
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          child: Icon(
-                            Icons.edit,
-                            size: 18,
-                            color: AppTheme.authPrimaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
+                    left: 8,
+                    child: _buildStatusBadge(listing.listingStatus),
+                  ),
+                  // Action menu (top-right)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: _buildActionMenu(listing),
                   ),
                 ],
               );
@@ -227,6 +217,143 @@ class _MyListingsPageState extends State<MyListingsPage>
         ),
       ],
     );
+  }
+
+  /// Build status badge widget
+  Widget _buildStatusBadge(String status) {
+    Color bgColor;
+    Color textColor;
+    String label;
+
+    switch (status) {
+      case 'PUBLISHED':
+        bgColor = Colors.purple;
+        textColor = Colors.white;
+        label = 'Published';
+        break;
+      case 'SOLD':
+        bgColor = Colors.blue;
+        textColor = Colors.white;
+        label = 'Sold';
+        break;
+      case 'DRAFT':
+      default:
+        bgColor = Colors.amber;
+        textColor = Colors.black87;
+        label = 'Draft';
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  /// Build action menu for a listing
+  Widget _buildActionMenu(ListingModel listing) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      elevation: 2,
+      child: PopupMenuButton<String>(
+        icon: Icon(
+          Icons.more_vert,
+          size: 20,
+          color: AppTheme.authPrimaryColor,
+        ),
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
+        iconSize: 20,
+        onSelected: (value) => _handleMenuAction(value, listing),
+        itemBuilder: (context) {
+          final items = <PopupMenuEntry<String>>[
+            const PopupMenuItem(
+              value: 'edit',
+              child: ListTile(
+                leading: Icon(Icons.edit, size: 20),
+                title: Text('Edit'),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ];
+
+          if (listing.listingStatus == 'DRAFT') {
+            items.add(const PopupMenuItem(
+              value: 'publish',
+              child: ListTile(
+                leading: Icon(Icons.publish, size: 20, color: Colors.purple),
+                title: Text('Publish'),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ));
+          }
+
+          if (listing.listingStatus == 'PUBLISHED') {
+            items.add(const PopupMenuItem(
+              value: 'unpublish',
+              child: ListTile(
+                leading: Icon(Icons.unpublished, size: 20, color: Colors.orange),
+                title: Text('Unpublish'),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ));
+            items.add(const PopupMenuItem(
+              value: 'sold',
+              child: ListTile(
+                leading: Icon(Icons.sell, size: 20, color: Colors.blue),
+                title: Text('Mark as Sold'),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ));
+          }
+
+          return items;
+        },
+      ),
+    );
+  }
+
+  /// Handle menu action selection
+  Future<void> _handleMenuAction(String action, ListingModel listing) async {
+    switch (action) {
+      case 'edit':
+        _handleEditListing(listing);
+        break;
+      case 'publish':
+        final success = await _controller.publishListing(listing.id);
+        if (success && mounted) {
+          showSuccessToast('Listing published successfully');
+        }
+        break;
+      case 'unpublish':
+        final success = await _controller.unpublishListing(listing.id);
+        if (success && mounted) {
+          showSuccessToast('Listing unpublished');
+        }
+        break;
+      case 'sold':
+        final success = await _controller.markAsSold(listing.id);
+        if (success && mounted) {
+          showSuccessToast('Listing marked as sold');
+        }
+        break;
+    }
   }
 
   /// Handle edit listing

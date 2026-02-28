@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/features/vet/mixins/vet_onboarding_state_mixin.dart';
-import 'package:flutter_app/features/vet/screens/vet_document_upload_screen.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/features/vet/widgets/onboarding/vet_onboarding_slide.dart';
 import 'package:flutter_app/features/vet/widgets/onboarding/vet_onboarding_dots.dart';
 
@@ -33,12 +33,7 @@ class _VetOnboardingCarouselScreenState
   }
 
   void _handleGetStarted() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const VetDocumentUploadScreen(),
-      ),
-    );
+    Navigator.pushNamed(context, AppRoutes.vetDocumentUpload);
   }
 
   @override

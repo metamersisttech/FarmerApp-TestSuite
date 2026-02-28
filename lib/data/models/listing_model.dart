@@ -15,6 +15,7 @@ class ListingModel {
   final String? gender;
   final int? ageMonths;
   final String? currency;
+  final String listingStatus;
 
   ListingModel({
     required this.id,
@@ -30,6 +31,7 @@ class ListingModel {
     this.gender,
     this.ageMonths,
     this.currency,
+    this.listingStatus = 'DRAFT',
   });
 
   /// Create from JSON response (API format)
@@ -106,6 +108,7 @@ class ListingModel {
       gender: json['gender'] as String?,
       ageMonths: json['age_months'] as int?,
       currency: currency,
+      listingStatus: json['listing_status'] as String? ?? 'DRAFT',
     );
   }
 
@@ -124,7 +127,43 @@ class ListingModel {
       'breed': breed,
       'gender': gender,
       'currency': currency,
+      'listing_status': listingStatus,
     };
+  }
+
+  /// Create a copy with updated fields
+  ListingModel copyWith({
+    int? id,
+    String? name,
+    String? imageUrl,
+    String? age,
+    String? price,
+    String? location,
+    double? rating,
+    bool? isVerified,
+    String? species,
+    String? breed,
+    String? gender,
+    int? ageMonths,
+    String? currency,
+    String? listingStatus,
+  }) {
+    return ListingModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      imageUrl: imageUrl ?? this.imageUrl,
+      age: age ?? this.age,
+      price: price ?? this.price,
+      location: location ?? this.location,
+      rating: rating ?? this.rating,
+      isVerified: isVerified ?? this.isVerified,
+      species: species ?? this.species,
+      breed: breed ?? this.breed,
+      gender: gender ?? this.gender,
+      ageMonths: ageMonths ?? this.ageMonths,
+      currency: currency ?? this.currency,
+      listingStatus: listingStatus ?? this.listingStatus,
+    );
   }
 
   @override
