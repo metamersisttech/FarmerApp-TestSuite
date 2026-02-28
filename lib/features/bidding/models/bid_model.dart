@@ -60,10 +60,12 @@ class BidModel {
 
   factory BidModel.fromJson(Map<String, dynamic> json) {
     return BidModel(
-      id: json['id'] as int,
+      id: json['bid_id'] as int? ?? json['id'] as int? ?? 0,
       listingId: json['listing_id'] as int? ?? json['listing'] as int? ?? 0,
-      bidderId: json['bidder_id'] as int? ?? json['bidder'] as int?,
-      bidderName: json['bidder_name'] as String?,
+      bidderId: json['bidder_id'] as int?
+          ?? (json['bidder'] is Map ? json['bidder']['id'] as int? : json['bidder'] as int?),
+      bidderName: json['bidder_name'] as String?
+          ?? (json['bidder'] is Map ? json['bidder']['username'] as String? : null),
       actualPrice: _parseDouble(json['actual_price'] ?? json['listing_price']),
       bidPrice: _parseDouble(json['bid_price']),
       status: json['status'] as String? ?? 'PENDING',
@@ -75,9 +77,11 @@ class BidModel {
       listingInfo: json['listing_info'] != null
           ? BidListingInfo.fromJson(json['listing_info'] as Map<String, dynamic>)
           : null,
-      bidder: json['bidder_info'] != null
+      bidder: json['bidder_info'] is Map
           ? BidBidderInfo.fromJson(json['bidder_info'] as Map<String, dynamic>)
-          : null,
+          : (json['bidder'] is Map
+              ? BidBidderInfo.fromJson(json['bidder'] as Map<String, dynamic>)
+              : null),
     );
   }
 

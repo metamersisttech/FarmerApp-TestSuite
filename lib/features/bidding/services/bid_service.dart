@@ -77,12 +77,15 @@ class BidService {
       }
 
       final json = await _backendHelper.postPlaceBid(listingId, data);
+
       final bid = BidModel.fromJson(json);
       return BidResult.ok(bid: bid, message: 'Bid placed successfully!');
     } on BackendException catch (e) {
+      debugPrint('BackendException placing bid: ${e.message}');
       return BidResult.error(e.message);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Error placing bid: $e');
+      debugPrint('Stack trace: $stackTrace');
       return BidResult.error('Failed to place bid.');
     }
   }
@@ -120,9 +123,11 @@ class BidService {
         totalCount: totalCount ?? bids.length,
       );
     } on BackendException catch (e) {
+      debugPrint('BackendException getting my bids: ${e.message}');
       return BidResult.error(e.message);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Error getting my bids: $e');
+      debugPrint('Stack trace: $stackTrace');
       return BidResult.error('Failed to load your bids.');
     }
   }
@@ -188,9 +193,11 @@ class BidService {
         totalCount: totalCount ?? bids.length,
       );
     } on BackendException catch (e) {
+      debugPrint('BackendException getting listing bids: ${e.message}');
       return BidResult.error(e.message);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Error getting listing bids: $e');
+      debugPrint('Stack trace: $stackTrace');
       return BidResult.error('Failed to load bids for this listing.');
     }
   }
