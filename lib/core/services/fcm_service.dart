@@ -7,6 +7,7 @@
 /// - Notification tap navigation
 library;
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -86,16 +87,13 @@ class FCMService {
     try {
       final token = await _messaging.getToken();
       if (token == null) return;
+      print('🔑 FCM token generated: $token');
 
       // Store locally for unregister on logout
       await _commonHelper.setFcmToken(token);
 
-      // Register with backend
-      await _backendHelper.postFcmRegister({
-        'token': token,
-        'device_type': Platform.isIOS ? 'ios' : 'android',
-      });
-      print('✅ FCM token registered');
+      // Register with backend (retries on transient failures)
+      await _registerWithRetry(token);
     } catch (_) {
       // Non-critical — don't fail login if this fails
       print('⚠️ FCM token registration failed (non-critical)');
@@ -221,15 +219,31 @@ class FCMService {
   /// Handle token refresh — re-register with backend
   void _onTokenRefresh(String newToken) async {
     await _commonHelper.setFcmToken(newToken);
+    await _registerWithRetry(newToken);
+  }
 
-    try {
-      await _backendHelper.postFcmRegister({
-        'token': newToken,
-        'device_type': Platform.isIOS ? 'ios' : 'android',
-      });
-      print('✅ FCM token refreshed and re-registered');
-    } catch (_) {
-      // Non-critical
+  /// Register FCM token with exponential backoff retry
+  Future<void> _registerWithRetry(String token, {int maxAttempts = 3}) async {
+    const baseDelay = Duration(seconds: 2);
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        final deviceType = Platform.isIOS ? 'ios' : 'android';
+        print('📤 Sending FCM token to API: $token, device_type: $deviceType');
+        await _backendHelper.postFcmRegister({
+          'token': token,
+          'device_type': deviceType,
+        });
+        print('✅ FCM token registered: ${token.substring(0, 20)}...');
+        return;
+      } catch (_) {
+        if (attempt == maxAttempts) {
+          print('⚠️ FCM token registration failed after $maxAttempts attempts');
+          return;
+        }
+        final delay = baseDelay * (1 << (attempt - 1));
+        print('⚠️ FCM register attempt $attempt failed, retrying in ${delay.inSeconds}s...');
+        await Future.delayed(delay);
+      }
     }
   }
 }
