@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
-import 'package:flutter_app/features/bidding/services/bid_service.dart';
 import 'package:flutter_app/features/home/controllers/animal_detail_controller.dart';
-import 'package:flutter_app/features/home/widgets/animal_detail/bid_price_bottom_sheet.dart';
 import 'package:flutter_app/features/messaging/services/messaging_service.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 
@@ -12,6 +10,7 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
   late AnimalDetailController controller;
   int currentImageIndex = 0;
   late PageController imagePageController;
+
   bool _isOwner = false;
 
   /// Whether the current user owns this listing
@@ -32,6 +31,7 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
     imagePageController.dispose();
   }
 
+  /// Fetch animal details from API
   /// Fetch animal details from API
   Future<void> fetchDetails() async {
     await controller.fetchAnimalDetail(listingId);
@@ -127,41 +127,9 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
     showComingSoonAction('Video call');
   }
 
-  /// Handle buy now button tap - opens bid pricing bottom sheet
+  /// Handle buy now button tap
   void handleBuyNowTap() {
-    final animal = controller.animalDetail;
-    if (animal == null) return;
-
-    final bidService = BidService();
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => BidPriceBottomSheet(
-        listedPrice: animal.price,
-        animalTitle: animal.title,
-        listingId: listingId,
-        onSubmit: (bidPrice, message) => bidService.placeBid(
-          listingId: listingId,
-          bidPrice: bidPrice,
-          message: message,
-        ),
-      ),
-    ).then((result) {
-      if (result == true && mounted) {
-        showSuccessToast('Bid placed successfully!');
-      }
-    });
-  }
-
-  /// Handle view bids tap (for owner) - navigate to listing bids screen
-  void handleViewBidsTap() {
-    Navigator.pushNamed(
-      context,
-      AppRoutes.listingBids,
-      arguments: listingId,
-    );
+    showComingSoonAction('Buy Now');
   }
 
   /// Handle book transport tap
@@ -219,7 +187,7 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
         SnackBar(
           content: Text('$actionName coming soon!'),
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
+          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
         ),
       );
     }
@@ -233,7 +201,7 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
           content: Text(message),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
+          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
         ),
       );
     }
@@ -247,9 +215,13 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
           content: Text(message),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
+          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
         ),
       );
     }
+  }
+
+  void handleViewBidsTap() {
+    Navigator.pushNamed(context, AppRoutes.listingBids, arguments: listingId);
   }
 }

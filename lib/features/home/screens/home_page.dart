@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchListings();
       fetchRecentlyViewedListings();
+      homeController.loadFavorites(); // Load favorites on page load
       checkLocationPermission();
       loadUserFromStorage();
       checkLocationServiceStatus();
@@ -73,6 +74,7 @@ class _HomePageState extends State<HomePage>
     // This happens when user navigates BACK to this page from another page
     print('[HomePage] 🔄 Returned to home page (back navigation), refreshing recently viewed...');
     fetchRecentlyViewedListings();
+    homeController.loadFavorites(); // Reload favorites when returning to page
   }
 
   @override
@@ -149,6 +151,7 @@ class _HomePageState extends State<HomePage>
                       onViewAll: () {
                         HomeNavigationService.toRecentlyViewed(context);
                       },
+                      isFavorite: (listingId) => homeController.isListingFavorited(listingId),
                     ),
 
                     // Fresh Recommendations Section

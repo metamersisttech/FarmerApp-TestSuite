@@ -23,6 +23,10 @@ class ApiEndpoints {
   
   // Current User
   static const String me = 'auth/me/'; // Get authenticated user info
+  
+  // Favorites
+  static const String favorites = 'auth/me/favorites/'; // User favorites
+  static String deleteFavoriteByListingId(int listingId) => 'auth/me/favorites/$listingId/'; // Delete favorite by listing ID
 
   // ============ Animal Endpoints ============
   static const String animals = 'animals/'; // Get all animals catalog

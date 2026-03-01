@@ -56,10 +56,10 @@ class HomeNavigationService {
     return NavigationResult.success();
   }
 
-  /// Navigate to Saved/Liked listings
+  /// Navigate to Favourite/Liked listings
   static NavigationResult toSaved(BuildContext context) {
-    // TODO: Implement saved listings navigation when screen is ready
-    return NavigationResult.comingSoon('Saved listings');
+    // TODO: Implement favourite listings navigation when screen is ready
+    return NavigationResult.comingSoon('Favourite listings');
   }
 
   /// Navigate to Notifications screen

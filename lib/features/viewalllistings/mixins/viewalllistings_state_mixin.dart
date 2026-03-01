@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/core/cache/cache_manager.dart';
 import 'package:flutter_app/data/models/listing_model.dart';
 import 'package:flutter_app/features/viewalllistings/controllers/viewalllistings_controller.dart';
-import 'package:flutter_app/features/home/services/home_navigation_service.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/main.dart' show firebaseSync;
 
 /// Mixin for view all listings page state management and business logic
@@ -67,8 +67,20 @@ mixin ViewAllListingsStateMixin<T extends StatefulWidget> on State<T> {
       print('[ViewAllListings] 📝 Tracking view for listing ID: ${listing.id}');
       trackListingView(listing.id);
       
-      // Navigate to detail page
-      HomeNavigationService.toAnimalDetail(context, listing.id);
+      // Navigate to detail page and reload favorites when returning
+      Navigator.pushNamed(
+        context, 
+        AppRoutes.animalDetail, 
+        arguments: listing.id,
+      ).then((_) async {
+        // Reload favorites when returning from detail page
+        print('[ViewAllListings] 🔄 Returned from animal detail, reloading favorites...');
+        await controller.loadFavorites();
+        if (mounted) {
+          setState(() {});
+          print('[ViewAllListings] ✅ UI refreshed after loading favorites');
+        }
+      });
     }
   }
   

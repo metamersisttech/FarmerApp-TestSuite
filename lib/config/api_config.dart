@@ -10,7 +10,6 @@ class ApiConfig {
   // static const String devBaseUrl = 'http://10.0.2.2:8000/api/';
   static const String devBaseUrl = 'http://34.72.231.118/api/';
   // static const String devBaseUrl = 'http://192.168.1.2/api/';
-  // static const String devBaseUrl = 'http://localhost/api/';
 
   // Development - iOS Simulator uses localhost directly
   static const String devBaseUrlIOS = 'http://localhost:8000/api/';

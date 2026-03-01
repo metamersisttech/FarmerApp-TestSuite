@@ -93,15 +93,18 @@ class SearchController extends ChangeNotifier {
 
   /// Perform search using the search service
   Future<void> search(String query) async {
-    if (query.trim().isEmpty) return;
+    // Allow empty query if category filter is set
+    if (query.trim().isEmpty && _selectedCategory == null) return;
 
     try {
       _currentQuery = query;
       _setLoading(true);
       _clearError();
 
-      // Add to recent searches
-      await addToRecentSearches(query);
+      // Add to recent searches (only if query is not empty)
+      if (query.trim().isNotEmpty) {
+        await addToRecentSearches(query);
+      }
 
       if (kDebugMode) {
         print('🔍 [SearchController] Searching with:');

@@ -28,35 +28,38 @@ class ListingSearchBar extends StatelessWidget {
       children: [
         // Search bar
         Expanded(
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(50),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: TextField(
-              controller: controller,
-              enabled: enabled,
-              onChanged: onChanged,
-              onTap: onTap,
-              decoration: InputDecoration(
-                hintText: hintText,
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
-                prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 22),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 14,
+          child: GestureDetector(
+            onTap: enabled ? null : onTap,
+            child: Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: controller,
+                enabled: enabled,
+                onChanged: onChanged,
+                onTap: enabled ? onTap : null,
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
+                  prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 22),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
                 ),
               ),
             ),

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/features/home/mixins/home_state_mixin.dart';
 import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_app/features/postlistings/screens/post_animal_page.dart';
+import 'package:flutter_app/features/search/screens/search_page.dart';
 import 'package:flutter_app/features/viewalllistings/mixins/viewalllistings_state_mixin.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/category_filter_chips.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_card.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_search_bar.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_sort_bottom_sheet.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
+import 'package:flutter_app/main.dart' show routeObserver;
 
 /// View All Listings Page
 ///
@@ -28,7 +30,7 @@ class ViewAllListingsPage extends StatefulWidget {
 }
 
 class _ViewAllListingsPageState extends State<ViewAllListingsPage>
-    with ViewAllListingsStateMixin, HomeStateMixin {
+    with ViewAllListingsStateMixin, HomeStateMixin, RouteAware {
   
   @override
   void initState() {
@@ -42,14 +44,42 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
     initializeController();
     initializeHomeController();
     
-    // Fetch marketplace listings after first frame
+    // Fetch marketplace listings and favorites after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchMarketplaceListings();
+      // Load favorites after listings are fetched
+      controller.loadFavorites().then((_) {
+        if (mounted) setState(() {});
+      });
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to route changes
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute is PageRoute) {
+      routeObserver.subscribe(this, modalRoute);
+    }
+  }
+
+  @override
+  void didPopNext() {
+    // Called when the top route has been popped off, and the current route shows up
+    // This fires when user returns from animal detail page
+    print('[ViewAllListings] 🔄 didPopNext - User returned to browse livestock, reloading favorites...');
+    controller.loadFavorites().then((_) {
+      if (mounted) {
+        setState(() {});
+        print('[ViewAllListings] ✅ UI refreshed after loading favorites');
+      }
     });
   }
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     disposeController();
     disposeHomeController();
     super.dispose();
@@ -68,7 +98,8 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: ListingSearchBar(
               controller: searchController,
-              onChanged: handleListingsSearch,
+              enabled: false,
+              onTap: _navigateToSearchPage,
               onFilterTap: _showSortFilterSheet,
             ),
           ),
@@ -132,6 +163,14 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const PostAnimalPage()),
+    );
+  }
+
+  /// Navigate to search page
+  void _navigateToSearchPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SearchPage()),
     );
   }
 
@@ -252,13 +291,13 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
         itemCount: controller.listingsCount,
         itemBuilder: (context, index) {
           final listing = controller.listings[index];
+          final isFavorited = controller.isListingFavorited(listing.id);
+          
           return ListingCard(
             listing: listing,
             onTap: () => handleListingTap(listing),
-            onFavoriteTap: () {
-              // TODO: Implement favorite functionality
-              showSuccessMessage('Favorite feature coming soon!');
-            },
+            onFavoriteTap: null, // Disable toggle on listing cards
+            isFavorite: isFavorited,
           );
         },
       ),

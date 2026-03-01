@@ -5,7 +5,7 @@ import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_app/features/postlistings/screens/post_animal_page.dart';
 import 'package:flutter_app/features/profile/screens/my_listings_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
-import 'package:flutter_app/features/saved/screens/saved_listings_page.dart';
+import 'package:flutter_app/features/favourite/screens/favourite_listings_page.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Main Shell Page - Persistent bottom navigation across all main screens
@@ -30,7 +30,7 @@ class _MainShellPageState extends State<MainShellPage> {
   // Pages for each tab
   List<Widget> get _pages => [
     HomePage(user: widget.user, onNavigateToTab: _onBottomNavTap),      // Index 0: Home
-    const SavedListingsPage(),        // Index 1: Saved/Favorite
+    const FavouriteListingsPage(),        // Index 1: Favourite
     MyListingsPage(key: _myListingsKey), // Index 2: My Ads (instead of Community)
     const ProfilePage(),              // Index 3: Profile
   ];

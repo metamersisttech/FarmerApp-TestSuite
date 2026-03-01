@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/features/appointment/models/chat_message_model.dart';
@@ -32,7 +33,9 @@ mixin DirectChatStateMixin<T extends StatefulWidget> on State<T> {
     // Load current user ID
     final user = await CommonHelper().getLoggedInUser();
     _currentUserId = user?.id;
-    debugPrint('[DirectChat] Current user ID: $_currentUserId (raw user: ${user?.id})');
+    debugPrint(
+      '[DirectChat] Current user ID: $_currentUserId (raw user: ${user?.id})',
+    );
 
     // Load messages
     await _loadMessages();
@@ -66,13 +69,19 @@ mixin DirectChatStateMixin<T extends StatefulWidget> on State<T> {
     if (!mounted) return;
 
     if (result.success && result.messages != null) {
-      debugPrint('[DirectChat] Loaded ${result.messages!.length} messages. CurrentUserId=$_currentUserId');
+      debugPrint(
+        '[DirectChat] Loaded ${result.messages!.length} messages. CurrentUserId=$_currentUserId',
+      );
       for (final msg in result.messages!) {
-        final body = msg.body.length > 30 ? '${msg.body.substring(0, 30)}...' : msg.body;
-        debugPrint('[DirectChat] msg#${msg.messageId}: fromUser.id=${msg.fromUser.id}, '
-            'fromUser.name=${msg.fromUser.name}, '
-            'isMine=${msg.isMine(_currentUserId ?? 0)}, '
-            'body="$body"');
+        final body = msg.body.length > 30
+            ? '${msg.body.substring(0, 30)}...'
+            : msg.body;
+        debugPrint(
+          '[DirectChat] msg#${msg.messageId}: fromUser.id=${msg.fromUser.id}, '
+          'fromUser.name=${msg.fromUser.name}, '
+          'isMine=${msg.isMine(_currentUserId ?? 0)}, '
+          'body="$body"',
+        );
       }
       setState(() {
         messages = result.messages!;
