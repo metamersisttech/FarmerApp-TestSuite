@@ -267,8 +267,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   void _handleNotifications() {
-    // TODO: Navigate to notifications page
-    showSuccessToast('Notifications - Coming soon!');
+    Navigator.pushNamed(context, AppRoutes.notifications);
   }
 
   void _handleLanguage() {
@@ -401,6 +400,7 @@ class _ProfilePageState extends State<ProfilePage>
                               myListingsCount: getMenuCount('my_listings'),
                               savedItemsCount: getMenuCount('saved_items'),
                               bookingsCount: getMenuCount('my_bookings'),
+                              myBidsCount: getMenuCount('my_bids'),
                               notificationsCount: getMenuCount('notifications'),
                               onMyListingsTap: _handleMyListings,
                               onSavedItemsTap: _handleSavedItems,
