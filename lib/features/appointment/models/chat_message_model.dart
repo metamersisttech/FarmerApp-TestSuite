@@ -1,6 +1,8 @@
 // Chat message model for appointment messaging.
 // Maps GET /api/appointments/{id}/messages/ response items.
 
+import 'package:flutter_app/core/helpers/common_helper.dart';
+
 /// Sender info embedded in each message
 class ChatMessageSender {
   final int id;
@@ -19,7 +21,9 @@ class ChatMessageSender {
       name: json['name'] as String? ??
           json['full_name'] as String? ??
           '',
-      profileImage: json['profile_image'] as String?,
+      profileImage: json['profile_image'] != null
+          ? CommonHelper.getImageUrl(json['profile_image'] as String)
+          : null,
     );
   }
 }
