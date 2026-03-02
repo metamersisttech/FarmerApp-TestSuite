@@ -18,7 +18,9 @@ mixin ProfileStateMixin<T extends StatefulWidget> on State<T> {
   /// Set menu counts
   void setMenuCounts(Map<String, int> counts) {
     if (mounted) {
+      print('[ProfileStateMixin] 📊 Setting menu counts: $counts');
       setState(() => menuCounts = counts);
+      print('[ProfileStateMixin] ✅ Menu counts set. saved_items = ${counts['saved_items']}');
     }
   }
 

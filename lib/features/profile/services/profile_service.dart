@@ -6,6 +6,7 @@ import 'package:flutter_app/data/services/auth_service.dart';
 import 'package:flutter_app/core/services/fcm_service.dart';
 import 'package:flutter_app/data/services/api_service.dart';
 import 'package:flutter_app/features/profile/models/profile_model.dart';
+import 'package:flutter_app/features/favourite/services/favourite_badge_service.dart';
 
 /// Result of profile operations
 class ProfileResult {
@@ -126,17 +127,25 @@ class ProfileService {
   /// Get profile menu counts
   Future<Map<String, int>> getMenuCounts() async {
     try {
-      // TODO: Call API when backend is ready
+      print('[ProfileService] 🔍 Getting menu counts...');
       
-      await Future.delayed(const Duration(milliseconds: 300));
+      // Fetch NEW favorites count (since last visit)
+      final badgeService = FavouriteBadgeService();
+      final newFavoritesCount = await badgeService.getNewFavoritesCount();
       
-      // Return mock counts
-      return {
-        'my_listings': 5,
-        'saved_items': 12,
-        'my_bookings': 3,
+      print('[ProfileService] ✅ Badge count received: $newFavoritesCount');
+      
+      // TODO: Fetch actual counts from API for other items when backend is ready
+      final counts = {
+        'my_listings': 0,
+        'saved_items': newFavoritesCount,
+        'my_bookings': 0,
       };
+      
+      print('[ProfileService] 📊 Returning menu counts: $counts');
+      return counts;
     } catch (e) {
+      print('[ProfileService] ❌ ERROR getting menu counts: $e');
       return {};
     }
   }
