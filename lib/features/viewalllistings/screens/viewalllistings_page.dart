@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/home/mixins/home_state_mixin.dart';
 import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
+import 'package:flutter_app/features/postlistings/screens/post_animal_page.dart';
+import 'package:flutter_app/features/search/screens/search_page.dart';
 import 'package:flutter_app/features/viewalllistings/mixins/viewalllistings_state_mixin.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/category_filter_chips.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_card.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_search_bar.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_sort_bottom_sheet.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
+import 'package:flutter_app/main.dart' show routeObserver;
 
 /// View All Listings Page
 ///
@@ -16,8 +19,9 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 /// Architecture:
 /// - UI only in this file (build methods)
 /// - Business logic in ViewAllListingsStateMixin
-/// - Data management in ViewAllListingsController
+/// - Data management in ViewAllListingsController (with Firebase sync)
 /// - Data fetching in ViewAllListingsService
+/// - Cache-first strategy with automatic invalidation via Firebase
 class ViewAllListingsPage extends StatefulWidget {
   const ViewAllListingsPage({super.key});
 
@@ -26,22 +30,56 @@ class ViewAllListingsPage extends StatefulWidget {
 }
 
 class _ViewAllListingsPageState extends State<ViewAllListingsPage>
-    with ViewAllListingsStateMixin, HomeStateMixin {
+    with ViewAllListingsStateMixin, HomeStateMixin, RouteAware {
   
   @override
   void initState() {
     super.initState();
+    
+    // Initialize controller with Firebase sync (see mixin for implementation)
+    // This will:
+    // 1. Create controller with firebaseSync instance
+    // 2. Register Firebase listener for automatic cache invalidation
+    // 3. Fetch initial listings (cache-first strategy)
     initializeController();
     initializeHomeController();
     
-    // Fetch marketplace listings after first frame
+    // Fetch marketplace listings and favorites after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchMarketplaceListings();
+      // Load favorites after listings are fetched
+      controller.loadFavorites().then((_) {
+        if (mounted) setState(() {});
+      });
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to route changes
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute is PageRoute) {
+      routeObserver.subscribe(this, modalRoute);
+    }
+  }
+
+  @override
+  void didPopNext() {
+    // Called when the top route has been popped off, and the current route shows up
+    // This fires when user returns from animal detail page
+    print('[ViewAllListings] 🔄 didPopNext - User returned to browse livestock, reloading favorites...');
+    controller.loadFavorites().then((_) {
+      if (mounted) {
+        setState(() {});
+        print('[ViewAllListings] ✅ UI refreshed after loading favorites');
+      }
     });
   }
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     disposeController();
     disposeHomeController();
     super.dispose();
@@ -52,6 +90,7 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: _buildAppBar(),
+      resizeToAvoidBottomInset: false, // Keep bottom nav static when keyboard appears
       body: Column(
         children: [
           // Search bar with filter button
@@ -59,7 +98,8 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: ListingSearchBar(
               controller: searchController,
-              onChanged: handleListingsSearch,
+              enabled: false,
+              onTap: _navigateToSearchPage,
               onFilterTap: _showSortFilterSheet,
             ),
           ),
@@ -79,11 +119,58 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
           ),
         ],
       ),
+      // Floating Add Button (Sell)
+      floatingActionButton: _buildSellButton(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       // Bottom Navigation Bar
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: currentBottomNavIndex,
         onTap: (index) => handleMarketplaceBottomNavigation(index, handleBottomNavTap),
       ),
+    );
+  }
+
+  /// Build Sell button (Floating Action Button)
+  Widget _buildSellButton(BuildContext context) {
+    return SizedBox(
+      width: 56,
+      height: 56,
+      child: CustomPaint(
+        painter: _TriColorBorderPainter(),
+        child: Container(
+          margin: const EdgeInsets.all(5),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+          ),
+          child: IconButton(
+            onPressed: _handleSellTap,
+            icon: const Icon(
+              Icons.add,
+              color: AppTheme.authPrimaryColor,
+              size: 28,
+            ),
+            padding: EdgeInsets.zero,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Handle Sell button tap
+  void _handleSellTap() {
+    // Navigate to post animal page
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PostAnimalPage()),
+    );
+  }
+
+  /// Navigate to search page
+  void _navigateToSearchPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SearchPage()),
     );
   }
 
@@ -204,16 +291,67 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
         itemCount: controller.listingsCount,
         itemBuilder: (context, index) {
           final listing = controller.listings[index];
+          final isFavorited = controller.isListingFavorited(listing.id);
+          
           return ListingCard(
             listing: listing,
             onTap: () => handleListingTap(listing),
-            onFavoriteTap: () {
-              // TODO: Implement favorite functionality
-              showSuccessMessage('Favorite feature coming soon!');
-            },
+            onFavoriteTap: null, // Disable toggle on listing cards
+            isFavorite: isFavorited,
           );
         },
       ),
     );
   }
+}
+
+/// Custom painter for three-color segmented circular border
+class _TriColorBorderPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final strokeWidth = 5.0;
+
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    // Draw three arcs (120 degrees each = 2.094 radians)
+    const sweepAngle = 2.094; // 120 degrees in radians
+    
+    // Segment 1: Green/Teal (AppTheme.authPrimaryColor) - top
+    paint.color = AppTheme.authPrimaryColor;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+      -1.571, // Start at top (-90 degrees)
+      sweepAngle,
+      false,
+      paint,
+    );
+
+    // Segment 2: Orange - bottom right
+    paint.color = Colors.orange;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+      0.523, // Start after first segment
+      sweepAngle,
+      false,
+      paint,
+    );
+
+    // Segment 3: Deep Purple - bottom left
+    paint.color = Colors.deepPurple;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+      2.618, // Start after second segment
+      sweepAngle,
+      false,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

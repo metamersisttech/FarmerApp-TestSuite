@@ -93,14 +93,34 @@ class AnimalDetailController extends BaseController {
         await _animalDetailService.removeFromFavorites(listingId);
         debugPrint('[AnimalDetailController] Removed from favorites: $listingId');
       }
-    } catch (e) {
-      // Revert on error
-      _isFavorite = previousState;
-      notifyListeners();
       
-      debugPrint('[AnimalDetailController] Error toggling favorite: $e');
-      if (!isDisposed) {
-        setError('Failed to update favorite status');
+      // Clear any previous errors on success
+      clearError();
+    } catch (e) {
+      final errorMessage = e.toString().replaceAll('Exception: ', '');
+      
+      // Check if the error is "already in favorites"
+      if (errorMessage.contains('already in your favorites')) {
+        // Don't revert - keep the optimistic update (it's already favorited)
+        _isFavorite = true;
+        notifyListeners();
+        debugPrint('[AnimalDetailController] Listing already favorited, keeping as favorite');
+        
+        // Set a friendly error message
+        if (!isDisposed) {
+          setError('Already in favorites');
+        }
+        rethrow; // Rethrow so UI shows it's already favorited
+      } else {
+        // For other errors, revert the optimistic update
+        _isFavorite = previousState;
+        notifyListeners();
+        
+        debugPrint('[AnimalDetailController] Error toggling favorite: $e');
+        if (!isDisposed) {
+          setError(errorMessage);
+        }
+        rethrow;
       }
     }
   }

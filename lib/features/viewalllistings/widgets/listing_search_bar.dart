@@ -9,6 +9,7 @@ class ListingSearchBar extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onFilterTap;
   final bool enabled;
+  final bool showFilterButton;
 
   const ListingSearchBar({
     super.key,
@@ -18,6 +19,7 @@ class ListingSearchBar extends StatelessWidget {
     this.onTap,
     this.onFilterTap,
     this.enabled = true,
+    this.showFilterButton = true,
   });
 
   @override
@@ -26,67 +28,72 @@ class ListingSearchBar extends StatelessWidget {
       children: [
         // Search bar
         Expanded(
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(50),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: TextField(
-              controller: controller,
-              enabled: enabled,
-              onChanged: onChanged,
-              onTap: onTap,
-              decoration: InputDecoration(
-                hintText: hintText,
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
-                prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 22),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 14,
+          child: GestureDetector(
+            onTap: enabled ? null : onTap,
+            child: Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: controller,
+                enabled: enabled,
+                onChanged: onChanged,
+                onTap: enabled ? onTap : null,
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
+                  prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 22),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
                 ),
               ),
             ),
           ),
         ),
         
-        const SizedBox(width: 12),
-        
-        // Filter button
-        GestureDetector(
-          onTap: onFilterTap,
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.tune,
-              color: Colors.white,
-              size: 24,
+        // Filter button (conditionally shown)
+        if (showFilterButton) ...[
+          const SizedBox(width: 12),
+          
+          GestureDetector(
+            onTap: onFilterTap,
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.tune,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }

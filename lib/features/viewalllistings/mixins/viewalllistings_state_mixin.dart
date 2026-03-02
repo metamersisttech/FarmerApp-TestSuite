@@ -1,20 +1,26 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/core/cache/cache_manager.dart';
 import 'package:flutter_app/data/models/listing_model.dart';
 import 'package:flutter_app/features/viewalllistings/controllers/viewalllistings_controller.dart';
-import 'package:flutter_app/features/home/services/home_navigation_service.dart';
+import 'package:flutter_app/routes/app_routes.dart';
+import 'package:flutter_app/main.dart' show firebaseSync;
 
 /// Mixin for view all listings page state management and business logic
 mixin ViewAllListingsStateMixin<T extends StatefulWidget> on State<T> {
   late ViewAllListingsController controller;
   late TextEditingController searchController;
 
-  /// Initialize controller
+  /// Initialize controller with Firebase sync service
   void initializeController() {
-    controller = ViewAllListingsController();
+    // Pass firebaseSync instance to controller for cache invalidation
+    controller = ViewAllListingsController(firebaseSync);
     searchController = TextEditingController();
     // Add listener to rebuild UI when controller notifies changes
     controller.addListener(_onControllerUpdate);
+    
+    // Initialize controller (registers Firebase listener)
+    controller.init();
   }
 
   /// Called when controller notifies changes
@@ -57,7 +63,34 @@ mixin ViewAllListingsStateMixin<T extends StatefulWidget> on State<T> {
   /// Handle listing tap
   void handleListingTap(dynamic listing) {
     if (listing is ListingModel) {
-      HomeNavigationService.toAnimalDetail(context, listing.id);
+      // Track this listing as viewed for "Recently Viewed Ads" section
+      print('[ViewAllListings] 📝 Tracking view for listing ID: ${listing.id}');
+      trackListingView(listing.id);
+      
+      // Navigate to detail page and reload favorites when returning
+      Navigator.pushNamed(
+        context, 
+        AppRoutes.animalDetail, 
+        arguments: listing.id,
+      ).then((_) async {
+        // Reload favorites when returning from detail page
+        print('[ViewAllListings] 🔄 Returned from animal detail, reloading favorites...');
+        await controller.loadFavorites();
+        if (mounted) {
+          setState(() {});
+          print('[ViewAllListings] ✅ UI refreshed after loading favorites');
+        }
+      });
+    }
+  }
+  
+  /// Track a listing as viewed
+  Future<void> trackListingView(int listingId) async {
+    try {
+      await CacheManager().trackViewedListing(listingId);
+      print('[ViewAllListings] ✅ Tracked listing $listingId in recently viewed');
+    } catch (e) {
+      print('[ViewAllListings] ❌ Error tracking listing view: $e');
     }
   }
 
@@ -81,13 +114,9 @@ mixin ViewAllListingsStateMixin<T extends StatefulWidget> on State<T> {
 
   /// Handle bottom navigation with custom logic for marketplace page
   void handleMarketplaceBottomNavigation(int index, Function(int) defaultHandler) {
-    if (index == 0) {
-      // Navigate back to home page
-      Navigator.pop(context);
-    } else {
-      // Use the default handler from HomeStateMixin for other tabs
-      defaultHandler(index);
-    }
+    // For all navigation items, pop back to MainShellPage and let it handle the tab switching
+    // Pass the target tab index as a result
+    Navigator.pop(context, index);
   }
 
   /// Handle sort and filter apply

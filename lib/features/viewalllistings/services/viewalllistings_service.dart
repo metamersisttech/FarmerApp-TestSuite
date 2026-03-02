@@ -55,4 +55,68 @@ class ViewAllListingsService {
       throw Exception('Failed to fetch listings: ${e.toString()}');
     }
   }
+
+  /// Bulk fetch listings by IDs (for delta sync)
+  /// Used when Firebase notifies of changes - fetch only changed listings
+  /// 
+  /// TODO: Backend to implement /api/listings/bulk/ endpoint
+  /// Current: Falls back to fetching all listings (will be optimized when backend ready)
+  Future<List<ListingModel>> bulkFetchListings(List<int> ids) async {
+    try {
+      if (kDebugMode) {
+        print('[ViewAllListingsService] bulkFetchListings called with ${ids.length} IDs: $ids');
+      }
+
+      if (ids.isEmpty) {
+        return [];
+      }
+
+      try {
+        // Try bulk API first (will fail until backend implements it)
+        final response = await _backendHelper.getBulkListings(ids);
+
+        if (kDebugMode) {
+          print('[ViewAllListingsService] ✅ Bulk API Response: $response');
+        }
+
+        // Parse response (should be a list)
+        List<ListingModel> listings = [];
+        
+        if (response is List) {
+          listings = response
+              .map((item) => ListingModel.fromJson(item as Map<String, dynamic>))
+              .toList();
+        }
+
+        if (kDebugMode) {
+          print('[ViewAllListingsService] Bulk fetch returned ${listings.length} listings');
+        }
+
+        return listings;
+      } catch (bulkError) {
+        // Fallback: If bulk API not implemented yet, fetch all and filter by IDs
+        if (kDebugMode) {
+          print('[ViewAllListingsService] ⚠️ Bulk API failed (expected until backend ready): $bulkError');
+          print('[ViewAllListingsService] 🔄 Fallback: Fetching all listings and filtering by IDs');
+        }
+        
+        // Fetch all listings
+        final allListings = await fetchListings();
+        
+        // Filter by requested IDs
+        final filteredListings = allListings.where((l) => ids.contains(l.id)).toList();
+        
+        if (kDebugMode) {
+          print('[ViewAllListingsService] Fallback returned ${filteredListings.length} listings');
+        }
+        
+        return filteredListings;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('[ViewAllListingsService] ❌ Error bulk fetching listings: $e');
+      }
+      throw Exception('Failed to bulk fetch listings: ${e.toString()}');
+    }
+  }
 }

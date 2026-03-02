@@ -23,6 +23,10 @@ class ApiEndpoints {
   
   // Current User
   static const String me = 'auth/me/'; // Get authenticated user info
+  
+  // Favorites
+  static const String favorites = 'auth/me/favorites/'; // User favorites
+  static String deleteFavoriteByListingId(int listingId) => 'auth/me/favorites/$listingId/'; // Delete favorite by listing ID
 
   // ============ Animal Endpoints ============
   static const String animals = 'animals/'; // Get all animals catalog
@@ -33,6 +37,18 @@ class ApiEndpoints {
   // ============ Listing Endpoints ============
   static const String listings = 'listings/';
   static const String mylistings = 'listings/my/';
+  static const String listingsBulk = 'listings/bulk/'; // Bulk fetch for delta sync (TODO: Backend to implement)
+  static String listingPublish(int id) => 'listings/$id/publish/';
+  static String listingUnpublish(int id) => 'listings/$id/unpublish/';
+  static String listingSold(int id) => 'listings/$id/sold/';
+
+  // ============ Bidding Endpoints ============
+  static String listingBids(int listingId) => 'listings/$listingId/bids/';
+  static const String myBids = 'listings/my-bids/';
+  static String listingBidsList(int listingId) => 'listings/$listingId/bids/list/';
+  static String bidCancel(int listingId, int bidId) => 'listings/$listingId/bids/$bidId/cancel/';
+  static String bidApprove(int listingId, int bidId) => 'listings/$listingId/bids/$bidId/approve/';
+  static String bidReject(int listingId, int bidId) => 'listings/$listingId/bids/$bidId/reject/';
 
   // ============ Upload Endpoints ============
   static const String upload = 'upload/';
@@ -45,6 +61,57 @@ class ApiEndpoints {
 
   // Get user by ID
   static String userById(int id) => 'users/$id/';
+
+  // ============ Vet Onboarding Endpoints ============
+  static const String vetVerificationStatus = 'auth/vet/verification-status/';
+  static const String roleUpgrade = 'auth/role/upgrade/';
+  static String roleUpgradeById(int id) => 'auth/role/upgrade/$id/';
+
+  // ============ Vet Profile & Availability Endpoints ============
+  static const String vetProfile = 'vets/me/';
+  static const String vetAvailability = 'vets/me/availability/';
+  static String vetAvailabilityById(int id) => 'vets/me/availability/$id/';
+  static const String vetPricing = 'vets/me/pricing/';
+
+  // ============ Public Vet Endpoints (Browse) ============
+  static const String vets = 'vets/';
+  static String vetById(int id) => 'vets/$id/';
+  static String vetPublicAvailability(int id) => 'vets/$id/availability/';
+
+  // ============ Appointment Endpoints ============
+  static const String appointments = 'appointments/';
+  static String appointmentById(int id) => 'appointments/$id/';
+  static String appointmentCancel(int id) => 'appointments/$id/cancel/';
+
+  // ============ Vet Appointment Endpoints ============
+  static const String vetAppointments = 'appointments/vet/';
+  static String vetAvailableSlots(int vetId) =>
+      'appointments/vet/$vetId/available-slots/';
+  static String appointmentApprove(int id) => 'appointments/$id/approve/';
+  static String appointmentReject(int id) => 'appointments/$id/reject/';
+  static String appointmentComplete(int id) => 'appointments/$id/complete/';
+
+  // ============ Appointment Chat Endpoints ============
+  static String appointmentMessages(int id) => 'appointments/$id/messages/';
+  static String appointmentUnreadCount(int id) =>
+      'appointments/$id/messages/unread-count/';
+  static String appointmentMarkRead(int id) =>
+      'appointments/$id/messages/read/';
+
+  // ============ Direct Messaging Endpoints ============
+  static const String conversations = 'messages/conversations/';
+  static String conversationById(int id) => 'messages/conversations/$id/';
+  static String conversationMessages(int id) =>
+      'messages/conversations/$id/messages/';
+  static String conversationMarkRead(int id) =>
+      'messages/conversations/$id/messages/read/';
+  static String listingChat(int listingId) => 'listings/$listingId/chat/';
+
+  // ============ FCM Endpoints ============
+  static const String fcmRegister = 'fcm/register/';
+  static const String fcmUnregister = 'fcm/unregister/';
+  static const String fcmTokens = 'fcm/tokens/';
+  static const String fcmTest = 'fcm/test/';
 
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here

@@ -5,7 +5,8 @@ import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
-import 'package:flutter_app/features/home/screens/home_page.dart';
+import 'package:flutter_app/features/vet_dashboard/screens/vet_home_page.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// Service for handling auth-related navigation
 class AuthNavigationService {
@@ -70,19 +71,31 @@ class AuthNavigationService {
   }
 
   /// Navigate to home page (clear stack)
+  /// Checks stored app mode to route to farmer or vet dashboard.
   static void toHome(BuildContext context, {UserModel? user}) async {
     // If no user passed, try to get from CommonHelper
+    final commonHelper = CommonHelper();
     UserModel? userToPass = user;
-    if (userToPass == null) {
-      final commonHelper = CommonHelper();
-      userToPass = await commonHelper.getLoggedInUser();
-    }
+    userToPass ??= await commonHelper.getLoggedInUser();
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => HomePage(user: userToPass)),
-      (route) => false,
-    );
+    // Check if user was in vet mode
+    final mode = await commonHelper.getAppMode();
+
+    if (mode == 'vet') {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const VetHomePage()),
+        (route) => false,
+      );
+    } else {
+      // Use named route to navigate to MainShellPage with bottom nav
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.home,
+        (route) => false,
+        arguments: {'user': userToPass},
+      );
+    }
   }
 
   /// Navigate to register page

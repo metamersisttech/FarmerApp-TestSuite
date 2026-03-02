@@ -14,6 +14,8 @@ class CommonHelper {
   static const String _userKey = 'logged_in_user';
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
+  static const String _appModeKey = 'app_mode';
+  static const String _fcmTokenKey = 'fcm_token';
 
   final FlutterSecureStorage _storage;
 
@@ -104,6 +106,43 @@ class CommonHelper {
   /// Clear all auth data (for logout)
   Future<void> clearAll() async {
     await clearUser();
+    await _storage.delete(key: _appModeKey);
+    await _storage.delete(key: _fcmTokenKey);
+  }
+
+  // ============ FCM Token Management ============
+
+  /// Get stored FCM token
+  Future<String?> getFcmToken() async {
+    return await _storage.read(key: _fcmTokenKey);
+  }
+
+  /// Store FCM token
+  Future<void> setFcmToken(String token) async {
+    await _storage.write(key: _fcmTokenKey, value: token);
+  }
+
+  /// Clear stored FCM token
+  Future<void> clearFcmToken() async {
+    await _storage.delete(key: _fcmTokenKey);
+  }
+
+  // ============ App Mode Management ============
+
+  /// Get current app mode ('farmer' or 'vet'). Defaults to 'farmer'.
+  Future<String> getAppMode() async {
+    final mode = await _storage.read(key: _appModeKey);
+    return mode ?? 'farmer';
+  }
+
+  /// Set app mode ('farmer' or 'vet')
+  Future<void> setAppMode(String mode) async {
+    await _storage.write(key: _appModeKey, value: mode);
+  }
+
+  /// Check if currently in vet mode
+  Future<bool> isVetMode() async {
+    return (await getAppMode()) == 'vet';
   }
 
   // ============ Image URL Helper ============

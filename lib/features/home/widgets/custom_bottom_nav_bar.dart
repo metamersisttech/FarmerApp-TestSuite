@@ -4,70 +4,61 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 /// Custom Bottom Navigation Bar for Home Page
 ///
 /// Features:
-/// - 4 navigation items (Home, Listings, AI, Community)
+/// - 4 navigation items (Home, Favorite, My Ads, Profile)
 /// - Icon-only design with subtle backgrounds
+/// - Notched center for FAB
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int)? onTap;
 
-  const CustomBottomNavBar({
-    super.key,
-    this.currentIndex = 0,
-    this.onTap,
-  });
+  const CustomBottomNavBar({super.key, this.currentIndex = 0, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: AppTheme.borderColor,
-            width: 1,
+    return BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 0.0,
+      color: Colors.grey[100],
+      elevation: 8,
+      height: 60, // Set explicit total height for BottomAppBar
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          // 1. Home
+          _NavBarItem(
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home_rounded,
+            isActive: currentIndex == 0,
+            onTap: () => onTap?.call(0),
           ),
-        ),
-      ),
-      child: SafeArea(
-        child: SizedBox(
-          height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // 1. Home
-              _NavBarItem(
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home_rounded,
-                isActive: currentIndex == 0,
-                onTap: () => onTap?.call(0),
-              ),
 
-              // 2. Listings/Farm
-              _NavBarItem(
-                icon: Icons.storefront_outlined,
-                activeIcon: Icons.storefront_rounded,
-                isActive: currentIndex == 1,
-                onTap: () => onTap?.call(1),
-              ),
-
-              // 3. AI Tools
-              _NavBarItem(
-                icon: Icons.auto_awesome_outlined,
-                activeIcon: Icons.auto_awesome,
-                isActive: currentIndex == 2,
-                onTap: () => onTap?.call(2),
-              ),
-
-              // 4. Community
-              _NavBarItem(
-                icon: Icons.groups_outlined,
-                activeIcon: Icons.groups_rounded,
-                isActive: currentIndex == 3,
-                onTap: () => onTap?.call(3),
-              ),
-            ],
+          // 2. Favorite/Saved
+          _NavBarItem(
+            icon: Icons.favorite_border,
+            activeIcon: Icons.favorite,
+            isActive: currentIndex == 1,
+            onTap: () => onTap?.call(1),
           ),
-        ),
+
+          // Center space for FAB
+          const SizedBox(width: 56),
+
+          // 3. My Ads/My Listings
+          _NavBarItem(
+            icon: Icons.list_alt_outlined,
+            activeIcon: Icons.list_alt,
+            isActive: currentIndex == 2,
+            onTap: () => onTap?.call(2),
+          ),
+
+          // 4. Profile
+          _NavBarItem(
+            icon: Icons.person_outline,
+            activeIcon: Icons.person,
+            isActive: currentIndex == 3,
+            onTap: () => onTap?.call(3),
+          ),
+        ],
       ),
     );
   }
@@ -93,8 +84,8 @@ class _NavBarItem extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        width: 56,
-        height: 56,
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
           color: isActive
               ? AppTheme.authPrimaryColor.withOpacity(0.1)

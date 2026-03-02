@@ -112,29 +112,34 @@ class QuickActionsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.authTextPrimary,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.authTextPrimary,
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          // Grid of quick actions - 2 rows, 4 columns
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 0.85,
+          // Horizontal scrollable list of quick actions
+          SizedBox(
+            height: 100,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              itemCount: actions.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right: index < actions.length - 1 ? 12 : 0,
+                  ),
+                  child: _QuickActionButton(item: actions[index]),
+                );
+              },
             ),
-            itemCount: actions.length,
-            itemBuilder: (context, index) {
-              return _QuickActionButton(item: actions[index]);
-            },
           ),
         ],
       ),
@@ -152,40 +157,41 @@ class _QuickActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: item.onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Icon container - responsive width
-          Expanded(
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: item.backgroundColor,
-                  borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-                ),
-                child: Icon(
-                  item.icon,
-                  color: item.iconColor,
-                  size: 28,
-                ),
+      child: SizedBox(
+        width: 75,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Icon container - fixed size
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: item.backgroundColor,
+                borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+              ),
+              child: Icon(
+                item.icon,
+                color: item.iconColor,
+                size: 32,
               ),
             ),
-          ),
-          const SizedBox(height: 6),
-          // Label
-          Text(
-            item.label,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.textPrimary,
+            const SizedBox(height: 6),
+            // Label
+            Text(
+              item.label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textPrimary,
+                height: 1.2,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

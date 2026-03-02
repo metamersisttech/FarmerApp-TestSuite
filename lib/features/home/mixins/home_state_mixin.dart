@@ -13,10 +13,43 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
   int currentBottomNavIndex = 0;
   String searchQuery = '';
   bool _isLoadingUserData = false;
+  
+  // Recently viewed listings
+  List<ListingModel> recentlyViewedListings = [];
+  bool isLoadingRecentlyViewed = false;
 
   /// Initialize home controller
   void initializeHomeController() {
     homeController = HomeController();
+    // Add listener to rebuild when controller state changes
+    homeController.addListener(_onHomeControllerChanged);
+  }
+
+  /// Handle home controller state changes
+  void _onHomeControllerChanged() {
+    if (mounted) {
+      setState(() {
+        // Rebuild when controller state changes
+      });
+
+      // Show error if any (and clear it after showing)
+      if (homeController.errorMessage != null) {
+        // Use showErrorToast from ToastMixin if available
+        try {
+          // This requires ToastMixin to be mixed in the using class
+          (this as dynamic).showErrorToast(homeController.errorMessage!);
+        } catch (e) {
+          // Fallback to SnackBar if ToastMixin not available
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(homeController.errorMessage!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        homeController.clearError();
+      }
+    }
   }
 
   /// Load user data from storage
@@ -43,26 +76,16 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
   /// Fetch listings from API
   Future<void> fetchListings() async {
     await homeController.fetchListings();
-
-    if (!mounted) return;
-
-    setState(() {});
-
-    if (homeController.errorMessage != null) {
-      _showErrorToast(homeController.errorMessage!);
-    }
-  }
-
-  // Toast helper method (to be overridden by ToastMixin in the using class)
-  void _showErrorToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
+    // No need for setState - listener handles it
   }
 
   /// Handle listing tap
   void handleListingTap(dynamic listing) {
     if (listing is ListingModel) {
+      // Track the view (don't await to avoid delaying navigation)
+      trackListingView(listing.id);
+      
+      // Navigate to details
       HomeNavigationService.toAnimalDetail(context, listing.id);
     }
   }
@@ -106,23 +129,22 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
     NavigationResult result;
     switch (index) {
       case 0:
-        // Already on Home
+        // Home - refresh recently viewed when returning to home
+        print('[HomeStateMixin] 🏠 Returned to home, refreshing recently viewed...');
+        fetchRecentlyViewedListings();
         return;
       case 1:
-        result = HomeNavigationService.toChat(context);
-        break;
+        // Favorite/Saved
+        handleFavoriteTap();
+        return;
       case 2:
-        result = HomeNavigationService.toSell(
-          context,
-          onReturn: onReturnFromSell,
-        );
-        break;
-      case 3:
+        // Community
         result = HomeNavigationService.toMyAds(context);
         break;
-      case 4:
-        result = HomeNavigationService.toSaved(context);
-        break;
+      case 3:
+        // Profile
+        handleProfileTap();
+        return;
       default:
         return;
     }
@@ -173,6 +195,52 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
+  /// Handle favorite icon tap
+  void handleFavoriteTap() {
+    final result = HomeNavigationService.toSaved(context);
+    if (!result.success && result.message != null) {
+      showComingSoonMessage(result.message!.replaceAll(' feature coming soon!', ''));
+    }
+  }
+
+  /// Fetch recently viewed listings from cache
+  Future<void> fetchRecentlyViewedListings() async {
+    print('[HomeStateMixin] 🔍 Starting to fetch recently viewed listings...');
+    
+    setState(() {
+      isLoadingRecentlyViewed = true;
+    });
+
+    try {
+      await homeController.fetchRecentlyViewedListings();
+      
+      print('[HomeStateMixin] 📊 Controller has ${homeController.recentlyViewedListings.length} listings');
+      
+      if (mounted) {
+        setState(() {
+          recentlyViewedListings = homeController.recentlyViewedListings;
+          isLoadingRecentlyViewed = false;
+        });
+        
+        print('[HomeStateMixin] ✅ State updated with ${recentlyViewedListings.length} recently viewed listings');
+      }
+    } catch (e) {
+      print('[HomeStateMixin] ❌ Error fetching recently viewed: $e');
+      if (mounted) {
+        setState(() {
+          isLoadingRecentlyViewed = false;
+        });
+      }
+    }
+  }
+
+  /// Track viewed listing and refresh recently viewed
+  Future<void> trackListingView(int listingId) async {
+    await homeController.trackViewedListing(listingId);
+    // Optionally refresh the recently viewed list
+    await fetchRecentlyViewedListings();
+  }
+
   /// Show feature coming soon message
   void showComingSoonMessage(String feature) {
     if (mounted) {
@@ -184,6 +252,7 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
 
   /// Dispose controller
   void disposeHomeController() {
+    homeController.removeListener(_onHomeControllerChanged);
     homeController.dispose();
   }
 }

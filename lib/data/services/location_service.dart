@@ -225,75 +225,151 @@ class LocationService {
     return await Geolocator.openLocationSettings();
   }
 
-  /// Show location permission dialog
+  /// Show location permission dialog with slide from top animation
   static Future<bool> showLocationPermissionDialog(BuildContext context) async {
-    return await showDialog<bool>(
+    return await showGeneralDialog<bool>(
           context: context,
           barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.authPrimaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.location_on,
-                    color: AppTheme.authPrimaryColor,
-                    size: 24,
+          barrierLabel: 'Location Permission',
+          barrierColor: Colors.black54,
+          transitionDuration: const Duration(milliseconds: 400),
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return const SizedBox.shrink();
+          },
+          transitionBuilder: (context, animation, secondaryAnimation, child) {
+            // Slide from top animation
+            final slideAnimation = Tween<Offset>(
+              begin: const Offset(0, -1),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            ));
+
+            // Fade animation for smooth appearance
+            final fadeAnimation = Tween<double>(
+              begin: 0.0,
+              end: 1.0,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOut,
+            ));
+
+            return SlideTransition(
+              position: slideAnimation,
+              child: FadeTransition(
+                opacity: fadeAnimation,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 16,
+                      left: 20,
+                      right: 20,
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Location Icon
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: AppTheme.authPrimaryColor.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.location_on,
+                                size: 48,
+                                color: AppTheme.authPrimaryColor,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // Title
+                            const Text(
+                              'Enable Location',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2B2B2B),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 12),
+
+                            // Description
+                            Text(
+                              'Please enable location access to find nearby livestock, sellers, and services in your area.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Enable Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.authPrimaryColor,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: const Text(
+                                  'Enable',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+
+                            // Not Now Button
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: Text(
+                                'Not Now',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                const Text(
-                  'Enable Location',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            content: const Text(
-              'Please enable location access to find nearby livestock, sellers, and services in your area.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-                height: 1.5,
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(
-                  'Not Now',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.authPrimaryColor,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                ),
-                child: const Text(
-                  'Enable',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ) ??
         false;
   }

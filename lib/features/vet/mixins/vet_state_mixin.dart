@@ -7,11 +7,14 @@ import 'package:flutter_app/routes/app_routes.dart';
 mixin VetStateMixin<T extends StatefulWidget> on State<T> {
   late VetController vetController;
   final TextEditingController searchController = TextEditingController();
+  late ScrollController scrollController;
 
   /// Initialize vet controller and load data
   void initializeVetController() {
     vetController = VetController();
     vetController.addListener(_onControllerUpdate);
+    scrollController = ScrollController();
+    scrollController.addListener(_onScroll);
   }
 
   /// Load initial vet data
@@ -26,6 +29,17 @@ mixin VetStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
+  /// Scroll listener for pagination
+  void _onScroll() {
+    if (!scrollController.hasClients) return;
+    final maxScroll = scrollController.position.maxScrollExtent;
+    final currentScroll = scrollController.position.pixels;
+    // Trigger load more when 80% scrolled
+    if (currentScroll >= maxScroll * 0.8) {
+      vetController.loadMoreVets();
+    }
+  }
+
   /// Handle breed chip selection
   void handleBreedSelected(String breed) {
     vetController.setSelectedBreed(breed);
@@ -36,14 +50,13 @@ mixin VetStateMixin<T extends StatefulWidget> on State<T> {
     vetController.searchVets(query);
   }
 
-  /// Handle book button tap
+  /// Handle book button tap — navigate to booking screen
   void handleBookTap(VetModel vet) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Booking appointment with ${vet.name}...'),
-          backgroundColor: const Color(0xFF3B9B59),
-        ),
+      Navigator.pushNamed(
+        context,
+        AppRoutes.bookAppointment,
+        arguments: vet,
       );
     }
   }
@@ -114,5 +127,6 @@ mixin VetStateMixin<T extends StatefulWidget> on State<T> {
     vetController.removeListener(_onControllerUpdate);
     vetController.dispose();
     searchController.dispose();
+    scrollController.dispose();
   }
 }

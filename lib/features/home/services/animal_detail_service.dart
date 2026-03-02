@@ -34,12 +34,11 @@ class AnimalDetailService {
   }
 
   /// Add listing to favorites
-  /// TODO: Implement when backend endpoint is ready
   Future<void> addToFavorites(int listingId) async {
     try {
       print('[AnimalDetailService] Adding listing $listingId to favorites');
-      // await _backendHelper.postAddFavorite(listingId);
-      throw UnimplementedError('Add to favorites not yet implemented');
+      await _backendHelper.postAddFavorite({'listing_id': listingId});
+      print('[AnimalDetailService] Successfully added listing $listingId to favorites');
     } catch (e) {
       print('[AnimalDetailService] Error adding to favorites: $e');
       rethrow;
@@ -47,12 +46,11 @@ class AnimalDetailService {
   }
 
   /// Remove listing from favorites
-  /// TODO: Implement when backend endpoint is ready
   Future<void> removeFromFavorites(int listingId) async {
     try {
       print('[AnimalDetailService] Removing listing $listingId from favorites');
-      // await _backendHelper.deleteRemoveFavorite(listingId);
-      throw UnimplementedError('Remove from favorites not yet implemented');
+      await _backendHelper.deleteFavoriteByListingId(listingId);
+      print('[AnimalDetailService] Successfully removed listing $listingId from favorites');
     } catch (e) {
       print('[AnimalDetailService] Error removing from favorites: $e');
       rethrow;
@@ -60,16 +58,40 @@ class AnimalDetailService {
   }
 
   /// Check if listing is favorited
-  /// TODO: Implement when backend endpoint is ready
   Future<bool> isFavorited(int listingId) async {
     try {
       print('[AnimalDetailService] Checking favorite status for listing $listingId');
-      // final response = await _backendHelper.getFavoriteStatus(listingId);
-      // return response['is_favorited'] ?? false;
-      return false; // Placeholder
+      
+      final favorites = await _backendHelper.getFavorites();
+      
+      // Handle both List and paginated response
+      List<dynamic> favoritesList = [];
+      if (favorites is Map && favorites['results'] != null) {
+        favoritesList = favorites['results'] as List<dynamic>;
+      } else if (favorites is List) {
+        favoritesList = favorites;
+      }
+      
+      // Check if any favorite has this listing ID
+      final isFav = favoritesList.any((fav) {
+        if (fav is Map) {
+          final listing = fav['listing'];
+          if (listing is Map) {
+            // Check both 'listing_id' and 'id' fields in nested listing
+            if (listing['listing_id'] == listingId) return true;
+            if (listing['id'] == listingId) return true;
+          }
+          // Check root level listing_id field
+          if (fav['listing_id'] == listingId) return true;
+        }
+        return false;
+      });
+      
+      print('[AnimalDetailService] Listing $listingId is favorited: $isFav');
+      return isFav;
     } catch (e) {
       print('[AnimalDetailService] Error checking favorite status: $e');
-      return false;
+      return false; // Return false on error to not block the UI
     }
   }
 

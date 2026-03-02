@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Reusable styled text field
@@ -19,6 +20,7 @@ class StyledTextField extends StatelessWidget {
   final double borderRadius;
   final void Function(String)? onFieldSubmitted;
   final void Function(String)? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
 
   const StyledTextField({
     super.key,
@@ -38,6 +40,7 @@ class StyledTextField extends StatelessWidget {
     this.borderRadius = 18.0,
     this.onFieldSubmitted,
     this.onChanged,
+    this.inputFormatters,
   });
 
   @override
@@ -55,6 +58,7 @@ class StyledTextField extends StatelessWidget {
       textCapitalization: textCapitalization,
       onFieldSubmitted: onFieldSubmitted,
       onChanged: onChanged,
+      inputFormatters: inputFormatters,
       style: const TextStyle(fontSize: 16, color: AppTheme.authTextPrimary),
       decoration: InputDecoration(
         hintText: hintText,

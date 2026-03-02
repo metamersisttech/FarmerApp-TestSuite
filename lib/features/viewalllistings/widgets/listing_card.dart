@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/data/models/listing_model.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
+import '../../../core/cache/media_cache_config.dart';
 /// Listing card widget for marketplace
 class ListingCard extends StatelessWidget {
   final ListingModel listing;
@@ -145,83 +147,90 @@ class ListingCard extends StatelessWidget {
   }
 
   Widget _buildImageSection() {
-    return Stack(
-      children: [
-        // Image - reduced aspect ratio to give more space for content
-        ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-          child: AspectRatio(
-            aspectRatio: 1.2,
-            child: listing.imageUrl != null
-                ? Image.network(
-                    listing.imageUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return _buildPlaceholder();
-                    },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return _buildPlaceholder();
-                    },
-                  )
-                : _buildPlaceholder(),
+  return Stack(
+    children: [
+      // Image with progressive loading
+      ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+        child: AspectRatio(
+          aspectRatio: 1.2,
+          child: listing.imageUrl != null
+              ? CachedNetworkImage(
+                  imageUrl: listing.imageUrl!,
+                  cacheManager: MediaCacheConfig.imageCache, // Use custom cache
+                  fit: BoxFit.cover,
+                  
+                  // Placeholder: Shows while loading
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(color: Colors.grey[300]),
+                  ),
+                  
+                  // Error: Shows if image fails to load
+                  errorWidget: (context, url, error) => _buildPlaceholder(),
+                  
+                  // Fade-in animation when image loads
+                  fadeInDuration: const Duration(milliseconds: 300),
+                )
+              : _buildPlaceholder(),
+        ),
+      ),
+      
+      // Favorite button (existing code)
+      Positioned(
+        top: 8,
+        right: 8,
+        child: GestureDetector(
+          onTap: onFavoriteTap,
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              size: 18,
+              color: isFavorite ? Colors.red : Colors.grey[700],
+            ),
           ),
         ),
-        
-        // Favorite button (top right)
+      ),
+      
+      // Verified badge (existing code)
+      if (listing.isVerified)
         Positioned(
           top: 8,
-          right: 8,
-          child: GestureDetector(
-            onTap: onFavoriteTap,
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isFavorite ? Icons.favorite : Icons.favorite_border,
-                size: 18,
-                color: isFavorite ? Colors.red : Colors.grey[700],
-              ),
+          left: 8,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppTheme.authPrimaryColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.verified, size: 12, color: Colors.white),
+                SizedBox(width: 4),
+                Text(
+                  'Verified',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        
-        // Verified badge (top left)
-        if (listing.isVerified)
-          Positioned(
-            top: 8,
-            left: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppTheme.authPrimaryColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.verified, size: 12, color: Colors.white),
-                  SizedBox(width: 4),
-                  Text(
-                    'Verified',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
+    ],
+  );
+}
 
-  Widget _buildPlaceholder() {
+ Widget _buildPlaceholder() {
     return Container(
       color: Colors.grey[200],
       child: const Center(

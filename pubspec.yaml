@@ -35,6 +35,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   firebase_core: ^4.2.1
+  firebase_messaging: ^16.1.0
+  flutter_local_notifications: ^18.0.1
 
   # HTTP & API Integration (for Django backend)
   dio: ^5.4.0                      # HTTP client for API calls
@@ -54,6 +56,18 @@ dependencies:
   # Image Picker
   image_picker: ^1.0.7             # Pick images from camera/gallery
 
+
+  cloud_firestore: ^6.1.1
+
+  #Caching packages
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  cached_network_image: ^3.4.1
+
+  # Recommended for shimmer effect
+  shimmer: ^3.0.0
+
+  flutter_cache_manager: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

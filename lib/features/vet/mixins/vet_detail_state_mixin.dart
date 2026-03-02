@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/vet/models/vet_model.dart';
 import 'package:flutter_app/features/vet/models/vet_review_model.dart';
+import 'package:flutter_app/features/vet/models/vet_availability_slot_model.dart';
 import 'package:flutter_app/features/vet/services/vet_service.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// Mixin for Vet Detail page state management
 mixin VetDetailStateMixin<T extends StatefulWidget> on State<T> {
@@ -9,6 +11,7 @@ mixin VetDetailStateMixin<T extends StatefulWidget> on State<T> {
 
   VetModel? vet;
   List<VetReviewModel> reviews = [];
+  List<VetAvailabilitySlotModel> availabilitySlots = [];
   bool isLoading = true;
   String? errorMessage;
 
@@ -20,7 +23,7 @@ mixin VetDetailStateMixin<T extends StatefulWidget> on State<T> {
     await loadVetDetails();
   }
 
-  /// Load vet details and reviews
+  /// Load vet details and availability
   Future<void> loadVetDetails() async {
     if (!mounted) return;
 
@@ -30,28 +33,31 @@ mixin VetDetailStateMixin<T extends StatefulWidget> on State<T> {
     });
 
     try {
-      // Load vet details and reviews in parallel
+      // Load vet details and availability in parallel
       final results = await Future.wait([
         _vetService.getVetById(vetId),
-        _vetService.getReviews(vetId),
+        _vetService.getVetAvailability(vetId),
       ]);
 
       if (!mounted) return;
 
-      final loadedVet = results[0] as VetModel?;
-      final loadedReviews = results[1] as List<VetReviewModel>;
+      final vetResult = results[0];
+      final availabilityResult = results[1];
 
-      if (loadedVet == null) {
+      if (!vetResult.success || vetResult.vet == null) {
         setState(() {
-          errorMessage = 'Vet not found';
+          errorMessage = vetResult.message ?? 'Vet not found';
           isLoading = false;
         });
         return;
       }
 
       setState(() {
-        vet = loadedVet;
-        reviews = loadedReviews;
+        vet = vetResult.vet;
+        if (availabilityResult.success &&
+            availabilityResult.availability != null) {
+          availabilitySlots = availabilityResult.availability!;
+        }
         isLoading = false;
       });
     } catch (e) {
@@ -99,14 +105,13 @@ mixin VetDetailStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// Handle book appointment button tap
+  /// Handle book appointment button tap — navigate to booking screen
   void handleBookTap() {
     if (mounted && vet != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Booking appointment with ${vet!.name}...'),
-          backgroundColor: const Color(0xFF3B9B59),
-        ),
+      Navigator.pushNamed(
+        context,
+        AppRoutes.bookAppointment,
+        arguments: vet,
       );
     }
   }

@@ -1,11 +1,48 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/core/utils/validators.dart';
 import 'package:flutter_app/features/editprofile/controllers/edit_profile_controller.dart';
 import 'package:flutter_app/features/editprofile/widgets/profile_picture_picker.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/shared/widgets/forms/text_field.dart';
+
+/// Date input formatter for DD-MM-YYYY format
+/// Automatically adds slashes as user types
+class DateInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+    final buffer = StringBuffer();
+    int selectionIndex = newValue.selection.end;
+
+    // Remove all non-digit characters
+    final digitsOnly = text.replaceAll(RegExp(r'[^\d]'), '');
+
+    // Build formatted string DD-MM-YYYY
+    for (int i = 0; i < digitsOnly.length && i < 8; i++) {
+      if (i == 2 || i == 4) {
+        buffer.write('-');
+        if (i < selectionIndex) selectionIndex++;
+      }
+      buffer.write(digitsOnly[i]);
+    }
+
+    final formattedText = buffer.toString();
+
+    return TextEditingValue(
+      text: formattedText,
+      selection: TextSelection.collapsed(
+        offset: selectionIndex.clamp(0, formattedText.length),
+      ),
+    );
+  }
+}
+
 
 /// Edit Profile Page
 class EditProfilePage extends StatefulWidget {
@@ -65,10 +102,20 @@ class _EditProfilePageState extends State<EditProfilePage> with ToastMixin {
     super.initState();
     _controller = EditProfileController();
 
+    // Convert DOB from YYYY-MM-DD (backend) to DD-MM-YYYY (display)
+    String? displayDob;
+    if (widget.initialDob != null && widget.initialDob!.length == 10) {
+      final parts = widget.initialDob!.split('-');
+      if (parts.length == 3) {
+        // Convert YYYY-MM-DD to DD-MM-YYYY
+        displayDob = '${parts[2]}-${parts[1]}-${parts[0]}';
+      }
+    }
+
     // Initialize with provided data or defaults
     _fullNameController = TextEditingController(text: widget.initialFullName ?? '');
     _displayNameController = TextEditingController(text: widget.initialDisplayName ?? '');
-    _dobController = TextEditingController(text: widget.initialDob ?? '');
+    _dobController = TextEditingController(text: displayDob ?? widget.initialDob ?? '');
     _addressController = TextEditingController(text: widget.initialAddress ?? '');
     _stateController = TextEditingController(text: widget.initialState ?? '');
     _districtController = TextEditingController(text: widget.initialDistrict ?? '');
@@ -127,10 +174,20 @@ class _EditProfilePageState extends State<EditProfilePage> with ToastMixin {
       return;
     }
 
+    // Convert DOB from DD-MM-YYYY to YYYY-MM-DD for backend
+    String? formattedDob;
+    if (_dobController.text.isNotEmpty && _dobController.text.length == 10) {
+      final parts = _dobController.text.split('-');
+      if (parts.length == 3) {
+        // Convert DD-MM-YYYY to YYYY-MM-DD
+        formattedDob = '${parts[2]}-${parts[1]}-${parts[0]}';
+      }
+    }
+
     // Update controller with current values
     _controller.updateFullName(_fullNameController.text.trim());
     _controller.updateDisplayName(_displayNameController.text.trim());
-    _controller.updateDob(_dobController.text.trim());
+    _controller.updateDob(formattedDob ?? _dobController.text.trim());
     _controller.updateAddress(_addressController.text.trim());
     _controller.updateState(_stateController.text.trim());
     _controller.updateDistrict(_districtController.text.trim());
@@ -161,18 +218,34 @@ class _EditProfilePageState extends State<EditProfilePage> with ToastMixin {
   }
 
   Future<void> _selectDate() async {
+    // Parse existing date from DD-MM-YYYY format
+    DateTime? initialDate = DateTime(2000);
+    if (_dobController.text.isNotEmpty && _dobController.text.length == 10) {
+      final parts = _dobController.text.split('-');
+      if (parts.length == 3) {
+        final day = int.tryParse(parts[0]);
+        final month = int.tryParse(parts[1]);
+        final year = int.tryParse(parts[2]);
+        if (day != null && month != null && year != null) {
+          initialDate = DateTime(year, month, day);
+        }
+      }
+    }
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _dobController.text.isNotEmpty 
-          ? DateTime.tryParse(_dobController.text) ?? DateTime(2000)
-          : DateTime(2000),
+      initialDate: initialDate,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
     
     if (picked != null) {
       setState(() {
-        _dobController.text = picked.toIso8601String().split('T')[0]; // Format: YYYY-MM-DD
+        // Format as DD-MM-YYYY
+        final day = picked.day.toString().padLeft(2, '0');
+        final month = picked.month.toString().padLeft(2, '0');
+        final year = picked.year.toString();
+        _dobController.text = '$day-$month-$year';
       });
     }
   }
@@ -309,17 +382,78 @@ class _EditProfilePageState extends State<EditProfilePage> with ToastMixin {
         ),
         const SizedBox(height: 14),
 
-        // Date of Birth field
-        GestureDetector(
-          onTap: _isLoading ? null : _selectDate,
-          child: AbsorbPointer(
-            child: StyledTextField(
-              controller: _dobController,
-              hintText: 'Select your date of birth (YYYY-MM-DD)',
-              prefixIcon: Icons.calendar_today_outlined,
-              enabled: !_isLoading,
-              textInputAction: TextInputAction.next,
-            ),
+        // Date of Birth field with calendar icon button
+        StyledTextField(
+          controller: _dobController,
+          hintText: 'DD-MM-YYYY',
+          prefixIcon: Icons.calendar_today_outlined,
+          enabled: !_isLoading,
+          keyboardType: TextInputType.datetime, // Use datetime instead of number
+          textInputAction: TextInputAction.next,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(8), // DDMMYYYY = 8 digits
+            DateInputFormatter(), // Auto-format with dashes
+          ],
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return null; // Optional field
+            }
+            
+            // Check format DD-MM-YYYY
+            if (value.length != 10) {
+              return 'Please enter complete date (DD-MM-YYYY)';
+            }
+            
+            final parts = value.split('-');
+            if (parts.length != 3) {
+              return 'Invalid date format. Use DD-MM-YYYY';
+            }
+            
+            final day = int.tryParse(parts[0]);
+            final month = int.tryParse(parts[1]);
+            final year = int.tryParse(parts[2]);
+            
+            if (day == null || month == null || year == null) {
+              return 'Invalid date. Use numbers only';
+            }
+            
+            // Validate ranges
+            if (day < 1 || day > 31) {
+              return 'Day must be between 01 and 31';
+            }
+            if (month < 1 || month > 12) {
+              return 'Month must be between 01 and 12';
+            }
+            if (year < 1900) {
+              return 'Year must be 1900 or later';
+            }
+            if (year > DateTime.now().year) {
+              return 'Year cannot be in the future';
+            }
+            
+            // Check if it's a valid calendar date
+            try {
+              final date = DateTime(year, month, day);
+              
+              // Verify the constructed date matches input (catches invalid dates like Feb 30)
+              if (date.day != day || date.month != month || date.year != year) {
+                return 'Invalid date (e.g., 30-02-2025 doesn\'t exist)';
+              }
+              
+              // Check if date is in the future
+              if (date.isAfter(DateTime.now())) {
+                return 'Birth date cannot be in the future';
+              }
+            } catch (e) {
+              return 'Invalid date';
+            }
+            
+            return null;
+          },
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.calendar_month, color: AppTheme.authPrimaryColor),
+            onPressed: _isLoading ? null : _selectDate,
           ),
         ),
       ],

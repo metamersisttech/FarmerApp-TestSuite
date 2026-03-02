@@ -3,6 +3,7 @@ import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
+import 'package:flutter_app/core/services/fcm_service.dart';
 import 'package:flutter_app/data/services/api_service.dart';
 import 'package:flutter_app/features/profile/models/profile_model.dart';
 
@@ -173,6 +174,9 @@ class ProfileService {
       // Ignore logout errors
       return true;
     } finally {
+      // Unregister FCM token before clearing auth
+      await FCMService().unregisterToken();
+
       // Always clear tokens and auth state
       await _commonHelper.clearAll();
       _apiService.clearAuthToken();

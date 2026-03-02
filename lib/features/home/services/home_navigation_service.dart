@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/features/postlistings//screens/post_animal_page.dart';
+import 'package:flutter_app/features/profile/screens/my_listings_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
-import 'package:flutter_app/features/sell/screens/post_animal_page.dart';
+import 'package:flutter_app/features/recentlyviewed/screens/recentlyviewed_page.dart';
 import 'package:flutter_app/features/vet/screens/vet_services_page.dart';
 import 'package:flutter_app/features/viewalllistings/screens/viewalllistings_page.dart';
 import 'package:flutter_app/routes/app_routes.dart';
@@ -14,7 +16,10 @@ class NavigationResult {
 
   factory NavigationResult.success() => const NavigationResult(success: true);
   factory NavigationResult.comingSoon(String feature) {
-    return NavigationResult(success: false, message: '$feature feature coming soon!');
+    return NavigationResult(
+      success: false,
+      message: '$feature feature coming soon!',
+    );
   }
 }
 
@@ -27,7 +32,10 @@ class HomeNavigationService {
   }
 
   /// Navigate to Post Animal (Sell) screen
-  static NavigationResult toSell(BuildContext context, {VoidCallback? onReturn}) {
+  static NavigationResult toSell(
+    BuildContext context, {
+    VoidCallback? onReturn,
+  }) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const PostAnimalPage()),
@@ -41,14 +49,17 @@ class HomeNavigationService {
 
   /// Navigate to My Ads screen
   static NavigationResult toMyAds(BuildContext context) {
-    // TODO: Implement my ads navigation when screen is ready
-    return NavigationResult.comingSoon('My Ads');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MyListingsPage()),
+    );
+    return NavigationResult.success();
   }
 
-  /// Navigate to Saved/Liked listings
+  /// Navigate to Favourite/Liked listings
   static NavigationResult toSaved(BuildContext context) {
-    // TODO: Implement saved listings navigation when screen is ready
-    return NavigationResult.comingSoon('Saved listings');
+    // TODO: Implement favourite listings navigation when screen is ready
+    return NavigationResult.comingSoon('Favourite listings');
   }
 
   /// Navigate to Notifications screen
@@ -58,7 +69,10 @@ class HomeNavigationService {
   }
 
   /// Navigate to Profile screen
-  static NavigationResult toProfile(BuildContext context, {VoidCallback? onReturn}) {
+  static NavigationResult toProfile(
+    BuildContext context, {
+    VoidCallback? onReturn,
+  }) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const ProfilePage()),
@@ -78,20 +92,26 @@ class HomeNavigationService {
 
   /// Navigate to Animal Detail screen
   static NavigationResult toAnimalDetail(BuildContext context, int listingId) {
-    Navigator.pushNamed(
-      context,
-      AppRoutes.animalDetail,
-      arguments: listingId,
-    );
+    Navigator.pushNamed(context, AppRoutes.animalDetail, arguments: listingId);
     return NavigationResult.success();
   }
 
   /// Navigate to Marketplace (View All Listings) screen
-  static NavigationResult toMarketplace(BuildContext context) {
-    Navigator.push(
+  /// Returns the tab index if user taps on bottom nav from marketplace
+  static Future<NavigationResult> toMarketplace(
+    BuildContext context, {
+    Function(int)? onTabSelected,
+  }) async {
+    final result = await Navigator.push<int>(
       context,
       MaterialPageRoute(builder: (context) => const ViewAllListingsPage()),
     );
+    
+    // If a tab index was returned, notify the callback
+    if (result != null && onTabSelected != null) {
+      onTabSelected(result);
+    }
+    
     return NavigationResult.success();
   }
 
@@ -103,5 +123,13 @@ class HomeNavigationService {
     );
     return NavigationResult.success();
   }
-}
 
+  /// Navigate to Recently Viewed Listings screen
+  static NavigationResult toRecentlyViewed(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RecentlyViewedPage()),
+    );
+    return NavigationResult.success();
+  }
+}

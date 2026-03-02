@@ -129,6 +129,49 @@ class BackendHelper {
     }
   }
 
+  // ============ Favorites Endpoints ============
+
+  /// Add listing to favorites
+  /// POST /api/auth/me/favorites/
+  /// Request: { "listing_id": 123 }
+  /// Response: { "id": 1, "listing": {...}, "created_at": "..." }
+  Future<Map<String, dynamic>> postAddFavorite(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.favorites,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get all user favorites
+  /// GET /api/auth/me/favorites/
+  /// Response: [{ "id": 1, "listing": {...}, "created_at": "..." }, ...]
+  Future<dynamic> getFavorites() async {
+    try {
+      final response = await _client.get(ApiEndpoints.favorites);
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Remove listing from favorites by listing ID
+  /// DELETE /api/auth/me/favorites/{listing_id}/
+  /// Response: 204 No Content
+  Future<void> deleteFavoriteByListingId(int listingId) async {
+    try {
+      await _client.delete(ApiEndpoints.deleteFavoriteByListingId(listingId));
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ User Endpoints ============
 
   /// Get user profile
@@ -223,6 +266,31 @@ class BackendHelper {
     }
   }
 
+  /// Bulk fetch listings by IDs (for delta sync)
+  /// GET /api/listings/bulk/?ids=1,2,3
+  /// Response: Array of listing objects
+  /// 
+  /// TODO: Backend to implement this endpoint
+  /// For now, will fallback to fetching individual listings
+  Future<dynamic> getBulkListings(List<int> ids) async {
+    try {
+      if (ids.isEmpty) {
+        return [];
+      }
+      
+      // Convert IDs to comma-separated string
+      final idsParam = ids.join(',');
+      
+      final response = await _client.get(
+        ApiEndpoints.listingsBulk,
+        params: {'ids': idsParam},
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // Get current user listings
 
   Future<dynamic> getMyListings({Map<String, dynamic>? params}) async {
@@ -294,6 +362,137 @@ class BackendHelper {
     }
   }
 
+  /// Publish a listing
+  /// POST /api/listings/{id}/publish/
+  Future<Map<String, dynamic>> postPublishListing(int listingId) async {
+    try {
+      final response = await _client.post(ApiEndpoints.listingPublish(listingId));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Unpublish a listing
+  /// POST /api/listings/{id}/unpublish/
+  Future<Map<String, dynamic>> postUnpublishListing(int listingId) async {
+    try {
+      final response = await _client.post(ApiEndpoints.listingUnpublish(listingId));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Mark a listing as sold
+  /// POST /api/listings/{id}/sold/
+  Future<Map<String, dynamic>> postMarkListingSold(int listingId) async {
+    try {
+      final response = await _client.post(ApiEndpoints.listingSold(listingId));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Bidding Endpoints ============
+
+  /// Place a bid on a listing
+  /// POST /api/listings/{listingId}/bids/
+  Future<Map<String, dynamic>> postPlaceBid(
+    int listingId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.listingBids(listingId),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get current user's bids
+  /// GET /api/listings/my-bids/
+  Future<dynamic> getMyBids({Map<String, dynamic>? params}) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.myBids,
+        params: params,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Cancel a bid
+  /// POST /api/listings/{listingId}/bids/{bidId}/cancel/
+  Future<Map<String, dynamic>> postCancelBid(
+    int listingId,
+    int bidId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.bidCancel(listingId, bidId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get bids for a listing (seller view)
+  /// GET /api/listings/{listingId}/bids/list/
+  Future<dynamic> getListingBids(
+    int listingId, {
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.listingBidsList(listingId),
+        params: params,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Approve a bid
+  /// POST /api/listings/{listingId}/bids/{bidId}/approve/
+  Future<Map<String, dynamic>> postApproveBid(
+    int listingId,
+    int bidId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.bidApprove(listingId, bidId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Reject a bid
+  /// POST /api/listings/{listingId}/bids/{bidId}/reject/
+  Future<Map<String, dynamic>> postRejectBid(
+    int listingId,
+    int bidId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.bidReject(listingId, bidId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Upload Endpoints ============
 
   /// Upload a single file
@@ -343,6 +542,545 @@ class BackendHelper {
     }
   }
 
+  // ============ Vet Onboarding Endpoints ============
+
+  /// Get vet verification status
+  /// GET /api/auth/vet/verification-status/
+  Future<Map<String, dynamic>> getVetVerificationStatus() async {
+    try {
+      final response = await _client.get(ApiEndpoints.vetVerificationStatus);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Submit role upgrade request
+  /// POST /api/auth/role/upgrade/
+  Future<Map<String, dynamic>> postRoleUpgrade(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(ApiEndpoints.roleUpgrade, data: data);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Resubmit documents for a role upgrade request
+  /// PATCH /api/auth/role/upgrade/{id}/
+  Future<Map<String, dynamic>> patchRoleUpgrade(
+    int requestId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.roleUpgradeById(requestId),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Vet Profile Endpoints ============
+
+  /// Get vet profile (own)
+  /// GET /api/vets/me/
+  Future<Map<String, dynamic>> getVetProfile() async {
+    try {
+      final response = await _client.get(ApiEndpoints.vetProfile);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update vet profile
+  /// PATCH /api/vets/me/
+  Future<Map<String, dynamic>> patchVetProfile(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.vetProfile,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Vet Availability Endpoints ============
+
+  /// Get vet availability slots
+  /// GET /api/vets/me/availability/
+  Future<List<dynamic>> getVetAvailability() async {
+    try {
+      final response = await _client.get(ApiEndpoints.vetAvailability);
+      return response.data as List<dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Add a new availability slot
+  /// POST /api/vets/me/availability/
+  Future<Map<String, dynamic>> postVetAvailability(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.vetAvailability,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update an availability slot
+  /// PATCH /api/vets/me/availability/{id}/
+  Future<Map<String, dynamic>> patchVetAvailability(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.vetAvailabilityById(id),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Delete an availability slot
+  /// DELETE /api/vets/me/availability/{id}/
+  Future<void> deleteVetAvailability(int id) async {
+    try {
+      await _client.delete(ApiEndpoints.vetAvailabilityById(id));
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Vet Pricing Endpoints ============
+
+  /// Get vet pricing
+  /// GET /api/vets/me/pricing/
+  Future<Map<String, dynamic>> getVetPricing() async {
+    try {
+      final response = await _client.get(ApiEndpoints.vetPricing);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update vet pricing
+  /// PATCH /api/vets/me/pricing/
+  Future<Map<String, dynamic>> patchVetPricing(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.vetPricing,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Public Vet Endpoints (Browse) ============
+
+  /// Get vet list (may be paginated Map or plain List)
+  /// GET /api/vets/
+  Future<dynamic> getVets({Map<String, dynamic>? params}) async {
+    try {
+      final response = await _client.get(ApiEndpoints.vets, params: params);
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get vet detail by ID (public)
+  /// GET /api/vets/{id}/
+  Future<Map<String, dynamic>> getVetById(int vetId) async {
+    try {
+      final response = await _client.get(ApiEndpoints.vetById(vetId));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get vet public availability
+  /// GET /api/vets/{id}/availability/
+  Future<List<dynamic>> getVetPublicAvailability(int vetId) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.vetPublicAvailability(vetId),
+      );
+      return response.data as List<dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Appointment Endpoints ============
+
+  /// Get user's appointments (paginated, supports ?status= filter)
+  /// GET /api/appointments/
+  Future<Map<String, dynamic>> getAppointments({
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.appointments,
+        params: params,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get appointment by ID
+  /// GET /api/appointments/{id}/
+  Future<Map<String, dynamic>> getAppointmentById(int id) async {
+    try {
+      final response = await _client.get(ApiEndpoints.appointmentById(id));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Create appointment
+  /// POST /api/appointments/
+  Future<Map<String, dynamic>> postCreateAppointment(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.appointments,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Cancel appointment
+  /// POST /api/appointments/{id}/cancel/
+  Future<Map<String, dynamic>> postCancelAppointment(int id) async {
+    try {
+      final response = await _client.post(ApiEndpoints.appointmentCancel(id));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Vet Appointment Endpoints ============
+
+  /// Get vet's incoming appointments (paginated, supports ?status= filter)
+  /// GET /api/appointments/vet/
+  Future<Map<String, dynamic>> getVetAppointments({
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.vetAppointments,
+        params: params,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get available time slots for a vet on a specific date
+  /// GET /api/appointments/vet/{vetId}/available-slots/?date=YYYY-MM-DD
+  Future<Map<String, dynamic>> getVetAvailableSlots(
+    int vetId, {
+    required String date,
+  }) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.vetAvailableSlots(vetId),
+        params: {'date': date},
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Approve an appointment with scheduled date and time
+  /// POST /api/appointments/{id}/approve/
+  Future<Map<String, dynamic>> postApproveAppointment(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.appointmentApprove(id),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Reject an appointment with reason
+  /// POST /api/appointments/{id}/reject/
+  Future<Map<String, dynamic>> postRejectAppointment(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.appointmentReject(id),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Complete an appointment with prescription and notes
+  /// POST /api/appointments/{id}/complete/
+  Future<Map<String, dynamic>> postCompleteAppointment(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.appointmentComplete(id),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Appointment Chat Endpoints ============
+
+  /// Get messages for an appointment
+  /// GET /api/appointments/{id}/messages/
+  Future<Map<String, dynamic>> getAppointmentMessages(
+    int appointmentId,
+  ) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.appointmentMessages(appointmentId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Send a message on an appointment
+  /// POST /api/appointments/{id}/messages/
+  Future<Map<String, dynamic>> postSendMessage(
+    int appointmentId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.appointmentMessages(appointmentId),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get unread message count for an appointment
+  /// GET /api/appointments/{id}/messages/unread-count/
+  Future<Map<String, dynamic>> getUnreadMessageCount(
+    int appointmentId,
+  ) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.appointmentUnreadCount(appointmentId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Mark all messages as read for an appointment
+  /// POST /api/appointments/{id}/messages/read/
+  Future<Map<String, dynamic>> postMarkMessagesRead(
+    int appointmentId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.appointmentMarkRead(appointmentId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Direct Messaging Endpoints ============
+
+  /// Start or get conversation from a listing
+  /// POST /api/listings/{listing_id}/chat/
+  Future<Map<String, dynamic>> postStartConversation(int listingId) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.listingChat(listingId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Check if conversation exists with listing seller
+  /// GET /api/listings/{listing_id}/chat/
+  Future<Map<String, dynamic>> getListingConversation(int listingId) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.listingChat(listingId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get all conversations (inbox)
+  /// GET /api/messages/conversations/
+  Future<dynamic> getConversations() async {
+    try {
+      final response = await _client.get(ApiEndpoints.conversations);
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get conversation detail
+  /// GET /api/messages/conversations/{id}/
+  Future<Map<String, dynamic>> getConversationById(
+    int conversationId,
+  ) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.conversationById(conversationId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get messages for a conversation (paginated)
+  /// GET /api/messages/conversations/{id}/messages/?limit=50&before=<message_id>
+  Future<dynamic> getConversationMessages(
+    int conversationId, {
+    int? limit,
+    int? beforeMessageId,
+  }) async {
+    try {
+      final params = <String, dynamic>{};
+      if (limit != null) params['limit'] = limit;
+      if (beforeMessageId != null) params['before'] = beforeMessageId;
+
+      final response = await _client.get(
+        ApiEndpoints.conversationMessages(conversationId),
+        params: params,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Send a message in a conversation
+  /// POST /api/messages/conversations/{id}/messages/
+  Future<Map<String, dynamic>> postConversationMessage(
+    int conversationId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.conversationMessages(conversationId),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Mark conversation messages as read
+  /// POST /api/messages/conversations/{id}/messages/read/
+  Future<Map<String, dynamic>> postConversationMarkRead(
+    int conversationId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.conversationMarkRead(conversationId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ FCM Endpoints ============
+
+  /// Register FCM token with backend
+  /// POST /api/fcm/register/
+  Future<Map<String, dynamic>> postFcmRegister(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(ApiEndpoints.fcmRegister, data: data);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Unregister FCM token from backend
+  /// POST /api/fcm/unregister/
+  Future<Map<String, dynamic>> postFcmUnregister(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.fcmUnregister,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Error Handling ============
 
   /// Handle Dio errors and extract message
@@ -381,6 +1119,7 @@ class BackendHelper {
     final errors = <String>[];
     data.forEach((key, value) {
       if (value is List && value.isNotEmpty) {
+        // For field errors like: {listing_id: ["Cannot favorite your own listing."]}
         errors.add(value.first.toString());
       } else if (value is String &&
           key != 'message' &&

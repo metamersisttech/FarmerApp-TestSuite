@@ -46,7 +46,7 @@ class RecentListingSection extends StatelessWidget {
   /// Build the header with title and action button
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -83,6 +83,10 @@ class RecentListingSection extends StatelessWidget {
 
   /// Build the listings list
   Widget _buildListings() {
+    // Debug: Log the first listing object
+    if (listings.isNotEmpty) {
+      print('DEBUG - First listing data: ${listings.first.toJson()}');
+    }
     return ListView.separated(
       shrinkWrap: true, // Don't take infinite height
       physics: const NeverScrollableScrollPhysics(), // Disable internal scrolling
