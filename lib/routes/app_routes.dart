@@ -40,6 +40,7 @@ import 'package:flutter_app/features/messaging/screens/conversations_page.dart';
 import 'package:flutter_app/features/messaging/screens/direct_chat_screen.dart';
 import 'package:flutter_app/features/bidding/screens/my_bids_page.dart';
 import 'package:flutter_app/features/bidding/screens/listing_bids_page.dart';
+import 'package:flutter_app/features/notifications/screens/notification_screen.dart';
 
 /// App Routes
 ///
@@ -91,6 +92,7 @@ class AppRoutes {
   static const String directChat = '/direct-chat';
   static const String myBids = '/my-bids';
   static const String listingBids = '/listing-bids';
+  static const String notifications = '/notifications';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -393,6 +395,9 @@ class AppRoutes {
           ),
           settings,
         );
+
+      case notifications:
+        return _buildRoute(const NotificationScreen(), settings);
 
       default:
         return _buildRoute(

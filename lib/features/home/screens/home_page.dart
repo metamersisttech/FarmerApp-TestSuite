@@ -54,6 +54,7 @@ class _HomePageState extends State<HomePage>
       checkLocationPermission();
       loadUserFromStorage();
       checkLocationServiceStatus();
+      fetchNotificationUnreadCount();
     });
   }
 
@@ -73,6 +74,7 @@ class _HomePageState extends State<HomePage>
     // This happens when user navigates BACK to this page from another page
     print('[HomePage] 🔄 Returned to home page (back navigation), refreshing recently viewed...');
     fetchRecentlyViewedListings();
+    fetchNotificationUnreadCount();
   }
 
   @override
@@ -191,7 +193,7 @@ class _HomePageState extends State<HomePage>
           location: currentLocationText,
           onLocationTap: handleLocationTap,
           onNotificationTap: handleNotificationTap,
-          notificationCount: 3,
+          notificationCount: notificationUnreadCount,
         ),
 
         // Search Bar

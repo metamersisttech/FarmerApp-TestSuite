@@ -1038,6 +1038,70 @@ class BackendHelper {
     }
   }
 
+  // ============ Notification Endpoints ============
+
+  /// Get notifications (paginated)
+  /// GET /api/notifications/
+  Future<dynamic> getNotifications({Map<String, dynamic>? params}) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.notifications,
+        params: params,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get a single notification by ID
+  /// GET /api/notifications/{id}/
+  Future<Map<String, dynamic>> getNotificationById(int id) async {
+    try {
+      final response = await _client.get(ApiEndpoints.notificationById(id));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Mark a notification as read
+  /// POST /api/notifications/{id}/read/
+  Future<Map<String, dynamic>> postMarkNotificationRead(int id) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.notificationMarkRead(id),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Mark all notifications as read
+  /// POST /api/notifications/read-all/
+  Future<Map<String, dynamic>> postMarkAllNotificationsRead() async {
+    try {
+      final response = await _client.post(ApiEndpoints.notificationsReadAll);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get unread notification count
+  /// GET /api/notifications/unread-count/
+  Future<Map<String, dynamic>> getNotificationsUnreadCount() async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.notificationsUnreadCount,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Error Handling ============
 
   /// Handle Dio errors and extract message
