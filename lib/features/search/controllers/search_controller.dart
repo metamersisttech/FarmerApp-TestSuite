@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/features/search/services/search_service.dart';
+import 'package:flutter_app/features/search/services/search_history_service.dart';
 
 /// Search Controller
 ///
@@ -7,6 +8,7 @@ import 'package:flutter_app/features/search/services/search_service.dart';
 /// Extends ChangeNotifier for reactive state management
 class SearchController extends ChangeNotifier {
   final SearchService _searchService = SearchService();
+  final SearchHistoryService _searchHistoryService = SearchHistoryService();
   
   // State
   bool _isLoading = false;
@@ -35,22 +37,24 @@ class SearchController extends ChangeNotifier {
   /// Load recent searches from storage
   Future<void> loadRecentSearches() async {
     try {
-      _setLoading(true);
+      if (kDebugMode) {
+        print('[SearchController] 📖 Loading recent searches from persistent storage...');
+      }
       
-      // TODO: Load from cache/local storage
-      // For now, use mock data
-      await Future.delayed(const Duration(milliseconds: 300));
-      _recentSearches = [
-        'Jersey Cow',
-        'Buffalo',
-        'Goat breeds',
-        'Sheep for sale',
-      ];
+      // Load from persistent cache (Hive)
+      _recentSearches = await _searchHistoryService.getRecentSearches();
       
-      _setLoading(false);
+      if (kDebugMode) {
+        print('[SearchController] ✅ Loaded ${_recentSearches.length} recent searches: $_recentSearches');
+      }
+      
+      notifyListeners();
     } catch (e) {
-      _setError('Failed to load recent searches: ${e.toString()}');
-      _setLoading(false);
+      if (kDebugMode) {
+        print('[SearchController] ❌ Failed to load recent searches: $e');
+      }
+      _recentSearches = []; // Fallback to empty list
+      notifyListeners();
     }
   }
 
@@ -59,49 +63,67 @@ class SearchController extends ChangeNotifier {
     if (query.trim().isEmpty) return;
 
     try {
-      // Remove if already exists
-      _recentSearches.remove(query);
+      final trimmedQuery = query.trim();
       
-      // Add to beginning
-      _recentSearches.insert(0, query);
+      // Save to persistent storage
+      await _searchHistoryService.addSearchQuery(trimmedQuery);
       
-      // Keep only last 10 searches
-      if (_recentSearches.length > 10) {
-        _recentSearches = _recentSearches.sublist(0, 10);
+      // Update in-memory list (case-insensitive removal)
+      _recentSearches.removeWhere((s) => s.toLowerCase() == trimmedQuery.toLowerCase());
+      _recentSearches.insert(0, trimmedQuery);
+      
+      // Keep only top 5 in memory
+      if (_recentSearches.length > 5) {
+        _recentSearches = _recentSearches.sublist(0, 5);
       }
-
-      // TODO: Save to cache/local storage
+      
+      if (kDebugMode) {
+        print('[SearchController] ✅ Added "$trimmedQuery" to recent searches');
+      }
       
       notifyListeners();
     } catch (e) {
-      _setError('Failed to save search: ${e.toString()}');
+      if (kDebugMode) {
+        print('[SearchController] ❌ Failed to save search: $e');
+      }
     }
   }
 
   /// Clear all recent searches
   Future<void> clearRecentSearches() async {
     try {
+      // Clear from persistent storage
+      await _searchHistoryService.clearAllSearches();
+      
+      // Clear in-memory list
       _recentSearches.clear();
       
-      // TODO: Clear from cache/local storage
+      if (kDebugMode) {
+        print('[SearchController] ✅ Cleared all recent searches');
+      }
       
       notifyListeners();
     } catch (e) {
-      _setError('Failed to clear searches: ${e.toString()}');
+      if (kDebugMode) {
+        print('[SearchController] ❌ Failed to clear searches: $e');
+      }
     }
   }
 
   /// Perform search using the search service
   Future<void> search(String query) async {
-    if (query.trim().isEmpty) return;
+    // Allow empty query if category filter is set
+    if (query.trim().isEmpty && _selectedCategory == null) return;
 
     try {
       _currentQuery = query;
       _setLoading(true);
       _clearError();
 
-      // Add to recent searches
-      await addToRecentSearches(query);
+      // Add to recent searches (only if query is not empty)
+      if (query.trim().isNotEmpty) {
+        await addToRecentSearches(query);
+      }
 
       if (kDebugMode) {
         print('🔍 [SearchController] Searching with:');
@@ -209,10 +231,5 @@ class SearchController extends ChangeNotifier {
   void clearError() {
     _clearError();
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

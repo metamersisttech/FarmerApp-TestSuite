@@ -6,6 +6,7 @@ import 'package:flutter_app/data/services/auth_service.dart';
 import 'package:flutter_app/core/services/fcm_service.dart';
 import 'package:flutter_app/data/services/api_service.dart';
 import 'package:flutter_app/features/profile/models/profile_model.dart';
+import 'package:flutter_app/features/favourite/services/favourite_badge_service.dart';
 
 /// Result of profile operations
 class ProfileResult {
@@ -135,14 +136,22 @@ class ProfileService {
         _backendHelper.getNotificationsUnreadCount(),
       ]);
 
-      return {
+      // Fetch NEW favorites count (since last visit)
+      final badgeService = FavouriteBadgeService();
+      final newFavoritesCount = await badgeService.getNewFavoritesCount();
+
+      final counts = {
         'my_listings': _extractCount(results[0]),
         'my_bids': _extractCount(results[1]),
         'my_bookings': _extractCount(results[2]),
         'notifications': _extractUnreadCount(results[3]),
-        'saved_items': 0,
+        'saved_items': newFavoritesCount,
       };
+      
+      print('[ProfileService] 📊 Returning menu counts: $counts');
+      return counts;
     } catch (e) {
+      print('[ProfileService] ❌ ERROR getting menu counts: $e');
       return {};
     }
   }

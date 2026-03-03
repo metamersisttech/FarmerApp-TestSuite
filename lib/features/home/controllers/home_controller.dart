@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/core/base/base_controller.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/data/models/listing_model.dart';
 import 'package:flutter_app/features/home/services/home_service.dart';
 
@@ -9,12 +10,15 @@ import 'package:flutter_app/features/home/services/home_service.dart';
 /// Uses HomeService for data operations.
 class HomeController extends BaseController {
   final HomeService _homeService;
+  final BackendHelper _backendHelper;
 
   List<ListingModel> _listings = [];
   List<ListingModel> _recentlyViewedListings = [];
+  Set<int> _favoriteListingIds = {};
 
-  HomeController({HomeService? homeService})
-      : _homeService = homeService ?? HomeService();
+  HomeController({HomeService? homeService, BackendHelper? backendHelper})
+      : _homeService = homeService ?? HomeService(),
+        _backendHelper = backendHelper ?? BackendHelper();
 
   /// Get listings data
   List<ListingModel> get listings => _listings;
@@ -193,6 +197,70 @@ class HomeController extends BaseController {
         print('[HomeController] Error tracking viewed listing: $e');
       }
     }
+  }
+
+  /// Load user's favorites
+  Future<void> loadFavorites() async {
+    try {
+      print('[HomeController] 🔍 Loading favorites...');
+      final favorites = await _backendHelper.getFavorites();
+      
+      print('[HomeController] 📦 Raw favorites response: $favorites');
+      
+      // Handle both List and paginated response
+      List<dynamic> favoritesList = [];
+      if (favorites is Map && favorites['results'] != null) {
+        favoritesList = favorites['results'] as List<dynamic>;
+        print('[HomeController] 📋 Paginated response with ${favoritesList.length} items');
+      } else if (favorites is List) {
+        favoritesList = favorites;
+        print('[HomeController] 📋 Direct list response with ${favoritesList.length} items');
+      }
+      
+      // Extract listing IDs from favorites
+      _favoriteListingIds = favoritesList.map((fav) {
+        if (fav is Map) {
+          final listing = fav['listing'];
+          if (listing is Map) {
+            // Check for both 'listing_id' and 'id' fields in nested listing
+            if (listing['listing_id'] != null) {
+              final id = listing['listing_id'] as int;
+              print('[HomeController] ✅ Extracted listing ID from nested listing_id: $id');
+              return id;
+            }
+            if (listing['id'] != null) {
+              final id = listing['id'] as int;
+              print('[HomeController] ✅ Extracted listing ID from nested id: $id');
+              return id;
+            }
+          }
+          // Fallback to listing_id field at root level
+          if (fav['listing_id'] != null) {
+            final id = fav['listing_id'] as int;
+            print('[HomeController] ✅ Extracted listing ID from root field: $id');
+            return id;
+          }
+        }
+        print('[HomeController] ❌ Could not extract listing ID from: $fav');
+        return null;
+      }).whereType<int>().toSet();
+      
+      print('[HomeController] ✅ Loaded ${_favoriteListingIds.length} favorite IDs: $_favoriteListingIds');
+      
+      notifyListeners();
+    } catch (e) {
+      print('[HomeController] ❌ Error loading favorites: $e');
+      // Don't fail the whole page if favorites fail to load
+    }
+  }
+  
+  /// Check if a listing is favorited
+  bool isListingFavorited(int listingId) {
+    final isFavorited = _favoriteListingIds.contains(listingId);
+    if (kDebugMode) {
+      print('[HomeController] 🔍 Checking if listing $listingId is favorited: $isFavorited (favorites: $_favoriteListingIds)');
+    }
+    return isFavorited;
   }
 }
 

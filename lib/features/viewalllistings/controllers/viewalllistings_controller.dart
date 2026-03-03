@@ -4,6 +4,7 @@ import 'package:flutter_app/data/models/listing_model.dart';
 import 'package:flutter_app/features/viewalllistings/services/viewalllistings_service.dart';
 import 'package:flutter_app/core/services/firebase_cache_sync_service.dart';
 import 'package:flutter_app/features/viewalllistings/services/lisiting_cache_service.dart';
+import 'package:flutter_app/core/helpers/backend_helper.dart';
 
 /// Controller for view all listings page operations
 /// 
@@ -13,8 +14,10 @@ class ViewAllListingsController extends BaseController {
   final ViewAllListingsService _service;
   final ListingCacheService _cacheService = ListingCacheService();
   final FirebaseCacheSyncService _firebaseSync;
+  final BackendHelper _backendHelper = BackendHelper();
 
   List<ListingModel> _listings = [];
+  Set<int> _favoriteListingIds = {}; // Track favorited listing IDs
   String _selectedCategory = 'All';
   String _searchQuery = '';
   
@@ -42,6 +45,7 @@ class ViewAllListingsController extends BaseController {
   
   // Load initial data
     fetchListings();
+    loadFavorites();
   }
   
 
@@ -177,6 +181,127 @@ class ViewAllListingsController extends BaseController {
     print('🔄 Auto-refreshing listings (Firebase trigger)...');
     await fetchListings();
   }
+  
+  /// Load user's favorites
+  Future<void> loadFavorites() async {
+    try {
+      print('[ViewAllListingsController] 🔍 Loading favorites...');
+      final favorites = await _backendHelper.getFavorites();
+      
+      print('[ViewAllListingsController] 📦 Raw favorites response: $favorites');
+      
+      // Handle both List and paginated response
+      List<dynamic> favoritesList = [];
+      if (favorites is Map && favorites['results'] != null) {
+        favoritesList = favorites['results'] as List<dynamic>;
+        print('[ViewAllListingsController] 📋 Paginated response with ${favoritesList.length} items');
+      } else if (favorites is List) {
+        favoritesList = favorites;
+        print('[ViewAllListingsController] 📋 Direct list response with ${favoritesList.length} items');
+      }
+      
+      // Debug: Print each favorite
+      for (var i = 0; i < favoritesList.length; i++) {
+        final fav = favoritesList[i];
+        print('[ViewAllListingsController] 📌 Favorite $i: $fav');
+        if (fav is Map) {
+          print('  - listing object: ${fav['listing']}');
+          print('  - listing_id field: ${fav['listing_id']}');
+          if (fav['listing'] is Map) {
+            print('  - listing.id: ${fav['listing']['id']}');
+            print('  - listing.listing_id: ${fav['listing']['listing_id']}');
+          }
+        }
+      }
+      
+      // Extract listing IDs from favorites
+      _favoriteListingIds = favoritesList.map((fav) {
+        if (fav is Map) {
+          final listing = fav['listing'];
+          if (listing is Map) {
+            // Check for both 'listing_id' and 'id' fields in nested listing
+            if (listing['listing_id'] != null) {
+              final id = listing['listing_id'] as int;
+              print('[ViewAllListingsController] ✅ Extracted listing ID from nested listing_id: $id');
+              return id;
+            }
+            if (listing['id'] != null) {
+              final id = listing['id'] as int;
+              print('[ViewAllListingsController] ✅ Extracted listing ID from nested id: $id');
+              return id;
+            }
+          }
+          // Fallback to listing_id field at root level
+          if (fav['listing_id'] != null) {
+            final id = fav['listing_id'] as int;
+            print('[ViewAllListingsController] ✅ Extracted listing ID from root field: $id');
+            return id;
+          }
+        }
+        print('[ViewAllListingsController] ❌ Could not extract listing ID from: $fav');
+        return null;
+      }).whereType<int>().toSet();
+      
+      print('[ViewAllListingsController] ✅ Loaded ${_favoriteListingIds.length} favorite IDs: $_favoriteListingIds');
+      
+      notifyListeners();
+    } catch (e) {
+      print('[ViewAllListingsController] ❌ Error loading favorites: $e');
+      // Don't fail the whole page if favorites fail to load
+    }
+  }
+  
+  /// Check if a listing is favorited
+  bool isListingFavorited(int listingId) {
+    final isFavorited = _favoriteListingIds.contains(listingId);
+    if (kDebugMode) {
+      print('[ViewAllListingsController] 🔍 Checking if listing $listingId is favorited: $isFavorited (favorites: $_favoriteListingIds)');
+    }
+    return isFavorited;
+  }
+  
+  /// Toggle favorite for a listing
+  Future<void> toggleFavorite(int listingId) async {
+    final wasFavorited = _favoriteListingIds.contains(listingId);
+    
+    // Optimistic update
+    if (wasFavorited) {
+      _favoriteListingIds.remove(listingId);
+    } else {
+      _favoriteListingIds.add(listingId);
+    }
+    notifyListeners();
+    
+    try {
+      if (wasFavorited) {
+        // Remove from favorites
+        await _backendHelper.deleteFavoriteByListingId(listingId);
+        if (kDebugMode) {
+          print('[ViewAllListingsController] Removed listing $listingId from favorites');
+        }
+      } else {
+        // Add to favorites
+        await _backendHelper.postAddFavorite({'listing_id': listingId});
+        if (kDebugMode) {
+          print('[ViewAllListingsController] Added listing $listingId to favorites');
+        }
+      }
+    } catch (e) {
+      // Revert on error
+      if (wasFavorited) {
+        _favoriteListingIds.add(listingId);
+      } else {
+        _favoriteListingIds.remove(listingId);
+      }
+      notifyListeners();
+      
+      if (kDebugMode) {
+        print('[ViewAllListingsController] Error toggling favorite: $e');
+      }
+      rethrow;
+    }
+  }
+  
   @override
   void dispose() {
     _firebaseSync.removeInvalidationListener('listings', _autoRefresh);

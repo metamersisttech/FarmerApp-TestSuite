@@ -129,6 +129,49 @@ class BackendHelper {
     }
   }
 
+  // ============ Favorites Endpoints ============
+
+  /// Add listing to favorites
+  /// POST /api/auth/me/favorites/
+  /// Request: { "listing_id": 123 }
+  /// Response: { "id": 1, "listing": {...}, "created_at": "..." }
+  Future<Map<String, dynamic>> postAddFavorite(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.favorites,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get all user favorites
+  /// GET /api/auth/me/favorites/
+  /// Response: [{ "id": 1, "listing": {...}, "created_at": "..." }, ...]
+  Future<dynamic> getFavorites() async {
+    try {
+      final response = await _client.get(ApiEndpoints.favorites);
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Remove listing from favorites by listing ID
+  /// DELETE /api/auth/me/favorites/{listing_id}/
+  /// Response: 204 No Content
+  Future<void> deleteFavoriteByListingId(int listingId) async {
+    try {
+      await _client.delete(ApiEndpoints.deleteFavoriteByListingId(listingId));
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ User Endpoints ============
 
   /// Get user profile
@@ -1140,6 +1183,7 @@ class BackendHelper {
     final errors = <String>[];
     data.forEach((key, value) {
       if (value is List && value.isNotEmpty) {
+        // For field errors like: {listing_id: ["Cannot favorite your own listing."]}
         errors.add(value.first.toString());
       } else if (value is String &&
           key != 'message' &&

@@ -10,6 +10,7 @@ class RecentlyViewedSection extends StatelessWidget {
   final bool isLoading;
   final Function(ListingModel)? onListingTap;
   final VoidCallback? onViewAll;
+  final bool Function(int)? isFavorite; // Callback to check if listing is favorited
 
   const RecentlyViewedSection({
     super.key,
@@ -18,6 +19,7 @@ class RecentlyViewedSection extends StatelessWidget {
     this.isLoading = false,
     this.onListingTap,
     this.onViewAll,
+    this.isFavorite,
   });
 
   @override
@@ -106,11 +108,14 @@ class RecentlyViewedSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       itemCount: listings.length,
       itemBuilder: (context, index) {
+        final listing = listings[index];
+        final isListingFavorited = isFavorite?.call(listing.id) ?? false;
         return Padding(
           padding: EdgeInsets.only(right: index < listings.length - 1 ? 12 : 0),
           child: _RecentlyViewedCard(
-            listing: listings[index],
-            onTap: () => onListingTap?.call(listings[index]),
+            listing: listing,
+            onTap: () => onListingTap?.call(listing),
+            isFavorite: isListingFavorited,
           ),
         );
       },
@@ -168,10 +173,12 @@ class RecentlyViewedSection extends StatelessWidget {
 class _RecentlyViewedCard extends StatelessWidget {
   final ListingModel listing;
   final VoidCallback? onTap;
+  final bool isFavorite;
 
   const _RecentlyViewedCard({
     required this.listing,
     this.onTap,
+    this.isFavorite = false,
   });
 
   @override
@@ -251,15 +258,38 @@ class _RecentlyViewedCard extends StatelessWidget {
   Widget _buildImage() {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-      child: listing.imageUrl != null
-          ? Image.network(
-              listing.imageUrl!,
-              height: 80, // Reduced from 100 to 80
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
-            )
-          : _buildPlaceholder(),
+      child: Stack(
+        children: [
+          // Image
+          listing.imageUrl != null
+              ? Image.network(
+                  listing.imageUrl!,
+                  height: 80,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+                )
+              : _buildPlaceholder(),
+          
+          // Favorite icon overlay (top-right)
+          Positioned(
+            top: 4,
+            right: 4,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                size: 16,
+                color: isFavorite ? Colors.red : Colors.grey[600],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

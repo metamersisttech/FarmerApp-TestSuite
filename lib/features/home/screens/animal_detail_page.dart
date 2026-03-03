@@ -14,7 +14,7 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 ///
 /// Displays comprehensive information about a livestock listing.
 /// Includes image gallery, price, stats, health info, seller info, and transport.
-/// 
+///
 /// Architecture:
 /// - UI only (build methods)
 /// - Functionality in AnimalDetailStateMixin
@@ -23,10 +23,7 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 class AnimalDetailPage extends StatefulWidget {
   final int listingId;
 
-  const AnimalDetailPage({
-    super.key,
-    required this.listingId,
-  });
+  const AnimalDetailPage({super.key, required this.listingId});
 
   @override
   State<AnimalDetailPage> createState() => _AnimalDetailPageState();
@@ -34,7 +31,6 @@ class AnimalDetailPage extends StatefulWidget {
 
 class _AnimalDetailPageState extends State<AnimalDetailPage>
     with AnimalDetailStateMixin {
-  
   @override
   int get listingId => widget.listingId;
 
@@ -62,8 +58,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
       body: controller.isLoading
           ? _buildLoadingState()
           : controller.errorMessage != null
-              ? _buildErrorState()
-              : _buildContent(),
+          ? _buildErrorState()
+          : _buildContent(),
       bottomNavigationBar: controller.hasData
           ? BottomActionBar(
               onCallTap: handleCallTap,
@@ -80,9 +76,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
   /// Build loading state
   Widget _buildLoadingState() {
     return const Center(
-      child: CircularProgressIndicator(
-        color: AppTheme.authPrimaryColor,
-      ),
+      child: CircularProgressIndicator(color: AppTheme.authPrimaryColor),
     );
   }
 
@@ -94,11 +88,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.grey.shade400,
-            ),
+            Icon(Icons.error_outline, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             Text(
               'Failed to load details',
@@ -111,10 +101,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
             const SizedBox(height: 8),
             Text(
               controller.errorMessage ?? 'An error occurred',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade500,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),

@@ -5,6 +5,7 @@ import 'package:flutter_app/features/recentlyviewed/mixins/recentlyviewed_state_
 import 'package:flutter_app/features/viewalllistings/widgets/listing_card.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_search_bar.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
+import 'package:flutter_app/main.dart' show routeObserver;
 
 /// Recently Viewed Listings Page
 ///
@@ -25,7 +26,7 @@ class RecentlyViewedPage extends StatefulWidget {
 }
 
 class _RecentlyViewedPageState extends State<RecentlyViewedPage>
-    with RecentlyViewedStateMixin, HomeStateMixin {
+    with RecentlyViewedStateMixin, HomeStateMixin, RouteAware {
   
   @override
   void initState() {
@@ -35,14 +36,42 @@ class _RecentlyViewedPageState extends State<RecentlyViewedPage>
     initializeController();
     initializeHomeController();
     
-    // Fetch recently viewed listings after first frame
+    // Fetch recently viewed listings and favorites after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchRecentlyViewedListings();
+      // Load favorites after listings are fetched
+      controller.loadFavorites().then((_) {
+        if (mounted) setState(() {});
+      });
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to route changes
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute is PageRoute) {
+      routeObserver.subscribe(this, modalRoute);
+    }
+  }
+
+  @override
+  void didPopNext() {
+    // Called when the top route has been popped off, and the current route shows up
+    // This fires when user returns from animal detail page
+    print('[RecentlyViewed] 🔄 didPopNext - User returned from detail page, reloading favorites...');
+    controller.loadFavorites().then((_) {
+      if (mounted) {
+        setState(() {});
+        print('[RecentlyViewed] ✅ UI refreshed after loading favorites');
+      }
     });
   }
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     disposeController();
     disposeHomeController();
     super.dispose();
@@ -213,13 +242,13 @@ class _RecentlyViewedPageState extends State<RecentlyViewedPage>
         itemCount: filteredListings.length,
         itemBuilder: (context, index) {
           final listing = filteredListings[index];
+          final isFavorited = controller.isListingFavorited(listing.id);
+          
           return ListingCard(
             listing: listing,
             onTap: () => handleListingTap(listing),
-            onFavoriteTap: () {
-              // TODO: Implement favorite functionality
-              showSuccessMessage('Favorite feature coming soon!');
-            },
+            onFavoriteTap: null, // Disable toggle on listing cards
+            isFavorite: isFavorited,
           );
         },
       ),

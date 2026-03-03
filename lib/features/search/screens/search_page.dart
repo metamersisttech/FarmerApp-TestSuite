@@ -91,7 +91,8 @@ class _SearchPageState extends State<SearchPage> {
 
   /// Handle search submission
   Future<void> _handleSearch(String query) async {
-    if (query.trim().isEmpty) return;
+    // Allow search even with empty query if category filter is set
+    if (query.trim().isEmpty && _controller.selectedCategory == null) return;
     
     // Unfocus keyboard
     _searchFocusNode.unfocus();
@@ -107,19 +108,24 @@ class _SearchPageState extends State<SearchPage> {
       ),
     );
     
-    // Perform search
+    // Perform search with the query (can be empty if category filter is set)
     await _controller.search(query);
     
     // Close loading dialog
     if (mounted) {
       Navigator.pop(context);
       
+      // Use category for display if query is empty
+      final displayQuery = query.trim().isEmpty 
+          ? (_controller.selectedCategory ?? 'All') 
+          : query;
+      
       // Navigate to results page
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => SearchResultsPage(
-            query: query,
+            query: displayQuery,
             results: _controller.searchResults,
             onBack: () => Navigator.pop(context),
           ),
@@ -155,9 +161,10 @@ class _SearchPageState extends State<SearchPage> {
 
   /// Handle category tap
   void _handleCategoryTap(String category) {
-    _searchController.text = category;
+    // Only set the category filter, don't set search text
+    // This ensures we search by species only, not species+breed
     _controller.setCategory(category);
-    _handleSearch(category);
+    _handleSearch(''); // Pass empty string, category is already set
   }
 
   /// Handle filter tap
@@ -179,8 +186,8 @@ class _SearchPageState extends State<SearchPage> {
             _controller.setCategory(category);
           },
           onApply: () {
-            // Rerun search with new filters if there's a query
-            if (_searchController.text.isNotEmpty) {
+            // Trigger search with filters (even if query is empty but category is set)
+            if (_searchController.text.isNotEmpty || _controller.selectedCategory != null) {
               _handleSearch(_searchController.text);
             }
           },
