@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/features/profile/widgets/logout_button.dart';
 import 'package:flutter_app/features/profile/widgets/profile_menu_list.dart';
-import 'package:flutter_app/features/profile/models/profile_model.dart';
-import 'package:flutter_app/features/vet/controllers/vet_profile_controller.dart';
-import 'package:flutter_app/features/vet/models/vet_profile_model.dart';
 import 'package:flutter_app/features/vet_dashboard/mixins/vet_dashboard_state_mixin.dart';
+import 'package:flutter_app/features/vet_dashboard/mixins/vet_dashboard_profile_mixin.dart';
 import 'package:flutter_app/features/vet_dashboard/widgets/switch_mode_card.dart';
 import 'package:flutter_app/features/vet_dashboard/widgets/vet_profile_header.dart';
 import 'package:flutter_app/features/vet_dashboard/widgets/vet_profile_info_card.dart';
@@ -26,35 +24,31 @@ class VetDashboardProfilePage extends StatefulWidget {
 }
 
 class _VetDashboardProfilePageState extends State<VetDashboardProfilePage>
-    with ToastMixin, VetDashboardStateMixin {
-  late final VetProfileController _controller;
-  bool _isLoading = true;
-  bool _isSwitchingMode = false;
-
-  VetProfileModel? get _profile => _controller.profile;
-
+    with ToastMixin, VetDashboardStateMixin, VetDashboardProfileMixin {
   @override
   void initState() {
     super.initState();
     debugPrint('[VetDashboardProfile] initState called');
-    _controller = VetProfileController();
+    initializeProfileController();
     _loadData();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    disposeProfileController();
     super.dispose();
   }
 
-  Future<void> _loadData() => loadVetProfileData(
-        controller: _controller,
-        setLoading: (loading) => setState(() => _isLoading = loading),
-        showErrorToast: showErrorToast,
-      );
+  Future<void> _loadData() async {
+    // Load user from storage and profile data in parallel, but wait for both
+    await Future.wait([
+      loadUserFromStorage(),
+      loadProfileData(showErrorToast: showErrorToast),
+    ]);
+  }
 
   Future<void> _handleSwitchToFarmer() => handleSwitchToFarmer(
-        setSwitchingMode: (switching) => setState(() => _isSwitchingMode = switching),
+        setSwitchingMode: setSwitchingMode,
         showErrorToast: showErrorToast,
       );
 
@@ -64,7 +58,7 @@ class _VetDashboardProfilePageState extends State<VetDashboardProfilePage>
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: _isLoading
+      body: isProfileLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
@@ -84,73 +78,29 @@ class _VetDashboardProfilePageState extends State<VetDashboardProfilePage>
                           const SizedBox(height: 16),
 
                           // Vet profile card
-                          _profile != null
-                              ? VetProfileInfoCard(profile: _profile!)
+                          vetProfile != null
+                              ? VetProfileInfoCard(
+                                  profile: vetProfile!,
+                                  fallbackName: currentUser?.firstName,
+                                )
                               : ProfileErrorPlaceholder(onRetry: _loadData),
 
                           const SizedBox(height: 16),
 
                           // Availability toggle
-                          if (_profile != null) ...[
+                          if (vetProfile != null) ...[
                             AvailabilityStatusCard(
-                              isAvailable: _profile!.available,
+                              isAvailable: vetProfile!.available,
                             ),
                             const SizedBox(height: 16),
                           ],
 
                           // Vet menu
                           ProfileMenuList(
-                            menuItems: [
-                              ProfileMenuItem(
-                                id: 'appointments',
-                                title: 'My Appointments',
-                                icon: Icons.calendar_today,
-                                onTap: () => Navigator.pushNamed(
-                                    context, '/vet-appointments'),
-                              ),
-                              ProfileMenuItem(
-                                id: 'availability',
-                                title: 'Manage Availability',
-                                icon: Icons.schedule,
-                                onTap: () => Navigator.pushNamed(
-                                    context, '/vet-availability'),
-                              ),
-                              ProfileMenuItem(
-                                id: 'pricing',
-                                title: 'Manage Pricing',
-                                icon: Icons.payments,
-                                onTap: () => Navigator.pushNamed(
-                                    context, '/vet-pricing'),
-                              ),
-                              ProfileMenuItem(
-                                id: 'vet_profile',
-                                title: 'Vet Clinical Profile',
-                                icon: Icons.medical_information,
-                                onTap: () => Navigator.pushNamed(
-                                    context, '/vet-profile'),
-                              ),
-                              ProfileMenuItem(
-                                id: 'reviews',
-                                title: 'Reviews & Ratings',
-                                icon: Icons.star_outline,
-                                onTap: () =>
-                                    showSuccessToast('Reviews - Coming soon!'),
-                              ),
-                              ProfileMenuItem(
-                                id: 'notifications',
-                                title: 'Notifications',
-                                icon: Icons.notifications_outlined,
-                                onTap: () => showSuccessToast(
-                                    'Notifications - Coming soon!'),
-                              ),
-                              ProfileMenuItem(
-                                id: 'help',
-                                title: 'Help & Support',
-                                icon: Icons.help_outline,
-                                onTap: () =>
-                                    showSuccessToast('Help - Coming soon!'),
-                              ),
-                            ],
+                            menuItems: getProfileMenuItems(
+                              context,
+                              showSuccessToast: showSuccessToast,
+                            ),
                           ),
 
                           const SizedBox(height: 16),
@@ -159,7 +109,7 @@ class _VetDashboardProfilePageState extends State<VetDashboardProfilePage>
                           SwitchModeCard(
                             targetMode: 'farmer',
                             onTap: _handleSwitchToFarmer,
-                            isLoading: _isSwitchingMode,
+                            isLoading: isSwitchingMode,
                           ),
 
                           const SizedBox(height: 16),
@@ -189,7 +139,7 @@ class _VetDashboardProfilePageState extends State<VetDashboardProfilePage>
                   ),
                   child: LogoutButton(onTap: () {
                     handleLogout(
-                      setLoading: (loading) => setState(() => _isLoading = loading),
+                      setLoading: setProfileLoading,
                       showSuccessToast: showSuccessToast,
                       showErrorToast: showErrorToast,
                     );

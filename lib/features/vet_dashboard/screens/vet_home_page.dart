@@ -24,10 +24,12 @@ class _VetHomePageState extends State<VetHomePage>
     super.initState();
     debugPrint('[VetHomePage] initState called');
     initializeDashboardController();
+    
+    // Load user data immediately to show correct name
+    loadUserFromStorage();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchDashboardData();
-      loadUserFromStorage();
       fetchNotificationUnreadCount();
     });
   }
@@ -40,12 +42,6 @@ class _VetHomePageState extends State<VetHomePage>
 
   @override
   Widget build(BuildContext context) {
-    final vetProfile = dashboardController.vetProfile;
-    final displayName = vetProfile?.displayName ??
-        currentUser?.firstName ??
-        currentUser?.username ??
-        'Vet';
-
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SafeArea(
@@ -53,9 +49,9 @@ class _VetHomePageState extends State<VetHomePage>
           children: [
             // Fixed Header
             VetProfileHeaderSection(
-              displayName: displayName,
-              clinicName: vetProfile?.clinicName,
-              isAvailable: vetProfile?.available ?? true,
+              displayName: getDisplayName(),
+              clinicName: dashboardController.vetProfile?.clinicName,
+              isAvailable: dashboardController.vetProfile?.available ?? true,
               onNotificationTap: handleNotificationTap,
               onProfileTap: handleProfileTap,
               notificationCount: notificationUnreadCount,
@@ -83,18 +79,10 @@ class _VetHomePageState extends State<VetHomePage>
 
                       // Quick Actions
                       VetQuickActionsSection(
-                        onAppointmentsTap: () {
-                          Navigator.pushNamed(context, '/vet-appointments');
-                        },
-                        onAvailabilityTap: () {
-                          Navigator.pushNamed(context, '/vet-availability');
-                        },
-                        onPricingTap: () {
-                          Navigator.pushNamed(context, '/vet-pricing');
-                        },
-                        onProfileTap: () {
-                          Navigator.pushNamed(context, '/vet-profile');
-                        },
+                        onAppointmentsTap: handleAppointmentsTap,
+                        onAvailabilityTap: handleAvailabilityTap,
+                        onPricingTap: handlePricingTap,
+                        onProfileTap: handleVetProfileTap,
                       ),
 
                       const SizedBox(height: 8),

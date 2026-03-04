@@ -49,12 +49,15 @@ mixin VetDashboardStateMixin<T extends StatefulWidget> on State<T> {
   /// Load user data from storage
   Future<void> loadUserFromStorage() async {
     try {
+      debugPrint('[VetDashboardStateMixin] Loading user from storage...');
       final commonHelper = CommonHelper();
       final user = await commonHelper.getLoggedInUser();
+      debugPrint('[VetDashboardStateMixin] Loaded user: ${user?.firstName} (${user?.username})');
       if (user != null && mounted) {
         setState(() {
           currentUser = user;
         });
+        debugPrint('[VetDashboardStateMixin] currentUser set to: ${currentUser?.firstName}');
       }
     } catch (e) {
       debugPrint('[VetDashboardStateMixin] Error loading user: $e');
@@ -100,6 +103,48 @@ mixin VetDashboardStateMixin<T extends StatefulWidget> on State<T> {
   /// Handle view all appointments
   void handleViewAllAppointments() {
     Navigator.pushNamed(context, '/vet-appointments');
+  }
+
+  /// Handle appointments navigation
+  void handleAppointmentsTap() {
+    Navigator.pushNamed(context, '/vet-appointments');
+  }
+
+  /// Handle availability navigation
+  void handleAvailabilityTap() {
+    Navigator.pushNamed(context, '/vet-availability');
+  }
+
+  /// Handle pricing navigation
+  void handlePricingTap() {
+    Navigator.pushNamed(context, '/vet-pricing');
+  }
+
+  /// Handle vet profile navigation (clinical profile)
+  void handleVetProfileTap() {
+    Navigator.pushNamed(context, '/vet-profile');
+  }
+
+  /// Get display name from vet profile or current user
+  String getDisplayName() {
+    // First check if vet profile has valid displayName (not just fallback "Vet")
+    final vetDisplayName = dashboardController.vetProfile?.displayName;
+    if (vetDisplayName != null && vetDisplayName != 'Vet' && vetDisplayName.isNotEmpty) {
+      return vetDisplayName;
+    }
+    
+    // Fall back to current user's first name
+    if (currentUser?.firstName != null && currentUser!.firstName!.isNotEmpty) {
+      return currentUser!.firstName!;
+    }
+    
+    // Then username
+    if (currentUser?.username != null && currentUser!.username!.isNotEmpty) {
+      return currentUser!.username!;
+    }
+    
+    // Final fallback
+    return 'Vet';
   }
 
   /// Handle back button press with fallback navigation

@@ -1,6 +1,9 @@
 /// Vet profile model for the vet's own profile management
 ///
 /// Maps the response from GET /api/vets/me/
+
+import 'package:flutter/foundation.dart';
+
 class VetProfileModel {
   final int vetId;
   final Map<String, dynamic> user;
@@ -44,10 +47,19 @@ class VetProfileModel {
   int get userId => user['id'] as int? ?? 0;
   String get userName => user['username'] as String? ?? '';
   String get userEmail => user['email'] as String? ?? '';
+  String? get userFirstName => user['first_name'] as String?;
+  String? get userLastName => user['last_name'] as String?;
 
-  /// Get display name (username with "Dr." prefix if not already)
+  /// Get display name - prioritizes first_name, then username
   String get displayName {
+    // First try first_name from user object
+    if (userFirstName != null && userFirstName!.isNotEmpty) {
+      debugPrint('[VetProfileModel] displayName using first_name: $userFirstName');
+      return userFirstName!;
+    }
+    // Fall back to username
     final name = userName;
+    debugPrint('[VetProfileModel] displayName falling back to username: $name');
     if (name.isEmpty) return 'Vet';
     return name;
   }
@@ -70,9 +82,15 @@ class VetProfileModel {
       specList = rawSpecializations.map((e) => e.toString()).toList();
     }
 
+    // Debug log to see what user data we receive
+    final userObj = json['user'] as Map<String, dynamic>? ?? {};
+    debugPrint('[VetProfileModel] fromJson - user object: $userObj');
+    debugPrint('[VetProfileModel] fromJson - first_name: ${userObj['first_name']}');
+    debugPrint('[VetProfileModel] fromJson - username: ${userObj['username']}');
+
     return VetProfileModel(
       vetId: json['vet_id'] as int? ?? 0,
-      user: json['user'] as Map<String, dynamic>? ?? {},
+      user: userObj,
       clinicName: json['clinic_name'] as String?,
       qualifications: json['qualifications'] as String?,
       registrationNo: json['registration_no'] as String?,
