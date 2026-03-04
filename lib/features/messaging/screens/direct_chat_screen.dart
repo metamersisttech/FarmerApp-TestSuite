@@ -3,6 +3,7 @@ import 'package:flutter_app/features/appointment/models/chat_message_model.dart'
 import 'package:flutter_app/features/appointment/widgets/chat_message_bubble.dart';
 import 'package:flutter_app/features/messaging/mixins/direct_chat_state_mixin.dart';
 import 'package:flutter_app/features/messaging/models/conversation_model.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Direct chat screen for buyer-seller messaging.
@@ -68,7 +69,7 @@ class _DirectChatScreenState extends State<DirectChatScreen>
           if (user.profileImage != null && user.profileImage!.isNotEmpty)
             CircleAvatar(
               radius: 18,
-              backgroundImage: NetworkImage(user.profileImage!),
+              backgroundImage: NetworkImage(CommonHelper.getImageUrl(user.profileImage!)),
               backgroundColor: Colors.white.withOpacity(0.2),
             )
           else

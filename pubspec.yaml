@@ -45,6 +45,9 @@ dependencies:
   # Secure Storage (for auth tokens)
   flutter_secure_storage: ^9.2.0   # Store JWT tokens securely
   
+  # Local Storage
+  shared_preferences: ^2.3.3       # Simple key-value storage
+  
   # State Management (optional - choose one)
   provider: ^6.1.0                 # Simple state management
   

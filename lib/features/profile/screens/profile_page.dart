@@ -21,6 +21,8 @@ import 'package:flutter_app/features/vet_dashboard/screens/vet_home_page.dart';
 import 'package:flutter_app/features/vet_dashboard/widgets/switch_mode_card.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
+import 'package:flutter_app/features/favourite/services/favourite_badge_service.dart';
+import 'package:flutter_app/main.dart' show routeObserver;
 
 /// Profile Page
 ///
@@ -37,7 +39,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage>
-    with ProfileStateMixin, ToastMixin {
+    with ProfileStateMixin, ToastMixin, RouteAware {
   late final ProfileController _controller;
   bool _isBecomeVetLoading = false;
   bool _isApprovedVet = false;
@@ -50,7 +52,33 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to route changes
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute is PageRoute) {
+      routeObserver.subscribe(this, modalRoute);
+    }
+  }
+
+  @override
+  void didPopNext() {
+    // Called when returning to this page
+    print('[ProfilePage] 🔄 User returned to profile, refreshing menu counts...');
+    _refreshMenuCounts();
+  }
+
+  Future<void> _refreshMenuCounts() async {
+    await _controller.loadMenuCounts();
+    if (mounted) {
+      setMenuCounts(_controller.menuCounts);
+      print('[ProfilePage] ✅ Menu counts refreshed: ${_controller.menuCounts}');
+    }
+  }
+
+  @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     _controller.dispose();
     super.dispose();
   }
@@ -243,9 +271,20 @@ class _ProfilePageState extends State<ProfilePage>
     Navigator.pushNamed(context, AppRoutes.myBids);
   }
 
-  void _handleSavedItems() {
-    // TODO: Navigate to saved items page
-    showSuccessToast('Saved Items - Coming soon!');
+  void _handleSavedItems() async {
+    // Mark favorites as viewed (clears badge count)
+    final badgeService = FavouriteBadgeService();
+    await badgeService.markAsViewed();
+    
+    // Navigate to favorite listings page
+    await Navigator.pushNamed(context, AppRoutes.favouriteListings);
+    
+    // Refresh menu counts when returning from favorites page
+    // This will recalculate the badge based on any new favorites added
+    await _controller.loadMenuCounts();
+    if (mounted) {
+      setMenuCounts(_controller.menuCounts);
+    }
   }
 
   void _handleBookings() {
@@ -267,8 +306,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   void _handleNotifications() {
-    // TODO: Navigate to notifications page
-    showSuccessToast('Notifications - Coming soon!');
+    Navigator.pushNamed(context, AppRoutes.notifications);
   }
 
   void _handleLanguage() {
@@ -401,6 +439,7 @@ class _ProfilePageState extends State<ProfilePage>
                               myListingsCount: getMenuCount('my_listings'),
                               savedItemsCount: getMenuCount('saved_items'),
                               bookingsCount: getMenuCount('my_bookings'),
+                              myBidsCount: getMenuCount('my_bids'),
                               notificationsCount: getMenuCount('notifications'),
                               onMyListingsTap: _handleMyListings,
                               onSavedItemsTap: _handleSavedItems,

@@ -11,14 +11,14 @@ import 'package:flutter_app/features/home/widgets/recent_listing_section.dart';
 import 'package:flutter_app/features/home/widgets/recently_viewed_section.dart';
 import 'package:flutter_app/features/home/widgets/scrolling_templates.dart';
 import 'package:flutter_app/features/viewalllistings/screens/viewalllistings_page.dart';
-import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/main.dart' show routeObserver;
+import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Home Page
 ///
 /// Main screen after user logs in.
 /// Features a fixed bottom navigation bar while content scrolls.
-/// 
+///
 /// Architecture:
 /// - UI only in this file (build methods)
 /// - Business logic in HomeStateMixin
@@ -36,14 +36,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with ToastMixin, HomeStateMixin, LocationMixin, WidgetsBindingObserver, RouteAware {
-  
+    with
+        ToastMixin,
+        HomeStateMixin,
+        LocationMixin,
+        WidgetsBindingObserver,
+        RouteAware {
   @override
   void initState() {
     super.initState();
     currentUser = widget.user;
     initializeHomeController();
-    
+
     // Add observer to detect when app resumes
     WidgetsBinding.instance.addObserver(this);
 
@@ -55,6 +59,7 @@ class _HomePageState extends State<HomePage>
       checkLocationPermission();
       loadUserFromStorage();
       checkLocationServiceStatus();
+      fetchNotificationUnreadCount();
     });
   }
 
@@ -72,15 +77,18 @@ class _HomePageState extends State<HomePage>
   void didPopNext() {
     // Called when the top route has been popped off, and this route shows up
     // This happens when user navigates BACK to this page from another page
-    print('[HomePage] 🔄 Returned to home page (back navigation), refreshing recently viewed...');
+    print(
+      '[HomePage] 🔄 Returned to home page (back navigation), refreshing recently viewed...',
+    );
     fetchRecentlyViewedListings();
+    fetchNotificationUnreadCount();
     homeController.loadFavorites(); // Reload favorites when returning to page
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     // Refresh recently viewed when app resumes
     if (state == AppLifecycleState.resumed) {
       print('[HomePage] 🔄 App resumed, refreshing recently viewed...');
@@ -100,10 +108,8 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     // Extract display name from user
     final user = currentUser ?? widget.user;
-    final displayName = user?.displayName ?? 
-                        user?.firstName ?? 
-                        user?.username ?? 
-                        'Guest';
+    final displayName =
+        user?.displayName ?? user?.firstName ?? user?.username ?? 'Guest';
 
     return Material(
       color: Colors.grey[100], // Match the background color
@@ -132,9 +138,12 @@ class _HomePageState extends State<HomePage>
                       onMarketplaceTap: () async {
                         final selectedTab = await Navigator.push<int>(
                           context,
-                          MaterialPageRoute(builder: (context) => const ViewAllListingsPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const ViewAllListingsPage(),
+                          ),
                         );
-                        if (selectedTab != null && widget.onNavigateToTab != null) {
+                        if (selectedTab != null &&
+                            widget.onNavigateToTab != null) {
                           widget.onNavigateToTab!(selectedTab);
                         }
                       },
@@ -151,7 +160,8 @@ class _HomePageState extends State<HomePage>
                       onViewAll: () {
                         HomeNavigationService.toRecentlyViewed(context);
                       },
-                      isFavorite: (listingId) => homeController.isListingFavorited(listingId),
+                      isFavorite: (listingId) =>
+                          homeController.isListingFavorited(listingId),
                     ),
 
                     // Fresh Recommendations Section
@@ -162,15 +172,18 @@ class _HomePageState extends State<HomePage>
                       onActionPressed: () async {
                         final selectedTab = await Navigator.push<int>(
                           context,
-                          MaterialPageRoute(builder: (context) => const ViewAllListingsPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const ViewAllListingsPage(),
+                          ),
                         );
-                        if (selectedTab != null && widget.onNavigateToTab != null) {
+                        if (selectedTab != null &&
+                            widget.onNavigateToTab != null) {
                           widget.onNavigateToTab!(selectedTab);
                         }
                       },
                       onListingTap: handleListingTap,
                     ),
-                    
+
                     // Add bottom padding for the bottom nav bar
                     const SizedBox(height: 80),
                   ],
@@ -194,7 +207,7 @@ class _HomePageState extends State<HomePage>
           location: currentLocationText,
           onLocationTap: handleLocationTap,
           onNotificationTap: handleNotificationTap,
-          notificationCount: 3,
+          notificationCount: notificationUnreadCount,
         ),
 
         // Search Bar

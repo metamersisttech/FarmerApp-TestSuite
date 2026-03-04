@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/messaging/models/conversation_model.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// A single conversation row in the inbox list.
@@ -142,7 +143,7 @@ class ConversationTile extends StatelessWidget {
     if (user.profileImage != null && user.profileImage!.isNotEmpty) {
       return CircleAvatar(
         radius: 26,
-        backgroundImage: NetworkImage(user.profileImage!),
+        backgroundImage: NetworkImage(CommonHelper.getImageUrl(user.profileImage!)),
         backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
       );
     }

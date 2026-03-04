@@ -21,97 +21,66 @@ class ListingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image section
-            _buildImageSection(),
-            
-            // Content section - wrapped in Expanded to prevent overflow
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Title
-                        Text(
-                          listing.name,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        
-                        // Animal type and age
-                        Row(
-                          children: [
-                            const Icon(Icons.cake_outlined, size: 11, color: Colors.grey),
-                            const SizedBox(width: 3),
-                            Flexible(
-                              child: Text(
-                                listing.age,
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  color: Colors.grey[600],
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image section
+              Flexible(
+                flex: 0,
+                child: _buildImageSection(),
+              ),
+              
+              // Content section - wrapped in Expanded to prevent overflow
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Title
+                          Text(
+                            listing.name,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textPrimary,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 3),
-                        
-                        // Price
-                        Text(
-                          listing.price,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.authPrimaryColor,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                    
-                    // Location and rating at bottom
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Row(
+                          const SizedBox(height: 2),
+                          
+                          // Animal type and age
+                          Row(
                             children: [
-                              const Icon(Icons.location_on, size: 10, color: Colors.grey),
-                              const SizedBox(width: 2),
-                              Expanded(
+                              const Icon(Icons.cake_outlined, size: 11, color: Colors.grey),
+                              const SizedBox(width: 3),
+                              Flexible(
                                 child: Text(
-                                  listing.location,
+                                  listing.age,
                                   style: TextStyle(
                                     fontSize: 9,
                                     color: Colors.grey[600],
@@ -122,25 +91,63 @@ class ListingCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.star, size: 10, color: Colors.amber),
-                        const SizedBox(width: 2),
-                        Text(
-                          listing.rating.toStringAsFixed(1),
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
+                          const SizedBox(height: 3),
+                          
+                          // Price
+                          Text(
+                            listing.price,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.authPrimaryColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                      
+                      // Location and rating at bottom
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const Icon(Icons.location_on, size: 10, color: Colors.grey),
+                                const SizedBox(width: 2),
+                                Expanded(
+                                  child: Text(
+                                    listing.location,
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      color: Colors.grey[600],
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.star, size: 10, color: Colors.amber),
+                          const SizedBox(width: 2),
+                          Text(
+                            listing.rating.toStringAsFixed(1),
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

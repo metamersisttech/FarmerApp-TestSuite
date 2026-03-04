@@ -6,6 +6,7 @@ import 'package:flutter_app/data/services/auth_service.dart';
 import 'package:flutter_app/core/services/fcm_service.dart';
 import 'package:flutter_app/data/services/api_service.dart';
 import 'package:flutter_app/features/profile/models/profile_model.dart';
+import 'package:flutter_app/features/favourite/services/favourite_badge_service.dart';
 
 /// Result of profile operations
 class ProfileResult {
@@ -123,22 +124,54 @@ class ProfileService {
     }
   }
 
-  /// Get profile menu counts
+  /// Get profile menu counts from real API endpoints
   Future<Map<String, int>> getMenuCounts() async {
     try {
-      // TODO: Call API when backend is ready
-      
-      await Future.delayed(const Duration(milliseconds: 300));
-      
-      // Return mock counts
-      return {
-        'my_listings': 5,
-        'saved_items': 12,
-        'my_bookings': 3,
+      await _initializeAuth();
+
+      final results = await Future.wait([
+        _backendHelper.getMyListings(),
+        _backendHelper.getMyBids(),
+        _backendHelper.getAppointments(),
+        _backendHelper.getNotificationsUnreadCount(),
+      ]);
+
+      // Fetch NEW favorites count (since last visit)
+      final badgeService = FavouriteBadgeService();
+      final newFavoritesCount = await badgeService.getNewFavoritesCount();
+
+      final counts = {
+        'my_listings': _extractCount(results[0]),
+        'my_bids': _extractCount(results[1]),
+        'my_bookings': _extractCount(results[2]),
+        'notifications': _extractUnreadCount(results[3]),
+        'saved_items': newFavoritesCount,
       };
+      
+      print('[ProfileService] 📊 Returning menu counts: $counts');
+      return counts;
     } catch (e) {
+      print('[ProfileService] ❌ ERROR getting menu counts: $e');
       return {};
     }
+  }
+
+  /// Extract count from a paginated Map (with 'count' field) or a List
+  int _extractCount(dynamic data) {
+    if (data is Map && data.containsKey('count')) {
+      return (data['count'] as num?)?.toInt() ?? 0;
+    }
+    if (data is List) {
+      return data.length;
+    }
+    return 0;
+  }
+
+  /// Extract unread count from notifications unread-count endpoint
+  int _extractUnreadCount(Map<String, dynamic> data) {
+    return (data['unread_count'] as num?)?.toInt() ??
+        (data['count'] as num?)?.toInt() ??
+        0;
   }
 
   /// Upload profile image

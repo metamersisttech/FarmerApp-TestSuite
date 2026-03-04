@@ -282,4 +282,40 @@ class CacheManager {
     await _diskCache.delete(_recentlyViewedKey);
     print('🗑️ Cleared recently viewed history');
   }
+
+  // ============ Raw Data Access (for non-typed cache) ============
+
+  /// Get raw data from disk cache without deserialization
+  /// Used for simple data types like lists of strings or primitives
+  Future<dynamic> getRaw(String key) async {
+    try {
+      return _diskCache.get(key);
+    } catch (e) {
+      print('[CacheManager] ❌ Error getting raw data for $key: $e');
+      return null;
+    }
+  }
+
+  /// Set raw data in disk cache
+  /// Used for simple data types like lists of strings or primitives
+  Future<void> setRaw(String key, dynamic data) async {
+    try {
+      await _diskCache.put(key, data);
+      print('💾 Cache SET (raw): $key');
+    } catch (e) {
+      print('[CacheManager] ❌ Error setting raw data for $key: $e');
+      rethrow;
+    }
+  }
+
+  /// Delete raw data from disk cache
+  Future<void> deleteRaw(String key) async {
+    try {
+      await _diskCache.delete(key);
+      print('🗑️ Cache DELETE (raw): $key');
+    } catch (e) {
+      print('[CacheManager] ❌ Error deleting raw data for $key: $e');
+      rethrow;
+    }
+  }
 }

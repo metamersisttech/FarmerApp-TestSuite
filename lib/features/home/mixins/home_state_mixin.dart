@@ -1,19 +1,25 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/listing_model.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/home/controllers/home_controller.dart';
 import 'package:flutter_app/features/home/services/home_navigation_service.dart';
+import 'package:flutter_app/features/notifications/controllers/notification_controller.dart';
 
 /// Mixin for common home page state management and business logic coordination
 /// Requires ToastMixin to be mixed in the using class
 mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
   late HomeController homeController;
+  late NotificationController _notificationController;
+  Timer? _notificationPollTimer;
   UserModel? currentUser;
   int currentBottomNavIndex = 0;
   String searchQuery = '';
   bool _isLoadingUserData = false;
-  
+  int notificationUnreadCount = 0;
+
   // Recently viewed listings
   List<ListingModel> recentlyViewedListings = [];
   bool isLoadingRecentlyViewed = false;
@@ -23,6 +29,30 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
     homeController = HomeController();
     // Add listener to rebuild when controller state changes
     homeController.addListener(_onHomeControllerChanged);
+
+    // Notification badge controller
+    _notificationController = NotificationController();
+    _notificationController.addListener(_onNotificationCountChanged);
+
+    // Poll unread count every 60 seconds
+    _notificationPollTimer = Timer.periodic(
+      const Duration(seconds: 60),
+      (_) => fetchNotificationUnreadCount(),
+    );
+  }
+
+  /// Handle notification unread count changes
+  void _onNotificationCountChanged() {
+    if (mounted) {
+      setState(() {
+        notificationUnreadCount = _notificationController.unreadCount;
+      });
+    }
+  }
+
+  /// Fetch notification unread count for badge
+  Future<void> fetchNotificationUnreadCount() async {
+    await _notificationController.fetchUnreadCount();
   }
 
   /// Handle home controller state changes
@@ -252,8 +282,11 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
 
   /// Dispose controller
   void disposeHomeController() {
+    _notificationPollTimer?.cancel();
     homeController.removeListener(_onHomeControllerChanged);
     homeController.dispose();
+    _notificationController.removeListener(_onNotificationCountChanged);
+    _notificationController.dispose();
   }
 }
 
