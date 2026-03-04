@@ -49,12 +49,18 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen>
           onPressed: handleBackTap,
         ),
       ),
-      body: isLoading
-          ? _buildLoadingState()
-          : errorMessage != null
-              ? _buildErrorState()
-              : _buildContent(),
-      bottomNavigationBar: _buildBottomActions(),
+      body: Column(
+        children: [
+          Expanded(
+            child: isLoading
+                ? _buildLoadingState()
+                : errorMessage != null
+                    ? _buildErrorState()
+                    : _buildContent(),
+          ),
+          _buildBottomActions(),
+        ],
+      ),
     );
   }
 
@@ -224,7 +230,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen>
             content: appt.formattedCreatedAt,
           ),
 
-          const SizedBox(height: 100), // Bottom padding for action bar
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -287,9 +293,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen>
     );
   }
 
-  Widget? _buildBottomActions() {
+  Widget _buildBottomActions() {
     final appt = appointment;
-    if (appt == null) return null;
+    if (appt == null) return const SizedBox.shrink();
 
     // Build action buttons based on status
     final actions = <Widget>[];
@@ -335,10 +341,15 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen>
       );
     }
 
-    if (actions.isEmpty) return null;
+    if (actions.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        MediaQuery.of(context).padding.bottom + 12, // Add system nav bar padding
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [

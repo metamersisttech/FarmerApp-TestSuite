@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
-import 'package:flutter_app/features/home/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_app/features/vet_dashboard/mixins/vet_dashboard_state_mixin.dart';
 import 'package:flutter_app/features/vet_dashboard/widgets/today_appointments_section.dart';
 import 'package:flutter_app/features/vet_dashboard/widgets/vet_profile_header_section.dart';
@@ -23,6 +22,7 @@ class _VetHomePageState extends State<VetHomePage>
   @override
   void initState() {
     super.initState();
+    debugPrint('[VetHomePage] initState called');
     initializeDashboardController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -114,10 +114,6 @@ class _VetHomePageState extends State<VetHomePage>
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentBottomNavIndex,
-        onTap: handleBottomNavTap,
       ),
     );
   }
