@@ -28,6 +28,7 @@ class _VetHomePageState extends State<VetHomePage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchDashboardData();
       loadUserFromStorage();
+      fetchNotificationUnreadCount();
     });
   }
 
@@ -57,6 +58,7 @@ class _VetHomePageState extends State<VetHomePage>
               isAvailable: vetProfile?.available ?? true,
               onNotificationTap: handleNotificationTap,
               onProfileTap: handleProfileTap,
+              notificationCount: notificationUnreadCount,
             ),
 
             // Scrollable Content

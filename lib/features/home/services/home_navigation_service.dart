@@ -64,8 +64,8 @@ class HomeNavigationService {
 
   /// Navigate to Notifications screen
   static NavigationResult toNotifications(BuildContext context) {
-    // TODO: Implement notifications navigation when screen is ready
-    return NavigationResult.comingSoon('Notifications');
+    Navigator.pushNamed(context, AppRoutes.notifications);
+    return NavigationResult.success();
   }
 
   /// Navigate to Profile screen

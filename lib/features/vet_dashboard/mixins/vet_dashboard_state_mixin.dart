@@ -1,17 +1,45 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
+import 'package:flutter_app/features/notifications/controllers/notification_controller.dart';
 import 'package:flutter_app/features/vet_dashboard/controllers/vet_dashboard_controller.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// Mixin for vet dashboard home page state management.
 /// Follows the same pattern as HomeStateMixin.
 mixin VetDashboardStateMixin<T extends StatefulWidget> on State<T> {
   late VetDashboardController dashboardController;
+  late NotificationController _notificationController;
+  Timer? _notificationPollTimer;
   UserModel? currentUser;
   int currentBottomNavIndex = 0;
+  int notificationUnreadCount = 0;
 
   void initializeDashboardController() {
     dashboardController = VetDashboardController();
+    _notificationController = NotificationController();
+    _notificationController.addListener(_onNotificationCountChanged);
+
+    // Poll unread count every 60 seconds
+    _notificationPollTimer = Timer.periodic(
+      const Duration(seconds: 60),
+      (_) => fetchNotificationUnreadCount(),
+    );
+  }
+
+  void _onNotificationCountChanged() {
+    if (mounted) {
+      setState(() {
+        notificationUnreadCount = _notificationController.unreadCount;
+      });
+    }
+  }
+
+  /// Fetch notification unread count for badge
+  Future<void> fetchNotificationUnreadCount() async {
+    await _notificationController.fetchUnreadCount();
   }
 
   /// Load user data from storage
@@ -61,7 +89,7 @@ mixin VetDashboardStateMixin<T extends StatefulWidget> on State<T> {
 
   /// Handle notification tap
   void handleNotificationTap() {
-    showComingSoonMessage('Notifications');
+    Navigator.pushNamed(context, AppRoutes.notifications);
   }
 
   /// Handle view all appointments
@@ -80,6 +108,9 @@ mixin VetDashboardStateMixin<T extends StatefulWidget> on State<T> {
 
   /// Dispose controller
   void disposeDashboardController() {
+    _notificationPollTimer?.cancel();
     dashboardController.dispose();
+    _notificationController.removeListener(_onNotificationCountChanged);
+    _notificationController.dispose();
   }
 }

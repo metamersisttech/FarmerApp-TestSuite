@@ -1,6 +1,8 @@
 // Conversation models for direct buyer-seller messaging.
 // Maps GET /api/messages/conversations/ response items.
 
+import 'package:flutter_app/core/helpers/common_helper.dart';
+
 /// User info in a conversation (the other party)
 class ConversationUser {
   final int id;
@@ -20,7 +22,9 @@ class ConversationUser {
       id: json['id'] as int? ?? 0,
       username: json['username'] as String? ?? '',
       fullName: json['full_name'] as String? ?? '',
-      profileImage: json['profile_image'] as String?,
+      profileImage: json['profile_image'] != null
+          ? CommonHelper.getImageUrl(json['profile_image'] as String)
+          : null,
     );
   }
 

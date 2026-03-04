@@ -124,22 +124,28 @@ class ProfileService {
     }
   }
 
-  /// Get profile menu counts
+  /// Get profile menu counts from real API endpoints
   Future<Map<String, int>> getMenuCounts() async {
     try {
-      print('[ProfileService] 🔍 Getting menu counts...');
-      
+      await _initializeAuth();
+
+      final results = await Future.wait([
+        _backendHelper.getMyListings(),
+        _backendHelper.getMyBids(),
+        _backendHelper.getAppointments(),
+        _backendHelper.getNotificationsUnreadCount(),
+      ]);
+
       // Fetch NEW favorites count (since last visit)
       final badgeService = FavouriteBadgeService();
       final newFavoritesCount = await badgeService.getNewFavoritesCount();
-      
-      print('[ProfileService] ✅ Badge count received: $newFavoritesCount');
-      
-      // TODO: Fetch actual counts from API for other items when backend is ready
+
       final counts = {
-        'my_listings': 0,
+        'my_listings': _extractCount(results[0]),
+        'my_bids': _extractCount(results[1]),
+        'my_bookings': _extractCount(results[2]),
+        'notifications': _extractUnreadCount(results[3]),
         'saved_items': newFavoritesCount,
-        'my_bookings': 0,
       };
       
       print('[ProfileService] 📊 Returning menu counts: $counts');
@@ -148,6 +154,24 @@ class ProfileService {
       print('[ProfileService] ❌ ERROR getting menu counts: $e');
       return {};
     }
+  }
+
+  /// Extract count from a paginated Map (with 'count' field) or a List
+  int _extractCount(dynamic data) {
+    if (data is Map && data.containsKey('count')) {
+      return (data['count'] as num?)?.toInt() ?? 0;
+    }
+    if (data is List) {
+      return data.length;
+    }
+    return 0;
+  }
+
+  /// Extract unread count from notifications unread-count endpoint
+  int _extractUnreadCount(Map<String, dynamic> data) {
+    return (data['unread_count'] as num?)?.toInt() ??
+        (data['count'] as num?)?.toInt() ??
+        0;
   }
 
   /// Upload profile image

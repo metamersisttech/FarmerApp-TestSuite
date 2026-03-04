@@ -59,6 +59,7 @@ class _HomePageState extends State<HomePage>
       checkLocationPermission();
       loadUserFromStorage();
       checkLocationServiceStatus();
+      fetchNotificationUnreadCount();
     });
   }
 
@@ -80,6 +81,7 @@ class _HomePageState extends State<HomePage>
       '[HomePage] 🔄 Returned to home page (back navigation), refreshing recently viewed...',
     );
     fetchRecentlyViewedListings();
+    fetchNotificationUnreadCount();
     homeController.loadFavorites(); // Reload favorites when returning to page
   }
 
@@ -205,7 +207,7 @@ class _HomePageState extends State<HomePage>
           location: currentLocationText,
           onLocationTap: handleLocationTap,
           onNotificationTap: handleNotificationTap,
-          notificationCount: 3,
+          notificationCount: notificationUnreadCount,
         ),
 
         // Search Bar

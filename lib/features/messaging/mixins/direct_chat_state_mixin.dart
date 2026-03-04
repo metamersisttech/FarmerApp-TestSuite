@@ -43,9 +43,9 @@ mixin DirectChatStateMixin<T extends StatefulWidget> on State<T> {
     // Mark as read
     _messagingService.markAsRead(conversation.conversationId);
 
-    // Start polling every 5 seconds
+    // Start polling every 10 seconds
     _pollTimer = Timer.periodic(
-      const Duration(seconds: 5),
+      const Duration(seconds: 10),
       (_) => _pollNewMessages(),
     );
 

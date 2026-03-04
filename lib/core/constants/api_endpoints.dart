@@ -113,6 +113,13 @@ class ApiEndpoints {
   static const String fcmTokens = 'fcm/tokens/';
   static const String fcmTest = 'fcm/test/';
 
+  // ============ Notification Endpoints ============
+  static const String notifications = 'notifications/';
+  static String notificationById(int id) => 'notifications/$id/';
+  static String notificationMarkRead(int id) => 'notifications/$id/read/';
+  static const String notificationsReadAll = 'notifications/read-all/';
+  static const String notificationsUnreadCount = 'notifications/unread-count/';
+
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here
 
