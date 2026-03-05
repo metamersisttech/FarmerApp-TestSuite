@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/features/search/controllers/search_controller.dart'
     as search;
 import 'package:flutter_app/features/search/screens/search_results_page.dart';
+import 'package:flutter_app/features/search/screens/location_search_page.dart';
 import 'package:flutter_app/features/search/widgets/popular_categories_section.dart';
 import 'package:flutter_app/features/search/widgets/recent_searches_section.dart';
 import 'package:flutter_app/features/search/widgets/search_location_bar.dart';
@@ -25,34 +26,197 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends State<SearchPage> with WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final search.SearchController _controller = search.SearchController();
   
   Timer? _debounceTimer;
+  bool _returnedFromSettings = false;
   
   @override
   void initState() {
     super.initState();
     
+    // Add lifecycle observer
+    WidgetsBinding.instance.addObserver(this);
+    
     // Load recent searches
     _controller.loadRecentSearches();
-    
-    // Auto-focus search bar when page opens
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _searchFocusNode.requestFocus();
-    });
     
     // Add listener to controller for updates
     _controller.addListener(_onControllerUpdate);
     
     // Add listener to search field for debounced suggestions
     _searchController.addListener(_onSearchTextChanged);
+    
+    // Defer actions that might trigger navigation to after build completes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Auto-focus search bar when page opens
+      _searchFocusNode.requestFocus();
+      
+      // Try to detect current location (moved here to avoid Navigator lock)
+      _detectLocationOnInit();
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    // When app resumes from settings
+    if (state == AppLifecycleState.resumed && _returnedFromSettings) {
+      _returnedFromSettings = false;
+      
+      // Try to detect location again after returning from settings
+      Future.delayed(const Duration(milliseconds: 500), () async {
+        if (mounted) {
+          final success = await _controller.detectCurrentLocation();
+          if (success && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Location updated to ${_controller.currentLocation}'),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        }
+      });
+    }
+  }
+
+  /// Detect location on initialization
+  Future<void> _detectLocationOnInit() async {
+    final success = await _controller.detectCurrentLocation();
+    
+    if (!success && mounted && !_controller.locationPermissionDenied) {
+      // Show info dialog about location benefits
+      _showLocationPrompt();
+    }
+  }
+
+  /// Show location prompt dialog
+  void _showLocationPrompt() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.location_on, color: Colors.blue),
+            SizedBox(width: 8),
+            Text('Enable Location'),
+          ],
+        ),
+        content: const Text(
+          'Allow location access to get better search results near you. '
+          'You can still search without location, but results will be based on species or breeds only.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // User declined, continue without location
+            },
+            child: const Text('Skip'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final success = await _controller.requestLocationPermission();
+              
+              if (success && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Location set to ${_controller.currentLocation}'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } else if (!success && mounted) {
+                // Check what went wrong
+                if (_controller.locationPermissionDenied) {
+                  _showPermissionDeniedDialog();
+                } else if (_controller.locationServiceDisabled) {
+                  _showServiceDisabledDialog();
+                }
+              }
+            },
+            child: const Text('Enable Location'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Show permission denied dialog
+  void _showPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Location Permission Required'),
+        content: const Text(
+          'Location permission is required to show results near you. '
+          'You can enable it in app settings or continue searching without location.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Continue Without Location'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              _returnedFromSettings = true;
+              await _controller.openAppSettings();
+              // Location will be detected automatically when app resumes
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Show service disabled dialog
+  void _showServiceDisabledDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.location_off, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('Location Service Disabled'),
+          ],
+        ),
+        content: const Text(
+          'Location service is turned off on your device. '
+          'Please enable it in your device settings to use location-based features.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Continue Without Location'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              _returnedFromSettings = true;
+              await _controller.openLocationSettings();
+              // Location will be detected automatically when app resumes
+            },
+            child: const Text('Open Settings'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   void dispose() {
+    // Remove lifecycle observer
+    WidgetsBinding.instance.removeObserver(this);
+    
     _debounceTimer?.cancel();
     _searchController.removeListener(_onSearchTextChanged);
     _searchController.dispose();
@@ -153,9 +317,27 @@ class _SearchPageState extends State<SearchPage> {
 
   /// Handle location tap
   void _handleLocationTap() {
-    // TODO: Navigate to location selection page
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Location selection - Coming soon!')),
+    // Navigate to location search page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LocationSearchPage(
+          currentLocation: _controller.currentLocation,
+          onLocationSelected: (location, {latitude, longitude}) {
+            _controller.updateLocation(
+              location,
+              latitude: latitude,
+              longitude: longitude,
+            );
+            
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Location updated to $location')),
+              );
+            }
+          },
+        ),
+      ),
     );
   }
 
@@ -226,6 +408,7 @@ class _SearchPageState extends State<SearchPage> {
                     child: SearchLocationBar(
                       location: _controller.currentLocation,
                       onTap: _handleLocationTap,
+                      isDetecting: _controller.isDetectingLocation,
                     ),
                   ),
 

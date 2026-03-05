@@ -10,9 +10,18 @@ import 'package:geolocator/geolocator.dart';
 mixin LocationMixin<T extends StatefulWidget> on State<T> {
   final LocationService _locationService = LocationService();
   String _currentLocationText = 'Bangalore, IN';
+  bool _returnedFromLocationSettings = false;
 
   /// Get current location text
   String get currentLocationText => _currentLocationText;
+  
+  /// Get the settings flag (can be overridden in the using class)
+  bool get returnedFromLocationSettings => _returnedFromLocationSettings;
+  
+  /// Set the settings flag (can be overridden in the using class)
+  set returnedFromLocationSettings(bool value) {
+    _returnedFromLocationSettings = value;
+  }
 
   /// Check and request location permission
   /// Shows dialog only when needed based on current permission status
@@ -54,9 +63,14 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
           await fetchAndDisplayCurrentLocation();
         } else if (result.serviceDisabled) {
           _showErrorToast('Please enable location services in settings');
+          _returnedFromLocationSettings = true;
           await _locationService.openLocationSettings();
+          // Location will be fetched when app resumes
         } else if (result.permissionDenied) {
           _showErrorToast('Location permission denied');
+          _returnedFromLocationSettings = true;
+          await _locationService.openAppSettings();
+          // Location will be fetched when app resumes
         }
       } else if (!shouldEnable) {
         _showInfoToast('You can enable location later from settings');
@@ -86,7 +100,8 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
   }
 
   /// Fetch current location and display it
-  Future<void> fetchAndDisplayCurrentLocation() async {
+  /// Returns true if location was successfully fetched and updated
+  Future<bool> fetchAndDisplayCurrentLocation() async {
     try {
       // Show loading indicator
       setState(() {
@@ -98,19 +113,21 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
         includeAddress: true,
       );
 
-      if (!mounted) return;
+      if (!mounted) return false;
 
       if (locationResult.success && locationResult.address != null) {
         setState(() {
           _currentLocationText = locationResult.address!;
         });
         print('📍 Location updated: ${locationResult.address}');
+        return true;
       } else {
         // Fallback to default if failed
         setState(() {
           _currentLocationText = 'Bangalore, IN';
         });
         print('⚠️ Failed to get address, using default');
+        return false;
       }
     } catch (e) {
       print('❌ Error fetching location: $e');
@@ -120,6 +137,7 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
           _currentLocationText = 'Bangalore, IN';
         });
       }
+      return false;
     }
   }
 
@@ -199,10 +217,12 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
               child: ElevatedButton(
                 onPressed: () async {
                   Navigator.pop(context);
+                  _returnedFromLocationSettings = true;
                   final opened = await _locationService.openLocationSettings();
                   if (!opened) {
                     _showErrorToast('Could not open location settings');
                   }
+                  // Location will be fetched when app resumes
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.authPrimaryColor,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
+import 'package:flutter_app/features/location/models/location_model.dart';
+import 'package:flutter_app/features/location/screens/location_page.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Create Farm Page - Form to create a new farm
@@ -19,19 +21,35 @@ class _CreateFarmPageState extends State<CreateFarmPage> with ToastMixin {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _areaController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _latitudeController = TextEditingController();
-  final TextEditingController _longitudeController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
   bool _isLoading = false;
+  LocationData? _selectedLocation;
 
   @override
   void dispose() {
     _nameController.dispose();
     _areaController.dispose();
     _addressController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
+    _locationController.dispose();
     super.dispose();
+  }
+
+  /// Handle location selection
+  Future<void> _handleLocationSelection() async {
+    final result = await Navigator.push<LocationData>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LocationPage(),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedLocation = result;
+        _locationController.text = result.displayLocation;
+      });
+    }
   }
 
   /// Submit form and create farm
@@ -47,10 +65,10 @@ class _CreateFarmPageState extends State<CreateFarmPage> with ToastMixin {
         'name': _nameController.text.trim(),
         'area_sq_m': double.tryParse(_areaController.text.trim()) ?? 0,
         'address': _addressController.text.trim(),
-        if (_latitudeController.text.trim().isNotEmpty)
-          'latitude': double.tryParse(_latitudeController.text.trim()),
-        if (_longitudeController.text.trim().isNotEmpty)
-          'longitude': double.tryParse(_longitudeController.text.trim()),
+        if (_selectedLocation?.latitude != null)
+          'latitude': _selectedLocation!.latitude,
+        if (_selectedLocation?.longitude != null)
+          'longitude': _selectedLocation!.longitude,
       };
 
       final result = await _backendHelper.postCreateFarm(data);
@@ -161,82 +179,53 @@ class _CreateFarmPageState extends State<CreateFarmPage> with ToastMixin {
 
                     const SizedBox(height: 20),
 
-                    // Location coordinates (optional)
-                    _buildSectionTitle('Location Coordinates'),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Optional - helps buyers find your farm',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
+                    // Location Search Field
+                    _buildSectionTitle('Location', isRequired: true),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: _handleLocationSelection,
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          controller: _locationController,
+                          decoration: InputDecoration(
+                            hintText: 'Select location',
+                            prefixIcon: const Icon(Icons.location_on, size: 20),
+                            suffixIcon: const Icon(Icons.arrow_forward_ios, size: 16),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 1.5),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: AppTheme.authPrimaryColor.withOpacity(0.5), width: 1.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: AppTheme.authPrimaryColor, width: 2),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Colors.red, width: 2),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                          ),
+                          validator: (value) {
+                            if (_selectedLocation == null) {
+                              return 'Please select a location';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    Row(
-                      children: [
-                        // Latitude
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Latitude',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              _buildTextField(
-                                controller: _latitudeController,
-                                hintText: 'e.g. 18.7546',
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                validator: (value) {
-                                  if (value != null && value.trim().isNotEmpty) {
-                                    final lat = double.tryParse(value.trim());
-                                    if (lat == null || lat < -90 || lat > 90) {
-                                      return 'Invalid latitude';
-                                    }
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        // Longitude
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Longitude',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              _buildTextField(
-                                controller: _longitudeController,
-                                hintText: 'e.g. 73.8854',
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                validator: (value) {
-                                  if (value != null && value.trim().isNotEmpty) {
-                                    final lng = double.tryParse(value.trim());
-                                    if (lng == null || lng < -180 || lng > 180) {
-                                      return 'Invalid longitude';
-                                    }
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                     ),
 
                     const SizedBox(height: 20),
@@ -245,47 +234,49 @@ class _CreateFarmPageState extends State<CreateFarmPage> with ToastMixin {
               ),
             ),
 
-            // Submit button at bottom
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.authPrimaryColor,
-                    disabledBackgroundColor: AppTheme.authPrimaryColor.withOpacity(0.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            // Static Submit button at bottom (above device navigation buttons)
+            SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -2),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ],
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.authPrimaryColor,
+                      disabledBackgroundColor: AppTheme.authPrimaryColor.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Create Farm',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text(
-                          'Create Farm',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                 ),
               ),
             ),
