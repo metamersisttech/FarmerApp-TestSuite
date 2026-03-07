@@ -88,25 +88,33 @@ class LocationController extends BaseController {
       );
       
       if (locationResult.success && locationResult.position != null) {
-        // Use the reverse geocoded address
-        final address = locationResult.address ?? 'Current Location';
+        // Use the reverse geocoded address if available
+        final address = locationResult.address;
         
-        // Parse address parts (format: "Area, City" or "City, State")
-        final parts = address.split(', ');
-        String? area, city;
-        
-        if (parts.length >= 2) {
-          area = parts[0];
-          city = parts[1];
-        } else if (parts.length == 1) {
-          city = parts[0];
+        if (address != null && address.isNotEmpty) {
+          // Parse address parts (format: "Area, City" or "City, State")
+          final parts = address.split(', ');
+          String? area, city;
+          
+          if (parts.length >= 2) {
+            area = parts[0];
+            city = parts[1];
+          } else if (parts.length == 1) {
+            city = parts[0];
+          }
+          
+          _selectedLocation = LocationData(
+            city: city ?? 'Unknown',
+            area: area,
+            fullAddress: address,
+          );
+        } else {
+          // No address available, just use coordinates
+          _selectedLocation = LocationData(
+            city: 'Unknown Location',
+            fullAddress: 'Lat: ${locationResult.position!.latitude.toStringAsFixed(4)}, Lng: ${locationResult.position!.longitude.toStringAsFixed(4)}',
+          );
         }
-        
-        _selectedLocation = LocationData(
-          city: city ?? 'Unknown',
-          area: area,
-          fullAddress: address,
-        );
         
         setLoading(false);
         return true;

@@ -206,12 +206,12 @@ class LocationService {
         }
       }
 
-      final address = parts.isEmpty ? 'Current Location' : parts.join(', ');
-      debugPrint('📍 Final address: $address (lat: $latitude, lng: $longitude)');
+      final address = parts.isEmpty ? null : parts.join(', ');
+      debugPrint('📍 Final address: ${address ?? 'No address found'} (lat: $latitude, lng: $longitude)');
       return address;
     } catch (e) {
       debugPrint('Error getting address: $e');
-      return 'Current Location';
+      return null;
     }
   }
 
