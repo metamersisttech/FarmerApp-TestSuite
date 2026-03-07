@@ -16,6 +16,7 @@ class ListingModel {
   final int? ageMonths;
   final String? currency;
   final String listingStatus;
+  final DateTime? postedAt;
 
   ListingModel({
     required this.id,
@@ -32,6 +33,7 @@ class ListingModel {
     this.ageMonths,
     this.currency,
     this.listingStatus = 'DRAFT',
+    this.postedAt,
   });
 
   /// Create from JSON response (API format)
@@ -109,6 +111,9 @@ class ListingModel {
       ageMonths: json['age_months'] as int?,
       currency: currency,
       listingStatus: json['listing_status'] as String? ?? 'DRAFT',
+      postedAt: json['posted_at'] != null 
+          ? DateTime.tryParse(json['posted_at'] as String)
+          : null,
     );
   }
 
@@ -128,6 +133,7 @@ class ListingModel {
       'gender': gender,
       'currency': currency,
       'listing_status': listingStatus,
+      'posted_at': postedAt?.toIso8601String(),
     };
   }
 
@@ -147,6 +153,7 @@ class ListingModel {
     int? ageMonths,
     String? currency,
     String? listingStatus,
+    DateTime? postedAt,
   }) {
     return ListingModel(
       id: id ?? this.id,
@@ -163,6 +170,7 @@ class ListingModel {
       ageMonths: ageMonths ?? this.ageMonths,
       currency: currency ?? this.currency,
       listingStatus: listingStatus ?? this.listingStatus,
+      postedAt: postedAt ?? this.postedAt,
     );
   }
 

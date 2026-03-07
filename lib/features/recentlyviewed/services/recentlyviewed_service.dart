@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/core/cache/cache_manager.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 
 /// RecentlyViewed Service - Handles data operations for recently viewed feature
 /// 

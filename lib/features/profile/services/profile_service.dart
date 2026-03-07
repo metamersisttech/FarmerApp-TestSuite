@@ -7,6 +7,7 @@ import 'package:flutter_app/core/services/fcm_service.dart';
 import 'package:flutter_app/data/services/api_service.dart';
 import 'package:flutter_app/features/profile/models/profile_model.dart';
 import 'package:flutter_app/features/favourite/services/favourite_badge_service.dart';
+import 'package:flutter_app/features/profile/services/my_listings_badge_service.dart';
 
 /// Result of profile operations
 class ProfileResult {
@@ -130,7 +131,6 @@ class ProfileService {
       await _initializeAuth();
 
       final results = await Future.wait([
-        _backendHelper.getMyListings(),
         _backendHelper.getMyBids(),
         _backendHelper.getAppointments(),
         _backendHelper.getNotificationsUnreadCount(),
@@ -140,11 +140,15 @@ class ProfileService {
       final badgeService = FavouriteBadgeService();
       final newFavoritesCount = await badgeService.getNewFavoritesCount();
 
+      // Fetch NEW listings count (since last visit)
+      final listingsBadgeService = MyListingsBadgeService();
+      final newListingsCount = await listingsBadgeService.getNewListingsCount();
+
       final counts = {
-        'my_listings': _extractCount(results[0]),
-        'my_bids': _extractCount(results[1]),
-        'my_bookings': _extractCount(results[2]),
-        'notifications': _extractUnreadCount(results[3]),
+        'my_listings': newListingsCount,
+        'my_bids': _extractCount(results[0]),
+        'my_bookings': _extractCount(results[1]),
+        'notifications': _extractUnreadCount(results[2]),
         'saved_items': newFavoritesCount,
       };
       

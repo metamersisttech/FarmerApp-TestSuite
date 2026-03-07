@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 import 'package:flutter_app/features/home/services/home_navigation_service.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_card.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';

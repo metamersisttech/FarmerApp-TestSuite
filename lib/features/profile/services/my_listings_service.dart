@@ -1,5 +1,5 @@
 import 'package:flutter_app/core/helpers/backend_helper.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 
 /// Service for fetching user's listings
 class MyListingsService {

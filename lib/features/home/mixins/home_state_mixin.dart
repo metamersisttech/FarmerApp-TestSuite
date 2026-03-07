@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/home/controllers/home_controller.dart';
 import 'package:flutter_app/features/home/services/home_navigation_service.dart';

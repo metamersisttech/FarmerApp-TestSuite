@@ -1,5 +1,5 @@
 import 'package:flutter_app/core/base/base_controller.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 import 'package:flutter_app/features/profile/services/my_listings_service.dart';
 
 /// Controller for managing user's listings

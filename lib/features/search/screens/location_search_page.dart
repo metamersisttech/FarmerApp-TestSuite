@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/data/models/location_search_model.dart';
+import 'package:flutter_app/features/search/models/location_search_model.dart';
 import 'package:flutter_app/features/search/services/location_search_service.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 

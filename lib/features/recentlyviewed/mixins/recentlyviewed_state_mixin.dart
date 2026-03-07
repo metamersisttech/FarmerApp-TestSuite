@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 import 'package:flutter_app/features/recentlyviewed/controllers/recentlyviewed_controller.dart';
 import 'package:flutter_app/features/home/services/home_navigation_service.dart';
 

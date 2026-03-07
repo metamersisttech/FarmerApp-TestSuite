@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_app/features/search/services/search_service.dart';
 import 'package:flutter_app/features/search/services/search_history_service.dart';
 import 'package:flutter_app/features/search/services/location_search_service.dart';
-import 'package:flutter_app/data/models/location_search_model.dart';
+import 'package:flutter_app/features/search/models/location_search_model.dart';
 import 'package:flutter_app/data/services/location_service.dart';
 
 /// Search Controller

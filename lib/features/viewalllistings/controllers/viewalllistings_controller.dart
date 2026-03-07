@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/core/base/base_controller.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 import 'package:flutter_app/features/viewalllistings/services/viewalllistings_service.dart';
 import 'package:flutter_app/core/services/firebase_cache_sync_service.dart';
 import 'package:flutter_app/features/viewalllistings/services/lisiting_cache_service.dart';

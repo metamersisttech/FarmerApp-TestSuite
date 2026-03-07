@@ -1,5 +1,5 @@
 import 'package:flutter_app/core/helpers/backend_helper.dart';
-import 'package:flutter_app/data/models/location_search_model.dart';
+import 'package:flutter_app/features/search/models/location_search_model.dart';
 
 /// Location Search Service
 ///
