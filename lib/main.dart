@@ -48,7 +48,10 @@ Future<void> main() async {
     }
   }
 
-  // Initialize FCM service
+  // Check stored app mode for vet dashboard routing
+  final appMode = user != null ? await commonHelper.getAppMode() : 'farmer';
+
+  // Initialize FCM service (but don't handle initial message yet)
   await FCMService().initialize();
   print('✅ FCM service initialized');
 
@@ -59,9 +62,6 @@ Future<void> main() async {
       FCMService().registerToken(); // fire-and-forget
     }
   }
-
-  // Check stored app mode for vet dashboard routing
-  final appMode = user != null ? await commonHelper.getAppMode() : 'farmer';
 
   runApp(MyApp(user: user, appMode: appMode));
 }

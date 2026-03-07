@@ -16,6 +16,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
+import 'package:flutter_app/features/messaging/models/conversation_model.dart';
+import 'package:flutter_app/features/appointment/models/appointment_model.dart';
 import 'package:flutter_app/main.dart' show navigatorKey;
 import 'package:flutter_app/routes/app_routes.dart';
 
@@ -174,37 +176,111 @@ class FCMService {
         ),
         iOS: const DarwinNotificationDetails(),
       ),
-      payload: message.data['notification_type'],
+      // Store the entire data as JSON string instead of just notification_type
+      payload: _encodePayload(message.data),
     );
+  }
+
+  /// Encode notification data as payload string
+  String _encodePayload(Map<String, dynamic> data) {
+    // Create a simple string format: type|key1=value1|key2=value2
+    final parts = <String>[];
+    data.forEach((key, value) {
+      parts.add('$key=$value');
+    });
+    return parts.join('|');
+  }
+
+  /// Decode payload string back to map
+  Map<String, dynamic> _decodePayload(String? payload) {
+    if (payload == null || payload.isEmpty) return {};
+    final data = <String, dynamic>{};
+    final parts = payload.split('|');
+    for (final part in parts) {
+      final keyValue = part.split('=');
+      if (keyValue.length == 2) {
+        data[keyValue[0]] = keyValue[1];
+      }
+    }
+    return data;
   }
 
   /// Handle notification tap (app in background → opened)
   void _handleNotificationTap(RemoteMessage message) {
     final data = message.data;
     final type = data['notification_type'];
-    _navigateByType(type, data);
+    _navigateByType(type, data); // Fire and forget
   }
 
   /// Handle local notification tap (foreground notification tapped)
   void _onLocalNotificationTap(NotificationResponse response) {
-    final type = response.payload;
-    _navigateByType(type, {});
+    final data = _decodePayload(response.payload);
+    final type = data['notification_type'];
+    _navigateByType(type, data); // Fire and forget
   }
 
   /// Navigate based on notification type
-  void _navigateByType(String? type, Map<String, dynamic> data) {
-    final context = navigatorKey.currentContext;
-    if (context == null) return;
+  Future<void> _navigateByType(String? type, Map<String, dynamic> data) async {
+    // Wait for navigator to be ready if context is not available yet
+    BuildContext? context = navigatorKey.currentContext;
+    if (context == null) {
+      // Wait up to 3 seconds for the app to initialize
+      for (int i = 0; i < 30; i++) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        context = navigatorKey.currentContext;
+        if (context != null) break;
+      }
+      if (context == null) {
+        print('⚠️ Navigation context not available after waiting');
+        return;
+      }
+    }
 
     switch (type) {
-      case 'message':
-        Navigator.pushNamed(context, AppRoutes.conversations);
+      case 'direct_message':
+        final conversationId = int.tryParse(data['conversation_id']?.toString() ?? '');
+        if (conversationId != null) {
+          await _navigateToDirectChat(context, conversationId);
+        } else {
+          Navigator.pushNamed(context, AppRoutes.conversations);
+        }
         break;
-      case 'appointment':
-        Navigator.pushNamed(context, AppRoutes.myAppointments);
+      case 'appointment_message':
+        final appointmentId = int.tryParse(data['appointment_id']?.toString() ?? '');
+        if (appointmentId != null) {
+          await _navigateToAppointmentChat(context, appointmentId);
+        } else {
+          Navigator.pushNamed(context, AppRoutes.myAppointments);
+        }
         break;
-      case 'listing':
-        final listingId = int.tryParse(data['listing_id'] ?? '');
+      case 'appointment_created':
+      case 'appointment_approved':
+      case 'appointment_rejected':
+      case 'appointment_completed':
+        final appointmentId = int.tryParse(data['appointment_id']?.toString() ?? '');
+        if (appointmentId != null) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.appointmentDetail,
+            arguments: appointmentId,
+          );
+        } else {
+          Navigator.pushNamed(context, AppRoutes.myAppointments);
+        }
+        break;
+      case 'new_bid':
+        final listingId = int.tryParse(data['listing_id']?.toString() ?? '');
+        if (listingId != null) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.listingBids,
+            arguments: listingId,
+          );
+        }
+        break;
+      case 'bid_approved':
+      case 'bid_rejected':
+        final listingId = int.tryParse(data['listing_id']?.toString() ?? '');
         if (listingId != null) {
           Navigator.pushNamed(
             context,
@@ -213,6 +289,38 @@ class FCMService {
           );
         }
         break;
+    }
+  }
+
+  /// Navigate to direct chat by fetching conversation details
+  Future<void> _navigateToDirectChat(BuildContext context, int conversationId) async {
+    try {
+      final response = await _backendHelper.getConversationById(conversationId);
+      final conversation = Conversation.fromJson(response);
+      Navigator.pushNamed(
+        context,
+        AppRoutes.directChat,
+        arguments: conversation,
+      );
+    } catch (e) {
+      print('⚠️ Failed to load conversation: $e');
+      Navigator.pushNamed(context, AppRoutes.conversations);
+    }
+  }
+
+  /// Navigate to appointment chat by fetching appointment details
+  Future<void> _navigateToAppointmentChat(BuildContext context, int appointmentId) async {
+    try {
+      final response = await _backendHelper.getAppointmentById(appointmentId);
+      final appointment = AppointmentModel.fromJson(response);
+      Navigator.pushNamed(
+        context,
+        AppRoutes.appointmentChat,
+        arguments: appointment,
+      );
+    } catch (e) {
+      print('⚠️ Failed to load appointment: $e');
+      Navigator.pushNamed(context, AppRoutes.myAppointments);
     }
   }
 

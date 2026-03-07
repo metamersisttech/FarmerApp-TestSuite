@@ -115,18 +115,21 @@ mixin LocationMixin<T extends StatefulWidget> on State<T> {
 
       if (!mounted) return false;
 
-      if (locationResult.success && locationResult.address != null) {
+      // Check if we got a valid address (not null and not generic text)
+      if (locationResult.success && 
+          locationResult.address != null && 
+          locationResult.address!.isNotEmpty) {
         setState(() {
           _currentLocationText = locationResult.address!;
         });
         print('📍 Location updated: ${locationResult.address}');
         return true;
       } else {
-        // Fallback to default if failed
+        // Fallback to default if failed or couldn't get address
         setState(() {
           _currentLocationText = 'Bangalore, IN';
         });
-        print('⚠️ Failed to get address, using default');
+        print('⚠️ Failed to get specific address, using default');
         return false;
       }
     } catch (e) {
