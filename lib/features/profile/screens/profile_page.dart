@@ -22,6 +22,7 @@ import 'package:flutter_app/features/vet_dashboard/widgets/switch_mode_card.dart
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/features/favourite/services/favourite_badge_service.dart';
+import 'package:flutter_app/features/profile/services/my_listings_badge_service.dart';
 import 'package:flutter_app/main.dart' show routeObserver;
 
 /// Profile Page
@@ -251,9 +252,13 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  void _handleMyListings() {
-    // Simply push the MyListings page in a properly themed Scaffold
-    Navigator.push(
+  void _handleMyListings() async {
+    // Mark listings as viewed (clears badge count)
+    final badgeService = MyListingsBadgeService();
+    await badgeService.markAsViewed();
+    
+    // Navigate to My Listings page
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Theme(
@@ -265,6 +270,13 @@ class _ProfilePageState extends State<ProfilePage>
         ),
       ),
     );
+    
+    // Refresh menu counts when returning from My Listings page
+    // This will recalculate the badge based on any new listings added
+    await _controller.loadMenuCounts();
+    if (mounted) {
+      setMenuCounts(_controller.menuCounts);
+    }
   }
 
   void _handleMyBids() {

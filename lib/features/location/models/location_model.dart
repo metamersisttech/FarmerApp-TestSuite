@@ -42,12 +42,16 @@ class LocationData {
   final String? city;
   final String? area;
   final String? fullAddress;
+  final double? latitude;
+  final double? longitude;
 
   const LocationData({
     this.state,
     this.city,
     this.area,
     this.fullAddress,
+    this.latitude,
+    this.longitude,
   });
 
   String get displayLocation {
@@ -66,12 +70,16 @@ class LocationData {
     String? city,
     String? area,
     String? fullAddress,
+    double? latitude,
+    double? longitude,
   }) {
     return LocationData(
       state: state ?? this.state,
       city: city ?? this.city,
       area: area ?? this.area,
       fullAddress: fullAddress ?? this.fullAddress,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 }

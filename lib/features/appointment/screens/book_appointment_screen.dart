@@ -52,50 +52,74 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen>
           onPressed: handleBackTap,
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Vet info card (read-only)
-            AppointmentVetInfoCard(
-              name: widget.vet.name,
-              clinicName: widget.vet.clinicName,
-              specialization: widget.vet.specialization,
-              profileImage: widget.vet.profileImage,
+      body: Column(
+        children: [
+          // Scrollable content
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Vet info card (read-only)
+                  AppointmentVetInfoCard(
+                    name: widget.vet.name,
+                    clinicName: widget.vet.clinicName,
+                    specialization: widget.vet.specialization,
+                    profileImage: widget.vet.profileImage,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Consultation mode selector
+                  ConsultationModeSelector(
+                    selectedMode: selectedMode,
+                    consultationFee: widget.vet.formattedConsultationFee,
+                    videoCallFee: widget.vet.formattedVideoCallFee,
+                    onModeSelected: selectMode,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Animal selection dropdown
+                  _buildAnimalDropdown(),
+                  const SizedBox(height: 20),
+
+                  // Notes field
+                  _buildNotesField(),
+                  const SizedBox(height: 20),
+
+                  // Fee summary
+                  _buildFeeSummary(),
+                  const SizedBox(height: 16),
+
+                  // Info banner
+                  _buildInfoBanner(),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
+          ),
 
-            // Consultation mode selector
-            ConsultationModeSelector(
-              selectedMode: selectedMode,
-              consultationFee: widget.vet.formattedConsultationFee,
-              videoCallFee: widget.vet.formattedVideoCallFee,
-              onModeSelected: selectMode,
+          // Fixed bottom button
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-
-            // Animal selection dropdown
-            _buildAnimalDropdown(),
-            const SizedBox(height: 20),
-
-            // Notes field
-            _buildNotesField(),
-            const SizedBox(height: 20),
-
-            // Fee summary
-            _buildFeeSummary(),
-            const SizedBox(height: 16),
-
-            // Info banner
-            _buildInfoBanner(),
-            const SizedBox(height: 24),
-
-            // Submit button
-            _buildSubmitButton(),
-            const SizedBox(height: 24),
-          ],
-        ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: _buildSubmitButton(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

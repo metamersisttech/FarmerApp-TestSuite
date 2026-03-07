@@ -1,5 +1,5 @@
 import '../../../core/cache/cache_manager.dart';
-import '../../../data/models/listing_model.dart';
+import '../../profile/models/listing_model.dart';
 import 'viewalllistings_service.dart';
 
 /// Listing-specific cache service

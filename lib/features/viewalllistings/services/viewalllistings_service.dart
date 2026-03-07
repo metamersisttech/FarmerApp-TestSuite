@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 
 /// ViewAllListings Service - Handles data operations for marketplace feature
 /// 

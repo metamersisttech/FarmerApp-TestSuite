@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/core/base/base_controller.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 import 'package:flutter_app/features/recentlyviewed/services/recentlyviewed_service.dart';
 
 /// Controller for recently viewed listings page operations

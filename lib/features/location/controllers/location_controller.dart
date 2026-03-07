@@ -128,4 +128,42 @@ class LocationController extends BaseController {
     clearError();
     notifyListeners();
   }
+
+  /// Create location from search result
+  LocationData createLocationFromSearch({
+    required String displayName,
+    double? latitude,
+    double? longitude,
+  }) {
+    // Parse the display name to extract location parts
+    // Format examples:
+    // "Mumbai, Maharashtra, India"
+    // "Bangalore Urban, Karnataka, India"
+    final parts = displayName.split(', ');
+    
+    String? area, city, state;
+    
+    if (parts.length >= 3) {
+      area = parts[0];
+      city = parts[1];
+      state = parts[2];
+    } else if (parts.length == 2) {
+      city = parts[0];
+      state = parts[1];
+    } else if (parts.length == 1) {
+      city = parts[0];
+    }
+    
+    _selectedLocation = LocationData(
+      city: city ?? 'Unknown',
+      area: area,
+      state: state,
+      fullAddress: displayName,
+      latitude: latitude,
+      longitude: longitude,
+    );
+    
+    notifyListeners();
+    return _selectedLocation;
+  }
 }

@@ -1145,6 +1145,23 @@ class BackendHelper {
     }
   }
 
+  // ============ Location Search Endpoints ============
+
+  /// Search locations using OpenStreetMap Nominatim API
+  /// GET /api/locationsearch/?q={query}
+  /// Response: { "query": "...", "results": [...] }
+  Future<Map<String, dynamic>> getLocationSearch(String query) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.locationSearch,
+        params: {'q': query},
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Error Handling ============
 
   /// Handle Dio errors and extract message

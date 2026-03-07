@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/shared/widgets/cards/listing_card.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter_app/core/cache/cache_manager.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 
 /// Home Service - Handles data operations for home feature
 /// 

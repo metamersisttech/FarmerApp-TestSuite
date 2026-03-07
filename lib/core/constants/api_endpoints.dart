@@ -120,6 +120,9 @@ class ApiEndpoints {
   static const String notificationsReadAll = 'notifications/read-all/';
   static const String notificationsUnreadCount = 'notifications/unread-count/';
 
+  // ============ Location Search Endpoints ============
+  static const String locationSearch = 'locationsearch/';
+
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here
 

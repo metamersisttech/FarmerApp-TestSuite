@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/cache/cache_manager.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 import 'package:flutter_app/features/viewalllistings/controllers/viewalllistings_controller.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/main.dart' show firebaseSync;

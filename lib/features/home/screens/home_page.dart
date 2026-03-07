@@ -89,10 +89,34 @@ class _HomePageState extends State<HomePage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    // Refresh recently viewed when app resumes
+    // When app resumes from settings
     if (state == AppLifecycleState.resumed) {
       print('[HomePage] 🔄 App resumed, refreshing recently viewed...');
       fetchRecentlyViewedListings();
+      
+      // If returned from location settings, try to fetch location again
+      if (returnedFromLocationSettings) {
+        returnedFromLocationSettings = false;
+        print('[HomePage] 📍 Returned from settings, refreshing location...');
+        
+        // Try to detect location again after returning from settings
+        Future.delayed(const Duration(milliseconds: 500), () async {
+          if (mounted) {
+            final success = await fetchAndDisplayCurrentLocation();
+            
+            // Show success message if location was updated successfully
+            if (success && mounted && currentLocationText != 'Getting location...') {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Location updated to $currentLocationText'),
+                  backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
+          }
+        });
+      }
     }
   }
 

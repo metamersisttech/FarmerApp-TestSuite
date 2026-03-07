@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
-import 'package:flutter_app/data/models/listing_model.dart';
+import 'package:flutter_app/features/profile/models/listing_model.dart';
 import 'package:flutter_app/features/home/services/home_navigation_service.dart';
 import 'package:flutter_app/features/profile/controllers/my_listings_controller.dart';
 import 'package:flutter_app/features/profile/mixins/my_listings_state_mixin.dart';

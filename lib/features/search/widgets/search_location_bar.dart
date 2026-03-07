@@ -5,13 +5,15 @@ import 'package:flutter_app/shared/themes/app_theme.dart';
 ///
 /// Displays current location with option to change it
 class SearchLocationBar extends StatelessWidget {
-  final String location;
+  final String? location;
   final VoidCallback onTap;
+  final bool isDetecting;
 
   const SearchLocationBar({
     super.key,
     required this.location,
     required this.onTap,
+    this.isDetecting = false,
   });
 
   @override
@@ -32,14 +34,23 @@ class SearchLocationBar extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: AppTheme.authPrimaryColor.withOpacity(0.1),
+                color: AppTheme.authPrimaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.location_on,
-                color: AppTheme.authPrimaryColor,
-                size: 20,
-              ),
+              child: isDetecting
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppTheme.authPrimaryColor,
+                      ),
+                    )
+                  : Icon(
+                      location != null ? Icons.location_on : Icons.location_off,
+                      color: AppTheme.authPrimaryColor,
+                      size: 20,
+                    ),
             ),
 
             const SizedBox(width: 12),
@@ -58,11 +69,13 @@ class SearchLocationBar extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    location,
-                    style: const TextStyle(
+                    isDetecting
+                        ? 'Detecting location...'
+                        : location ?? 'Tap to set location',
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: location != null ? Colors.black87 : Colors.grey[500],
                     ),
                   ),
                 ],
