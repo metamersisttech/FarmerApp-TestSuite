@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/features/location/models/location_model.dart';
 
 /// Mixin for details page state management
 mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
@@ -8,6 +9,7 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
   late TextEditingController farmSearchController;
   late TextEditingController weightController;
   late TextEditingController priceController;
+  late TextEditingController locationController;
 
   // Selected values
   String? selectedAnimalType;
@@ -18,6 +20,8 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
   String? selectedPriceType;
   int? selectedFarmId;
   String? selectedFarmName;
+  LocationData? selectedLocation;
+  bool isLocationRequired = false;
 
   // Error states for validation
   String? farmError;
@@ -27,6 +31,7 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
   String? ageError;
   String? weightError;
   String? priceError;
+  String? locationError;
 
   // Loading states
   bool isSubmitting = false;
@@ -38,6 +43,7 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
     farmSearchController = TextEditingController();
     weightController = TextEditingController();
     priceController = TextEditingController();
+    locationController = TextEditingController();
   }
 
   /// Dispose text controllers
@@ -47,6 +53,7 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
     farmSearchController.dispose();
     weightController.dispose();
     priceController.dispose();
+    locationController.dispose();
   }
 
   /// Set selected animal type
@@ -86,6 +93,39 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
         if (farmName != null) {
           farmSearchController.text = farmName;
         }
+      });
+    }
+  }
+
+  /// Set selected location
+  void setSelectedLocation(LocationData? location) {
+    if (mounted) {
+      setState(() {
+        selectedLocation = location;
+        locationError = null;
+        if (location != null) {
+          locationController.text = location.displayLocation;
+        }
+      });
+    }
+  }
+
+  /// Clear location selection
+  void clearLocationSelection() {
+    if (mounted) {
+      setState(() {
+        selectedLocation = null;
+        locationController.clear();
+        locationError = null;
+      });
+    }
+  }
+
+  /// Set location requirement
+  void setLocationRequired(bool required) {
+    if (mounted) {
+      setState(() {
+        isLocationRequired = required;
       });
     }
   }
@@ -145,6 +185,9 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
           case 'price':
             priceError = error;
             break;
+          case 'location':
+            locationError = error;
+            break;
         }
       });
     }
@@ -161,6 +204,7 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
         ageError = null;
         weightError = null;
         priceError = null;
+        locationError = null;
       });
     }
   }
@@ -195,6 +239,12 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
     // Validate Gender (required)
     if (selectedGender == null || selectedGender!.isEmpty) {
       setFieldError('gender', 'Please select a gender');
+      isValid = false;
+    }
+
+    // Validate Location (required only if farm doesn't have lat/lng)
+    if (isLocationRequired && selectedLocation == null) {
+      setFieldError('location', 'Please select a location');
       isValid = false;
     }
 
@@ -284,6 +334,14 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
     }
     if (weight != null && weight > 0) {
       data['weight_kg'] = weight;
+    }
+
+    // Add location if selected (for listings where farm doesn't have lat/lng)
+    if (selectedLocation?.latitude != null && selectedLocation?.longitude != null) {
+      data['location'] = {
+        'lat': selectedLocation!.latitude,
+        'long': selectedLocation!.longitude,
+      };
     }
 
     return data;
