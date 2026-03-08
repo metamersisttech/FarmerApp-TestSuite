@@ -8,6 +8,8 @@ import 'package:flutter_app/features/postlistings/details/widgets/breed_dropdown
 import 'package:flutter_app/features/postlistings/details/widgets/farm_dropdown.dart';
 import 'package:flutter_app/features/postlistings/details/widgets/gender_selector.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
+import 'package:flutter_app/features/location/models/location_model.dart';
+import 'package:flutter_app/features/location/screens/location_page.dart';
 
 /// Details Page - Animal type, breed, gender, etc.
 class DetailsPage extends StatefulWidget {
@@ -70,7 +72,38 @@ class _DetailsPageState extends State<DetailsPage>
           farmId is int ? farmId : int.tryParse(farmId.toString()),
           farmName,
         );
+        
+        // Check if farm has lat/lng and update location requirement
+        _checkFarmLocation(result);
       }
+    }
+  }
+
+  /// Check if selected farm has location data
+  void _checkFarmLocation(Map<String, dynamic> farm) {
+    final lat = farm['latitude'];
+    final lng = farm['longitude'];
+    
+    // If farm has both lat and lng, don't require location field
+    if (lat != null && lng != null) {
+      setLocationRequired(false);
+      clearLocationSelection();
+    } else {
+      setLocationRequired(true);
+    }
+  }
+
+  /// Handle location selection
+  Future<void> _handleLocationSelection() async {
+    final result = await Navigator.push<LocationData>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LocationPage(),
+      ),
+    );
+
+    if (result != null) {
+      setSelectedLocation(result);
     }
   }
 
@@ -160,12 +193,81 @@ class _DetailsPageState extends State<DetailsPage>
                   onFarmSelected: (farmId, farmName) {
                     setSelectedFarm(farmId, farmName);
                     _controller.setSelectedFarmId(farmId);
+                    
+                    // Check if selected farm has location
+                    if (farmId != null) {
+                      final selectedFarm = _controller.farms.firstWhere(
+                        (farm) {
+                          final id = farm['farm_id'];
+                          final fId = id is int ? id : int.tryParse(id.toString()) ?? 0;
+                          return fId == farmId;
+                        },
+                        orElse: () => {},
+                      );
+                      _checkFarmLocation(selectedFarm);
+                    }
                   },
                   onFarmCreated: _onFarmCreated,
                 ),
                 if (farmError != null) _buildFieldError(farmError!),
 
                 const SizedBox(height: 24),
+
+                // Location Field (only show if farm doesn't have lat/lng)
+                if (isLocationRequired) ...[
+                  _buildSectionTitle('Location', isRequired: true),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: _handleLocationSelection,
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        controller: locationController,
+                        decoration: InputDecoration(
+                          hintText: 'Select location',
+                          prefixIcon: const Icon(Icons.location_on, size: 20),
+                          suffixIcon: const Icon(Icons.arrow_forward_ios, size: 16),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: locationError != null ? Colors.red : AppTheme.authPrimaryColor,
+                              width: 1.5,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: locationError != null ? Colors.red : AppTheme.authPrimaryColor.withOpacity(0.5),
+                              width: 1.5,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: locationError != null ? Colors.red : AppTheme.authPrimaryColor,
+                              width: 2,
+                            ),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.red, width: 2),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (locationError != null) _buildFieldError(locationError!),
+                  const SizedBox(height: 24),
+                ],
 
                 // Animal Type
                 _buildSectionTitle('Animal Type', isRequired: true),

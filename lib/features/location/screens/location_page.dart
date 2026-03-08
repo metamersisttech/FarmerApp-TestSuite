@@ -96,8 +96,9 @@ class _LocationPageState extends State<LocationPage> with ToastMixin {
   /// Handle location selection from search results
   void _handleLocationSelect(Map<String, dynamic> location) {
     final displayName = location['display_name'] as String;
-    final lat = location['lat'];
-    final lon = location['lon'];
+    // Backend returns 'latitude' and 'longitude', not 'lat' and 'lon'
+    final lat = location['latitude'] ?? location['lat'];
+    final lon = location['longitude'] ?? location['lon'];
 
     // Parse coordinates
     double? latitude;

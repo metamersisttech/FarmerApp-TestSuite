@@ -90,6 +90,7 @@ class LocationController extends BaseController {
       if (locationResult.success && locationResult.position != null) {
         // Use the reverse geocoded address if available
         final address = locationResult.address;
+        final position = locationResult.position!;
         
         if (address != null && address.isNotEmpty) {
           // Parse address parts (format: "Area, City" or "City, State")
@@ -107,12 +108,16 @@ class LocationController extends BaseController {
             city: city ?? 'Unknown',
             area: area,
             fullAddress: address,
+            latitude: position.latitude,
+            longitude: position.longitude,
           );
         } else {
           // No address available, just use coordinates
           _selectedLocation = LocationData(
             city: 'Unknown Location',
-            fullAddress: 'Lat: ${locationResult.position!.latitude.toStringAsFixed(4)}, Lng: ${locationResult.position!.longitude.toStringAsFixed(4)}',
+            fullAddress: 'Lat: ${position.latitude.toStringAsFixed(4)}, Lng: ${position.longitude.toStringAsFixed(4)}',
+            latitude: position.latitude,
+            longitude: position.longitude,
           );
         }
         

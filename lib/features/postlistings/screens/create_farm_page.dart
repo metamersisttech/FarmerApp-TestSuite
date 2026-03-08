@@ -65,6 +65,7 @@ class _CreateFarmPageState extends State<CreateFarmPage> with ToastMixin {
         'name': _nameController.text.trim(),
         'area_sq_m': double.tryParse(_areaController.text.trim()) ?? 0,
         'address': _addressController.text.trim(),
+        // Include latitude and longitude if location was selected
         if (_selectedLocation?.latitude != null)
           'latitude': _selectedLocation!.latitude,
         if (_selectedLocation?.longitude != null)
@@ -180,7 +181,7 @@ class _CreateFarmPageState extends State<CreateFarmPage> with ToastMixin {
                     const SizedBox(height: 20),
 
                     // Location Search Field
-                    _buildSectionTitle('Location', isRequired: true),
+                    _buildSectionTitle('Location', isRequired: false),
                     const SizedBox(height: 8),
                     GestureDetector(
                       onTap: _handleLocationSelection,
@@ -218,12 +219,6 @@ class _CreateFarmPageState extends State<CreateFarmPage> with ToastMixin {
                               vertical: 14,
                             ),
                           ),
-                          validator: (value) {
-                            if (_selectedLocation == null) {
-                              return 'Please select a location';
-                            }
-                            return null;
-                          },
                         ),
                       ),
                     ),
