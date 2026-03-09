@@ -83,16 +83,19 @@ class _DetailsPageState extends State<DetailsPage>
 
   /// Auto-populate location from device GPS
   Future<void> _autoPopulateLocation() async {
-    // Permission is already granted at this point, so set hasValidLocationSource
-    if (mounted) {
-      setHasValidLocationSource(true);
-    }
-
     final location = await _controller.fetchCurrentLocation();
 
     if (location != null && mounted) {
+      // Only set hasValidLocationSource = true AFTER we successfully get location
+      setHasValidLocationSource(true);
       setSelectedLocation(location);
       showSuccessToast('Location detected: ${location.displayLocation}');
+    } else if (mounted) {
+      // Location fetch failed - only set valid source if we already have a farm with coords
+      if (!selectedFarmHasCoordinates) {
+        setHasValidLocationSource(false);
+      }
+      showInfoToast('Could not detect location - please select manually');
     }
   }
 
@@ -106,9 +109,8 @@ class _DetailsPageState extends State<DetailsPage>
       final granted = await _controller.requestLocationPermission();
 
       if (granted) {
-        // Set valid location source IMMEDIATELY after permission granted
-        setHasValidLocationSource(true);
-        // Then try to auto-populate (nice-to-have, not required)
+        // Try to auto-populate location - hasValidLocationSource will be set
+        // only if location fetch succeeds
         await _autoPopulateLocation();
       } else {
         showInfoToast('Please select a farm to continue');
@@ -128,24 +130,43 @@ class _DetailsPageState extends State<DetailsPage>
           farmId is int ? farmId : int.tryParse(farmId.toString()),
           farmName,
         );
-        
+
         // Check if farm has lat/lng and update location requirement
-        _checkFarmLocation(result);
+        final farmHasCoords = _checkFarmLocation(result);
+
+        // Set valid source based on farm coords or location permission
+        if (farmHasCoords || _controller.isLocationPermissionGranted) {
+          setHasValidLocationSource(true);
+        } else {
+          setHasValidLocationSource(false);
+        }
       }
     }
   }
 
   /// Check if selected farm has location data
-  void _checkFarmLocation(Map<String, dynamic> farm) {
+  /// Returns true if farm has coordinates, false otherwise
+  bool _checkFarmLocation(Map<String, dynamic> farm) {
+    // Handle empty map (farm not found)
+    if (farm.isEmpty) {
+      setLocationRequired(true);
+      setSelectedFarmHasCoordinates(false);
+      return false;
+    }
+
     final lat = farm['latitude'];
     final lng = farm['longitude'];
-    
+
     // If farm has both lat and lng, don't require location field
     if (lat != null && lng != null) {
       setLocationRequired(false);
+      setSelectedFarmHasCoordinates(true);
       clearLocationSelection();
+      return true;
     } else {
       setLocationRequired(true);
+      setSelectedFarmHasCoordinates(false);
+      return false;
     }
   }
 
@@ -284,15 +305,9 @@ class _DetailsPageState extends State<DetailsPage>
     try {
       final formData = getFormData();
 
-      // If no farm selected and no manual location, use auto-detected location
-      if (formData['farm'] == null &&
-          formData['location'] == null &&
-          _controller.autoDetectedLocation != null) {
-        formData['location'] = {
-          'lat': _controller.autoDetectedLocation!.latitude,
-          'long': _controller.autoDetectedLocation!.longitude,
-        };
-      }
+      // Location is already added by getFormData() if selectedLocation is set.
+      // This includes both manual selection and auto-detected location
+      // (which was stored via setSelectedLocation in _autoPopulateLocation).
 
       final result = await _controller.createListing(formData);
 
@@ -374,23 +389,34 @@ class _DetailsPageState extends State<DetailsPage>
                     setSelectedFarm(farmId, farmName);
                     _controller.setSelectedFarmId(farmId);
 
-                    // Farm selected = valid location source
                     if (farmId != null) {
-                      setHasValidLocationSource(true);
-
-                      // Check if selected farm has location for the optional location field
+                      // Find the selected farm
                       final selectedFarm = _controller.farms.firstWhere(
                         (farm) {
                           final id = farm['farm_id'];
                           final fId = id is int ? id : int.tryParse(id.toString()) ?? 0;
                           return fId == farmId;
                         },
-                        orElse: () => {},
+                        orElse: () => <String, dynamic>{},
                       );
-                      _checkFarmLocation(selectedFarm);
+
+                      // Check if farm has coordinates
+                      final farmHasCoords = _checkFarmLocation(selectedFarm);
+
+                      // Farm with coordinates OR location permission = valid source
+                      // If farm lacks coords but we have location permission, still valid
+                      // (auto-detected location will be used)
+                      if (farmHasCoords || _controller.isLocationPermissionGranted) {
+                        setHasValidLocationSource(true);
+                      } else {
+                        // Farm without coords and no permission - need manual location
+                        setHasValidLocationSource(false);
+                      }
                     } else {
                       // No farm selected - check if we have location permission as fallback
                       setHasValidLocationSource(_controller.isLocationPermissionGranted);
+                      setSelectedFarmHasCoordinates(false);
+                      setLocationRequired(false);
                     }
                   },
                   onFarmCreated: _onFarmCreated,
@@ -692,10 +718,15 @@ class _DetailsPageState extends State<DetailsPage>
 
   /// Build location requirement banner showing status
   Widget _buildLocationRequirementBanner() {
-    final hasLocation = _controller.isLocationPermissionGranted;
+    final hasLocationPermission = _controller.isLocationPermissionGranted;
     final hasFarm = selectedFarmId != null;
-    final isValid = hasLocation || hasFarm;
+    final farmHasCoords = selectedFarmHasCoordinates;
     final isChecking = _controller.isCheckingLocationPermission;
+
+    // Determine the actual location source status
+    // Valid if: (1) farm with coords, (2) location permission granted, (3) manual location selected
+    final hasManualLocation = selectedLocation != null;
+    final isValid = (hasFarm && farmHasCoords) || hasLocationPermission || hasManualLocation;
 
     // Show loading state while checking permission
     if (isChecking) {
@@ -723,28 +754,51 @@ class _DetailsPageState extends State<DetailsPage>
       );
     }
 
+    // Determine the status message
+    String statusMessage;
+    if (hasFarm && farmHasCoords) {
+      statusMessage = 'Using farm location';
+    } else if (hasFarm && !farmHasCoords && hasManualLocation) {
+      statusMessage = 'Using selected location';
+    } else if (hasFarm && !farmHasCoords && hasLocationPermission) {
+      statusMessage = 'Farm has no location - using current location';
+    } else if (hasFarm && !farmHasCoords) {
+      statusMessage = 'Farm has no location - please select a location';
+    } else if (hasLocationPermission) {
+      statusMessage = 'Using current location';
+    } else if (hasManualLocation) {
+      statusMessage = 'Using selected location';
+    } else {
+      statusMessage = 'Select a farm or enable location access';
+    }
+
+    // Show warning state if farm lacks coordinates and no fallback
+    final showWarning = hasFarm && !farmHasCoords && !hasLocationPermission && !hasManualLocation;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isValid ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+        color: isValid
+            ? Colors.green.withOpacity(0.1)
+            : (showWarning ? Colors.orange.withOpacity(0.1) : Colors.orange.withOpacity(0.1)),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isValid ? Colors.green.withOpacity(0.3) : Colors.orange.withOpacity(0.3),
+          color: isValid
+              ? Colors.green.withOpacity(0.3)
+              : Colors.orange.withOpacity(0.3),
         ),
       ),
       child: Row(
         children: [
           Icon(
-            isValid ? Icons.check_circle : Icons.info_outline,
+            isValid ? Icons.check_circle : (showWarning ? Icons.warning : Icons.info_outline),
             color: isValid ? Colors.green : Colors.orange,
             size: 20,
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              isValid
-                  ? (hasFarm ? 'Using farm location' : 'Using current location')
-                  : 'Select a farm or enable location access',
+              statusMessage,
               style: TextStyle(
                 fontSize: 13,
                 color: isValid ? Colors.green.shade700 : Colors.orange.shade700,
@@ -752,7 +806,7 @@ class _DetailsPageState extends State<DetailsPage>
               ),
             ),
           ),
-          if (!isValid && !hasLocation)
+          if (!isValid && !hasLocationPermission)
             TextButton(
               onPressed: _promptForLocationPermission,
               style: TextButton.styleFrom(

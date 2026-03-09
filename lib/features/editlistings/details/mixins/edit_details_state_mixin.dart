@@ -79,9 +79,56 @@ mixin EditDetailsStateMixin<T extends StatefulWidget> on State<T>, DetailsStateM
       if (farmId != null) {
         selectedFarmId = farmId;
         selectedFarmName = farmName;
-        hasValidLocationSource = true;
+        // Note: hasValidLocationSource will be set by checkFarmCoordinatesAfterLoad()
+        // after farms list is fetched, to properly verify farm has coordinates
         if (farmName != null) farmSearchController.text = farmName;
       }
+    });
+  }
+
+  /// Check farm coordinates after farms list is loaded.
+  /// Call this after fetchFarms() completes to properly set location flags.
+  void checkFarmCoordinatesAfterLoad(List<Map<String, dynamic>> farms, bool hasLocationPermission) {
+    if (!mounted) return;
+    if (selectedFarmId == null) {
+      // No farm selected - rely on location permission
+      setState(() {
+        hasValidLocationSource = hasLocationPermission;
+        selectedFarmHasCoordinates = false;
+        isLocationRequired = false;
+      });
+      return;
+    }
+
+    // Find the selected farm
+    final farm = farms.firstWhere(
+      (f) {
+        final id = f['farm_id'];
+        final fId = id is int ? id : int.tryParse(id.toString()) ?? 0;
+        return fId == selectedFarmId;
+      },
+      orElse: () => <String, dynamic>{},
+    );
+
+    if (farm.isEmpty) {
+      // Farm not found in list - rely on location permission
+      setState(() {
+        hasValidLocationSource = hasLocationPermission;
+        selectedFarmHasCoordinates = false;
+        isLocationRequired = true;
+      });
+      return;
+    }
+
+    final lat = farm['latitude'];
+    final lng = farm['longitude'];
+    final farmHasCoords = lat != null && lng != null;
+
+    setState(() {
+      selectedFarmHasCoordinates = farmHasCoords;
+      isLocationRequired = !farmHasCoords;
+      // Valid if farm has coords OR we have location permission
+      hasValidLocationSource = farmHasCoords || hasLocationPermission;
     });
   }
 
