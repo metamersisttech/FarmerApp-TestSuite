@@ -76,6 +76,7 @@ mixin EditDetailsStateMixin<T extends StatefulWidget> on State<T>, DetailsStateM
       if (farmId != null) {
         selectedFarmId = farmId;
         selectedFarmName = farmName;
+        hasValidLocationSource = true;
         if (farmName != null) farmSearchController.text = farmName;
       }
     });

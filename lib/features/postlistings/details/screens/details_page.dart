@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/data/models/animal_model.dart';
+import 'package:flutter_app/data/services/location_service.dart';
 import 'package:flutter_app/features/editfarms/screens/edit_farm_page.dart';
 import 'package:flutter_app/features/postlistings/details/controllers/details_controller.dart';
 import 'package:flutter_app/features/postlistings/details/mixins/details_state_mixin.dart';
@@ -36,12 +37,15 @@ class _DetailsPageState extends State<DetailsPage>
     super.initState();
     _controller = DetailsController();
     initializeControllers();
-    
+
     // Add listener to rebuild when controller state changes
     _controller.addListener(_onControllerChanged);
-    
+
     _controller.fetchAnimals();
     _controller.fetchFarms();
+
+    // Check location permission on load
+    _checkLocationPermissionOnLoad();
   }
 
   @override
@@ -58,6 +62,57 @@ class _DetailsPageState extends State<DetailsPage>
       setState(() {
         // Rebuild when controller state changes
       });
+    }
+  }
+
+  /// Check location permission on page load
+  Future<void> _checkLocationPermissionOnLoad() async {
+    final hasPermission = await _controller.checkLocationPermissionStatus();
+
+    if (hasPermission) {
+      await _autoPopulateLocation();
+    } else {
+      // Schedule dialog to show after build completes
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _promptForLocationPermission();
+        }
+      });
+    }
+  }
+
+  /// Auto-populate location from device GPS
+  Future<void> _autoPopulateLocation() async {
+    // Permission is already granted at this point, so set hasValidLocationSource
+    if (mounted) {
+      setHasValidLocationSource(true);
+    }
+
+    final location = await _controller.fetchCurrentLocation();
+
+    if (location != null && mounted) {
+      setSelectedLocation(location);
+      showSuccessToast('Location detected: ${location.displayLocation}');
+    }
+  }
+
+  /// Prompt user for location permission
+  Future<void> _promptForLocationPermission() async {
+    if (!mounted) return;
+
+    final shouldEnable = await LocationService.showLocationPermissionDialog(context);
+
+    if (shouldEnable && mounted) {
+      final granted = await _controller.requestLocationPermission();
+
+      if (granted) {
+        // Set valid location source IMMEDIATELY after permission granted
+        setHasValidLocationSource(true);
+        // Then try to auto-populate (nice-to-have, not required)
+        await _autoPopulateLocation();
+      } else {
+        showInfoToast('Please select a farm to continue');
+      }
     }
   }
 
@@ -228,6 +283,17 @@ class _DetailsPageState extends State<DetailsPage>
 
     try {
       final formData = getFormData();
+
+      // If no farm selected and no manual location, use auto-detected location
+      if (formData['farm'] == null &&
+          formData['location'] == null &&
+          _controller.autoDetectedLocation != null) {
+        formData['location'] = {
+          'lat': _controller.autoDetectedLocation!.latitude,
+          'long': _controller.autoDetectedLocation!.longitude,
+        };
+      }
+
       final result = await _controller.createListing(formData);
 
       if (!mounted) return;
@@ -292,6 +358,10 @@ class _DetailsPageState extends State<DetailsPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Location Requirement Banner
+                _buildLocationRequirementBanner(),
+                const SizedBox(height: 16),
+
                 // Farm Selection
                 _buildSectionTitle('Select Farm'),
                 const SizedBox(height: 12),
@@ -303,9 +373,12 @@ class _DetailsPageState extends State<DetailsPage>
                   onFarmSelected: (farmId, farmName) {
                     setSelectedFarm(farmId, farmName);
                     _controller.setSelectedFarmId(farmId);
-                    
-                    // Check if selected farm has location
+
+                    // Farm selected = valid location source
                     if (farmId != null) {
+                      setHasValidLocationSource(true);
+
+                      // Check if selected farm has location for the optional location field
                       final selectedFarm = _controller.farms.firstWhere(
                         (farm) {
                           final id = farm['farm_id'];
@@ -315,6 +388,9 @@ class _DetailsPageState extends State<DetailsPage>
                         orElse: () => {},
                       );
                       _checkFarmLocation(selectedFarm);
+                    } else {
+                      // No farm selected - check if we have location permission as fallback
+                      setHasValidLocationSource(_controller.isLocationPermissionGranted);
                     }
                   },
                   onFarmCreated: _onFarmCreated,
@@ -611,6 +687,81 @@ class _DetailsPageState extends State<DetailsPage>
           ),
         ),
       ],
+    );
+  }
+
+  /// Build location requirement banner showing status
+  Widget _buildLocationRequirementBanner() {
+    final hasLocation = _controller.isLocationPermissionGranted;
+    final hasFarm = selectedFarmId != null;
+    final isValid = hasLocation || hasFarm;
+    final isChecking = _controller.isCheckingLocationPermission;
+
+    // Show loading state while checking permission
+    if (isChecking) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.withOpacity(0.3)),
+        ),
+        child: const Row(
+          children: [
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Checking location access...',
+              style: TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isValid ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isValid ? Colors.green.withOpacity(0.3) : Colors.orange.withOpacity(0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isValid ? Icons.check_circle : Icons.info_outline,
+            color: isValid ? Colors.green : Colors.orange,
+            size: 20,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              isValid
+                  ? (hasFarm ? 'Using farm location' : 'Using current location')
+                  : 'Select a farm or enable location access',
+              style: TextStyle(
+                fontSize: 13,
+                color: isValid ? Colors.green.shade700 : Colors.orange.shade700,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          if (!isValid && !hasLocation)
+            TextButton(
+              onPressed: _promptForLocationPermission,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+              child: const Text('Enable'),
+            ),
+        ],
+      ),
     );
   }
 

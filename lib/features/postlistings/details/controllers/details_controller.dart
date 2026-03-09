@@ -1,13 +1,28 @@
 import 'package:flutter_app/core/base/base_controller.dart';
 import 'package:flutter_app/data/models/animal_model.dart';
+import 'package:flutter_app/data/services/location_service.dart';
+import 'package:flutter_app/features/location/models/location_model.dart';
 import 'package:flutter_app/features/postlistings/details/services/details_service.dart';
 
 /// Controller for details page operations
 class DetailsController extends BaseController {
   final DetailsService _detailsService;
+  final LocationService _locationService;
 
-  DetailsController({DetailsService? detailsService})
-      : _detailsService = detailsService ?? DetailsService();
+  // Location permission state
+  bool _isLocationPermissionGranted = false;
+  bool _isCheckingLocationPermission = false;
+  LocationData? _autoDetectedLocation;
+
+  DetailsController({DetailsService? detailsService, LocationService? locationService})
+      : _detailsService = detailsService ?? DetailsService(),
+        _locationService = locationService ?? LocationService();
+
+  // Location getters
+  bool get isLocationPermissionGranted => _isLocationPermissionGranted;
+  bool get isCheckingLocationPermission => _isCheckingLocationPermission;
+  LocationData? get autoDetectedLocation => _autoDetectedLocation;
+  LocationService get locationService => _locationService;
 
   // Form state
   List<AnimalModel> _allAnimalModels = [];
@@ -145,6 +160,87 @@ class DetailsController extends BaseController {
     } finally {
       setLoading(false);
     }
+  }
+
+  /// Check if location permission is already granted
+  /// Returns true if permission is granted
+  Future<bool> checkLocationPermissionStatus() async {
+    _isCheckingLocationPermission = true;
+    notifyListeners();
+
+    try {
+      _isLocationPermissionGranted = await _locationService.isPermissionGranted();
+      return _isLocationPermissionGranted;
+    } finally {
+      _isCheckingLocationPermission = false;
+      notifyListeners();
+    }
+  }
+
+  /// Request location permission
+  /// Returns true if permission was granted
+  Future<bool> requestLocationPermission() async {
+    _isCheckingLocationPermission = true;
+    notifyListeners();
+
+    try {
+      final result = await _locationService.requestLocationAccess();
+      _isLocationPermissionGranted = result.success;
+      return result.success;
+    } finally {
+      _isCheckingLocationPermission = false;
+      notifyListeners();
+    }
+  }
+
+  /// Fetch current location and create LocationData
+  /// Returns LocationData if successful, null otherwise
+  Future<LocationData?> fetchCurrentLocation() async {
+    if (!_isLocationPermissionGranted) {
+      return null;
+    }
+
+    try {
+      final result = await _locationService.getCurrentLocation(includeAddress: true);
+
+      if (result.success && result.position != null) {
+        // Parse address to extract city/area
+        String? city;
+        String? area;
+
+        if (result.address != null && result.address!.isNotEmpty) {
+          final addressParts = result.address!.split(', ');
+          if (addressParts.length >= 2) {
+            area = addressParts[0];
+            city = addressParts[1];
+          } else if (addressParts.length == 1) {
+            city = addressParts[0];
+          }
+        }
+
+        _autoDetectedLocation = LocationData(
+          latitude: result.position!.latitude,
+          longitude: result.position!.longitude,
+          city: city,
+          area: area,
+          fullAddress: result.address,
+        );
+
+        notifyListeners();
+        return _autoDetectedLocation;
+      }
+
+      return null;
+    } catch (e) {
+      setError('Failed to get current location: ${e.toString()}');
+      return null;
+    }
+  }
+
+  /// Clear auto-detected location
+  void clearAutoDetectedLocation() {
+    _autoDetectedLocation = null;
+    notifyListeners();
   }
 
   /// Validate form (basic checks)

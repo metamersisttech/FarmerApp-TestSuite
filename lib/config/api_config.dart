@@ -7,9 +7,9 @@ library;
 class ApiConfig {
   // Development - Use your machine's local IP for physical devices
   // Use 10.0.2.2 for Android emulator, or your LAN IP for physical devices
-  static const String devBaseUrl = 'http://10.0.2.2:8000/api/';
+  // static const String devBaseUrl = 'http://10.0.2.2:8000/api/';
   // static const String devBaseUrl = 'http://34.72.231.118/api/';
-  // static const String devBaseUrl = 'http://192.168.1.2/api/';
+  static const String devBaseUrl = 'http://192.168.1.2/api/';
   // static const String devBaseUrl = 'http://localhost:8000/api/';
 
   // Development - iOS Simulator uses localhost directly

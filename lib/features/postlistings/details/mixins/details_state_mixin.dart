@@ -22,6 +22,7 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
   String? selectedFarmName;
   LocationData? selectedLocation;
   bool isLocationRequired = false;
+  bool hasValidLocationSource = false;  // True if location permission granted OR farm selected
 
   // Error states for validation
   String? farmError;
@@ -130,6 +131,15 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
+  /// Set whether we have a valid location source (location permission OR farm selected)
+  void setHasValidLocationSource(bool hasValid) {
+    if (mounted) {
+      setState(() {
+        hasValidLocationSource = hasValid;
+      });
+    }
+  }
+
   /// Set selected gender
   void setSelectedGender(String? gender) {
     if (mounted) {
@@ -223,6 +233,12 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
     bool isValid = true;
 
     clearAllErrors();
+
+    // Validate: Must have either location permission OR farm selected
+    if (!hasValidLocationSource) {
+      setFieldError('location', 'Please grant location access or select a farm');
+      isValid = false;
+    }
 
     // Validate Animal Type (required)
     if (selectedAnimalType == null || selectedAnimalType!.isEmpty) {
