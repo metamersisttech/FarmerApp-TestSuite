@@ -253,6 +253,46 @@ class BackendHelper {
     }
   }
 
+  /// Get a specific farm by ID
+  /// GET /api/farms/{farmId}/
+  Future<Map<String, dynamic>> getFarmById(int farmId) async {
+    try {
+      final response = await _client.get('${ApiEndpoints.farms}$farmId/');
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update a farm (partial update)
+  /// PATCH /api/farms/{farmId}/
+  /// Request body (all fields as strings per API spec):
+  /// {
+  ///   "name": "Updated Farm Name",
+  ///   "area_sq_m": "60000",
+  ///   "address": "Updated Address",
+  ///   "latitude": "18.7546",
+  ///   "longitude": "73.8854"
+  /// }
+  Future<Map<String, dynamic>> patchUpdateFarm(int farmId, Map<String, dynamic> data) async {
+    try {
+      final response = await _client.patch('${ApiEndpoints.farms}$farmId/', data: data);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Delete a farm
+  /// DELETE /api/farms/{farmId}/
+  Future<void> deleteFarm(int farmId) async {
+    try {
+      await _client.delete('${ApiEndpoints.farms}$farmId/');
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Listing Endpoints ============
 
   /// Get all listings

@@ -11,6 +11,8 @@ class FarmDropdown extends StatelessWidget {
   final String? error;
   final Function(int? farmId, String? farmName) onFarmSelected;
   final Function(Map<String, dynamic>?) onFarmCreated;
+  final Function(int farmId)? onFarmEdit;
+  final Function(int farmId)? onFarmDelete;
 
   const FarmDropdown({
     super.key,
@@ -20,6 +22,8 @@ class FarmDropdown extends StatelessWidget {
     required this.error,
     required this.onFarmSelected,
     required this.onFarmCreated,
+    this.onFarmEdit,
+    this.onFarmDelete,
   });
 
   @override
@@ -98,6 +102,38 @@ class FarmDropdown extends StatelessWidget {
           return DropdownMenuEntry<int>(
             value: farmId,
             label: farmName,
+            trailingIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.edit,
+                    size: 18,
+                    color: AppTheme.authPrimaryColor,
+                  ),
+                  onPressed: () {
+                    _handleEditFarm(context, farmId);
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  tooltip: 'Edit farm',
+                ),
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: const Icon(
+                    Icons.delete,
+                    size: 18,
+                    color: Colors.red,
+                  ),
+                  onPressed: () {
+                    _handleDeleteFarm(context, farmId, farmName);
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  tooltip: 'Delete farm',
+                ),
+              ],
+            ),
           );
         }),
         DropdownMenuEntry<int>(
@@ -227,5 +263,56 @@ class FarmDropdown extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Handle edit farm action
+  void _handleEditFarm(BuildContext context, int farmId) {
+    if (onFarmEdit != null) {
+      onFarmEdit!(farmId);
+    } else {
+      // Default behavior: navigate to edit farm page
+      Navigator.pushNamed(
+        context,
+        AppRoutes.createFarm,
+        arguments: {'farmId': farmId, 'isEdit': true},
+      );
+    }
+  }
+
+  /// Handle delete farm action
+  void _handleDeleteFarm(BuildContext context, int farmId, String farmName) {
+    if (onFarmDelete != null) {
+      onFarmDelete!(farmId);
+    } else {
+      // Default behavior: show confirmation dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            title: const Text('Delete Farm'),
+            content: Text('Are you sure you want to delete "$farmName"?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  // Trigger delete action through callback
+                  if (onFarmDelete != null) {
+                    onFarmDelete!(farmId);
+                  }
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                ),
+                child: const Text('Delete'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }

@@ -197,4 +197,13 @@ class DetailsService {
       return DetailsResult.error(e.toString());
     }
   }
+
+  /// Delete a farm
+  Future<void> deleteFarm(int farmId) async {
+    try {
+      await _backendHelper.deleteFarm(farmId);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

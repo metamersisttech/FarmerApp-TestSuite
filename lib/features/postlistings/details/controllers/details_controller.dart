@@ -132,6 +132,21 @@ class DetailsController extends BaseController {
     return result;
   }
 
+  /// Delete a farm
+  Future<void> deleteFarm(int farmId) async {
+    setLoading(true);
+    clearError();
+
+    try {
+      await _detailsService.deleteFarm(farmId);
+    } catch (e) {
+      setError(e.toString());
+      rethrow;
+    } finally {
+      setLoading(false);
+    }
+  }
+
   /// Validate form (basic checks)
   bool validateBasicFields({
     required String? animalType,
