@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/features/search/services/search_service.dart';
 import 'package:flutter_app/features/search/services/search_history_service.dart';
-import 'package:flutter_app/features/search/services/location_search_service.dart';
-import 'package:flutter_app/features/search/models/location_search_model.dart';
 import 'package:flutter_app/data/services/location_service.dart';
 
 /// Search Controller
@@ -12,19 +10,16 @@ import 'package:flutter_app/data/services/location_service.dart';
 class SearchController extends ChangeNotifier {
   final SearchService _searchService = SearchService();
   final SearchHistoryService _searchHistoryService = SearchHistoryService();
-  final LocationSearchService _locationSearchService = LocationSearchService();
   final LocationService _locationService = LocationService();
   
   // State
   bool _isLoading = false;
   bool _isSuggestionsLoading = false;
-  bool _isLocationSearchLoading = false;
   bool _isDetectingLocation = false;
   String? _errorMessage;
   List<String> _recentSearches = [];
   List<dynamic> _searchResults = [];
   List<String> _suggestions = [];
-  List<LocationSearchModel> _locationSearchResults = [];
   String? _currentLocation; // Changed to nullable
   double? _currentLatitude;
   double? _currentLongitude;
@@ -37,13 +32,11 @@ class SearchController extends ChangeNotifier {
   // Getters
   bool get isLoading => _isLoading;
   bool get isSuggestionsLoading => _isSuggestionsLoading;
-  bool get isLocationSearchLoading => _isLocationSearchLoading;
   bool get isDetectingLocation => _isDetectingLocation;
   String? get errorMessage => _errorMessage;
   List<String> get recentSearches => _recentSearches;
   List<dynamic> get searchResults => _searchResults;
   List<String> get suggestions => _suggestions;
-  List<LocationSearchModel> get locationSearchResults => _locationSearchResults;
   String? get currentLocation => _currentLocation;
   double? get currentLatitude => _currentLatitude;
   double? get currentLongitude => _currentLongitude;
@@ -51,7 +44,6 @@ class SearchController extends ChangeNotifier {
   String get currentQuery => _currentQuery;
   bool get hasResults => _searchResults.isNotEmpty;
   bool get hasSuggestions => _suggestions.isNotEmpty;
-  bool get hasLocationResults => _locationSearchResults.isNotEmpty;
   bool get locationPermissionDenied => _locationPermissionDenied;
   bool get locationPermissionAsked => _locationPermissionAsked;
   bool get locationServiceDisabled => _locationServiceDisabled;
@@ -248,14 +240,17 @@ class SearchController extends ChangeNotifier {
         print('🔍 [SearchController] Searching with:');
         print('   Query: $query');
         print('   Location: ${_currentLocation ?? "No location"}');
+        print('   Latitude: $_currentLatitude');
+        print('   Longitude: $_currentLongitude');
         print('   Category: $_selectedCategory');
       }
 
       // Search animals using the service
-      // Pass null location if not set (search without location filter)
+      // Pass lat/long coordinates if location is selected
       _searchResults = await _searchService.searchAnimals(
         query: query,
-        location: _currentLocation,
+        latitude: _currentLatitude,
+        longitude: _currentLongitude,
         category: _selectedCategory,
       );
 
@@ -310,48 +305,6 @@ class SearchController extends ChangeNotifier {
     _currentLocation = location;
     _currentLatitude = latitude;
     _currentLongitude = longitude;
-    notifyListeners();
-  }
-
-  /// Search locations
-  Future<void> searchLocations(String query) async {
-    if (query.trim().isEmpty) {
-      _locationSearchResults.clear();
-      notifyListeners();
-      return;
-    }
-
-    try {
-      _isLocationSearchLoading = true;
-      notifyListeners();
-
-      if (kDebugMode) {
-        print('🌍 [SearchController] Searching locations for: $query');
-      }
-
-      // Get location results from service
-      final response = await _locationSearchService.searchLocations(query);
-      _locationSearchResults = response.results;
-
-      _isLocationSearchLoading = false;
-      notifyListeners();
-      
-      if (kDebugMode) {
-        print('🌍 Location search completed: ${_locationSearchResults.length} results');
-      }
-    } catch (e) {
-      _isLocationSearchLoading = false;
-      notifyListeners();
-      
-      if (kDebugMode) {
-        print('❌ Location search error: $e');
-      }
-    }
-  }
-
-  /// Clear location search results
-  void clearLocationResults() {
-    _locationSearchResults.clear();
     notifyListeners();
   }
 
