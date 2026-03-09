@@ -64,7 +64,10 @@ mixin EditDetailsStateMixin<T extends StatefulWidget> on State<T>, DetailsStateM
         selectedAnimalId = animalId;
         breedSearchController.text = breed;
       }
-      if (gender != null) selectedGender = gender;
+      if (gender != null && gender.isNotEmpty) {
+        // Capitalize first letter to match UI expected format (Male/Female)
+        selectedGender = gender[0].toUpperCase() + gender.substring(1).toLowerCase();
+      }
       if (ageLabel != null) selectedAge = ageLabel;
       if (weightKg != null && weightKg > 0) {
         weightController.text = weightKg.toStringAsFixed(0);
