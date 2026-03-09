@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/data/models/animal_model.dart';
+import 'package:flutter_app/features/editfarms/screens/edit_farm_page.dart';
 import 'package:flutter_app/features/postlistings/details/controllers/details_controller.dart';
 import 'package:flutter_app/features/postlistings/details/mixins/details_state_mixin.dart';
 import 'package:flutter_app/features/postlistings/details/widgets/animal_type_dropdown.dart';
@@ -107,6 +108,115 @@ class _DetailsPageState extends State<DetailsPage>
     }
   }
 
+  /// Handle edit farm action
+  Future<void> _handleEditFarm(int farmId) async {
+    // Find the farm data
+    final farm = _controller.farms.firstWhere(
+      (f) {
+        final id = f['farm_id'];
+        final fId = id is int ? id : int.tryParse(id.toString()) ?? 0;
+        return fId == farmId;
+      },
+      orElse: () => {},
+    );
+
+    if (farm.isEmpty) {
+      showErrorToast('Farm not found');
+      return;
+    }
+
+    // Navigate to edit farm page
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditFarmPage(
+          farmId: farmId,
+          farmData: farm,
+        ),
+      ),
+    );
+
+    // Refresh farms list if edit was successful
+    if (result != null) {
+      await _controller.fetchFarms();
+      
+      // Update selected farm if it was the one edited
+      if (selectedFarmId == farmId) {
+        final updatedFarmName = result['name']?.toString();
+        setSelectedFarm(farmId, updatedFarmName);
+      }
+      
+      showSuccessToast('Farm updated successfully!');
+    }
+  }
+
+  /// Handle delete farm action
+  Future<void> _handleDeleteFarm(int farmId) async {
+    // Find the farm data
+    final farm = _controller.farms.firstWhere(
+      (f) {
+        final id = f['farm_id'];
+        final fId = id is int ? id : int.tryParse(id.toString()) ?? 0;
+        return fId == farmId;
+      },
+      orElse: () => {},
+    );
+
+    if (farm.isEmpty) {
+      showErrorToast('Farm not found');
+      return;
+    }
+
+    final farmName = farm['name']?.toString() ?? 'this farm';
+
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete Farm'),
+          content: Text('Are you sure you want to delete "$farmName"? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    // Proceed with deletion
+    try {
+      await _controller.deleteFarm(farmId);
+
+      if (!mounted) return;
+
+      // If the deleted farm was selected, clear selection
+      if (selectedFarmId == farmId) {
+        setSelectedFarm(null, null);
+        _controller.setSelectedFarmId(null);
+      }
+
+      // Refresh farms list
+      await _controller.fetchFarms();
+
+      showSuccessToast('Farm deleted successfully!');
+    } catch (e) {
+      if (!mounted) return;
+      showErrorToast(e.toString());
+    }
+  }
+
   /// Handle Next button press
   Future<void> _handleNext() async {
     if (!validateForm()) {
@@ -208,6 +318,12 @@ class _DetailsPageState extends State<DetailsPage>
                     }
                   },
                   onFarmCreated: _onFarmCreated,
+                  onFarmEdit: (farmId) {
+                    _handleEditFarm(farmId);
+                  },
+                  onFarmDelete: (farmId) {
+                    _handleDeleteFarm(farmId);
+                  },
                 ),
                 if (farmError != null) _buildFieldError(farmError!),
 
