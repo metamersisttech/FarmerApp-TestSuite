@@ -55,6 +55,7 @@ class ListingModel {
   final String age;
   final String price;
   final String location;
+  final String? locationDetail;
   final double rating;
   final bool isVerified;
   final String? species;
@@ -80,6 +81,7 @@ class ListingModel {
     required this.age,
     required this.price,
     required this.location,
+    this.locationDetail,
     this.rating = 0.0,
     this.isVerified = false,
     this.species,
@@ -154,12 +156,73 @@ class ListingModel {
       farmModel = FarmModel.fromJson(farmJson);
     }
 
-    // Determine location from multiple sources
+    // Helper function to check if a location string is valid (not a placeholder)
+    bool isValidLocation(String? loc) {
+      if (loc == null || loc.isEmpty) return false;
+      final lower = loc.toLowerCase().trim();
+      // Filter out common placeholder/invalid values
+      if (lower == 'unknown' || 
+          lower == 'string' || 
+          lower == 'null' || 
+          lower == 'none' || 
+          lower == 'n/a' ||
+          lower == 'not available') {
+        return false;
+      }
+      return true;
+    }
+    
+    // Determine location from multiple sources (prioritized order)
     String location = 'Unknown';
-    if (json['location'] != null && json['location'].toString().isNotEmpty) {
-      location = json['location'].toString();
-    } else if (farmModel?.address != null && farmModel!.address!.isNotEmpty) {
-      location = farmModel.address!;
+    String? locationDetail;
+    
+    // Priority 1: location_detail field (most specific from backend)
+    final detailLocation = json['location_detail']?.toString() ?? '';
+    if (isValidLocation(detailLocation)) {
+      location = detailLocation;
+      locationDetail = detailLocation;
+    }
+    // Priority 2: Direct location field (if valid)
+    else {
+      final directLocation = json['location']?.toString() ?? '';
+      if (isValidLocation(directLocation)) {
+        location = directLocation;
+      }
+      // Priority 3: Farm address (most reliable)
+      else if (isValidLocation(farmModel?.address)) {
+        location = farmModel!.address!;
+      }
+      // Priority 4: Constructed from city, district, state fields
+      else {
+        final List<String> locationParts = [];
+        
+        // Check for city/area/district/state fields
+        final city = json['city']?.toString() ?? '';
+        final area = json['area']?.toString() ?? '';
+        final district = json['district']?.toString() ?? '';
+        final state = json['state']?.toString() ?? '';
+        
+        if (isValidLocation(city)) {
+          locationParts.add(city);
+        } else if (isValidLocation(area)) {
+          locationParts.add(area);
+        }
+        
+        if (isValidLocation(district) && !locationParts.contains(district)) {
+          locationParts.add(district);
+        }
+        if (isValidLocation(state) && !locationParts.contains(state)) {
+          locationParts.add(state);
+        }
+        
+        // If we have location parts, join them
+        if (locationParts.isNotEmpty) {
+          location = locationParts.join(', ');
+        }
+      }
+      
+      // Store location_detail separately even if not used for display
+      locationDetail = isValidLocation(detailLocation) ? detailLocation : null;
     }
 
     return ListingModel(
@@ -169,6 +232,7 @@ class ListingModel {
       age: formattedAge,
       price: formattedPrice,
       location: location,
+      locationDetail: locationDetail,
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       // Map is_featured to isVerified as requested
       isVerified: json['is_featured'] as bool? ?? json['is_verified'] as bool? ?? false,
@@ -201,6 +265,7 @@ class ListingModel {
       'age_months': ageMonths,
       'price': price,
       'location': location,
+      'location_detail': locationDetail,
       'rating': rating,
       'is_featured': isFeatured,
       'species': species,
@@ -227,6 +292,7 @@ class ListingModel {
     String? age,
     String? price,
     String? location,
+    String? locationDetail,
     double? rating,
     bool? isVerified,
     String? species,
@@ -252,6 +318,7 @@ class ListingModel {
       age: age ?? this.age,
       price: price ?? this.price,
       location: location ?? this.location,
+      locationDetail: locationDetail ?? this.locationDetail,
       rating: rating ?? this.rating,
       isVerified: isVerified ?? this.isVerified,
       species: species ?? this.species,
