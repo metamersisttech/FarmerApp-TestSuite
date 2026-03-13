@@ -18,20 +18,20 @@ class ListingsFilterMenu extends StatelessWidget {
       onSelected: onFilterChanged,
       itemBuilder: (context) => [
         const PopupMenuItem(
-          value: null,
+          value: 'all',
           child: Text('All Listings'),
         ),
         const PopupMenuItem(
-          value: 'active',
-          child: Text('Active'),
+          value: 'draft',
+          child: Text('Draft'),
         ),
         const PopupMenuItem(
           value: 'sold',
           child: Text('Sold'),
         ),
         const PopupMenuItem(
-          value: 'expired',
-          child: Text('Expired'),
+          value: 'published',
+          child: Text('Published'),
         ),
       ],
     );

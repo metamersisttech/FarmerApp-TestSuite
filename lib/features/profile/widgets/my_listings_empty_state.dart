@@ -29,7 +29,7 @@ class MyListingsEmptyState extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                filterStatus != null
+                (filterStatus != null && filterStatus != 'all')
                     ? 'No $filterStatus listings'
                     : 'No listings yet',
                 style: TextStyle(
@@ -40,7 +40,7 @@ class MyListingsEmptyState extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                filterStatus != null
+                (filterStatus != null && filterStatus != 'all')
                     ? 'Try changing the filter to see other listings'
                     : 'Start posting your animals for sale',
                 style: TextStyle(
