@@ -59,12 +59,13 @@ class _FavouriteListingsPageState extends State<FavouriteListingsPage>
     debugPrint('[FavouriteListingsPage] hasFavorites: ${controller.hasFavorites}');
     debugPrint('[FavouriteListingsPage] favoritesCount: ${controller.favoritesCount}');
     
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: SafeArea(
+    return Material(
+      color: Colors.grey[100],
+      child: Container(
+        color: Colors.grey[100],
         child: CustomScrollView(
           slivers: [
-            // App Bar
+            // App Bar as Sliver
             SliverAppBar(
               backgroundColor: AppTheme.authPrimaryColor,
               foregroundColor: Colors.white,
@@ -80,7 +81,7 @@ class _FavouriteListingsPageState extends State<FavouriteListingsPage>
               centerTitle: true,
             ),
 
-            // Body content
+            // Body content as sliver
             if (controller.isLoading)
               const SliverFillRemaining(
                 child: Center(
@@ -165,7 +166,7 @@ class _FavouriteListingsPageState extends State<FavouriteListingsPage>
                     crossAxisCount: 2,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
-                    childAspectRatio: 0.70, // Adjusted for better fit
+                    childAspectRatio: 0.70,
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -174,14 +175,13 @@ class _FavouriteListingsPageState extends State<FavouriteListingsPage>
                       
                       if (listing == null) return const SizedBox();
                       
-                      // Convert to ListingModel for ListingCard
                       final listingModel = ListingModel.fromJson(listing);
                       
                       return ListingCard(
                         listing: listingModel,
                         onTap: () => handleListingTap(listing),
                         onFavoriteTap: () => handleRemoveFavorite(listingModel.id),
-                        isFavorite: true, // All items here are favorited
+                        isFavorite: true,
                       );
                     },
                     childCount: controller.favoritesCount,
