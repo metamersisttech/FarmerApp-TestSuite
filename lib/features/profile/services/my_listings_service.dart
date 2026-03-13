@@ -44,9 +44,7 @@ class MyListingsService {
   /// Delete a listing by ID
   Future<void> deleteListing(int listingId) async {
     try {
-      // TODO: Add delete endpoint when backend is ready
-      // await _backendHelper.deleteListing(listingId);
-      throw UnimplementedError('Delete listing not yet implemented');
+      await _backendHelper.deleteListing(listingId);
     } catch (e) {
       print('[MyListingsService] Error deleting listing: $e');
       rethrow;

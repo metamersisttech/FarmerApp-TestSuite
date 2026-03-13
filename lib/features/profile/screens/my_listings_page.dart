@@ -288,6 +288,15 @@ class _MyListingsPageState extends State<MyListingsPage>
                 contentPadding: EdgeInsets.zero,
               ),
             ),
+            const PopupMenuItem(
+              value: 'delete',
+              child: ListTile(
+                leading: Icon(Icons.delete, size: 20, color: Colors.red),
+                title: Text('Delete', style: TextStyle(color: Colors.red)),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
           ];
 
           if (listing.listingStatus == 'DRAFT') {
@@ -335,6 +344,9 @@ class _MyListingsPageState extends State<MyListingsPage>
       case 'edit':
         _handleEditListing(listing);
         break;
+      case 'delete':
+        _handleDeleteListing(listing);
+        break;
       case 'publish':
         final success = await _controller.publishListing(listing.id);
         if (success && mounted) {
@@ -367,6 +379,39 @@ class _MyListingsPageState extends State<MyListingsPage>
     // Refresh listings if the edit was successful
     if (result == true && mounted) {
       await _fetchListings();
+    }
+  }
+
+  /// Handle delete listing
+  Future<void> _handleDeleteListing(ListingModel listing) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Listing'),
+        content: Text(
+          'Are you sure you want to delete "${listing.name}"? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final success = await _controller.deleteListing(listing.id);
+      if (success && mounted) {
+        showSuccessToast('Listing deleted successfully');
+      }
     }
   }
 }
