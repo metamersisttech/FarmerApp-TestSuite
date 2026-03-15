@@ -424,6 +424,16 @@ class BackendHelper {
     }
   }
 
+  /// Delete a listing
+  /// DELETE /api/listings/{id}/
+  Future<void> deleteListing(int listingId) async {
+    try {
+      await _client.delete('${ApiEndpoints.listings}$listingId/');
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// Mark a listing as sold
   /// POST /api/listings/{id}/sold/
   Future<Map<String, dynamic>> postMarkListingSold(int listingId) async {

@@ -24,20 +24,31 @@ class SearchService {
   /// 
   /// Parameters:
   /// - query: Search query string (species or breed name)
-  /// - location: Optional location filter
+  /// - latitude: Optional latitude coordinate
+  /// - longitude: Optional longitude coordinate
   /// - category: Optional category filter (species)
   /// 
   /// Returns: List of search results from listings endpoint
   /// 
-  /// API Example: GET /api/listings/?species=cow&breed=jersey
+  /// API Example: GET /api/listings/?has_location=true&lat=17.56&long=18.4&species=cow
   Future<List<dynamic>> searchAnimals({
     required String query,
-    String? location,
+    double? latitude,
+    double? longitude,
     String? category,
   }) async {
     try {
       // Build query parameters for the listings endpoint
       final params = <String, dynamic>{};
+      
+      // Always set has_location=true for search
+      params['has_location'] = 'true';
+      
+      // Add lat/long if location is selected
+      if (latitude != null && longitude != null) {
+        params['lat'] = latitude.toString();
+        params['long'] = longitude.toString();
+      }
       
       // If category is explicitly provided, use it as species filter
       if (category != null && category.isNotEmpty) {
@@ -60,17 +71,12 @@ class SearchService {
           params['breed'] = queryLower;
         }
       }
-      
-      // Add optional location filter
-      if (location != null && location.isNotEmpty) {
-        params['location'] = location;
-      }
 
       // Debug: Print params being sent
       print('🔍 [SearchService] Calling getListings with params: $params');
       
       // Call getListings from backend helper with filter params
-      // Example: GET /api/listings/?species=cow&breed=jersey
+      // Example: GET /api/listings/?has_location=true&lat=17.56&long=18.4&species=cow
       final response = await _backendHelper.getListings(params: params);
       
       // Handle both paginated and non-paginated responses
@@ -98,24 +104,28 @@ class SearchService {
   /// 
   /// Parameters:
   /// - query: Search query string
-  /// - location: Optional location filter
+  /// - latitude: Optional latitude coordinate
+  /// - longitude: Optional longitude coordinate
   /// - category: Optional category filter
   /// 
   /// Returns: List of listing search results
   Future<List<dynamic>> searchListings({
     required String query,
-    String? location,
+    double? latitude,
+    double? longitude,
     String? category,
   }) async {
     try {
       // Build query parameters for the listings endpoint
       final params = <String, dynamic>{
         'search': query, // Search by name/title/description
+        'has_location': 'true', // Always set has_location=true
       };
       
-      // Add optional filters
-      if (location != null && location.isNotEmpty) {
-        params['location'] = location;
+      // Add lat/long if location is selected
+      if (latitude != null && longitude != null) {
+        params['lat'] = latitude.toString();
+        params['long'] = longitude.toString();
       }
       
       if (category != null && category.isNotEmpty) {

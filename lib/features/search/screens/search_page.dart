@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/features/search/controllers/search_controller.dart'
     as search;
 import 'package:flutter_app/features/search/screens/search_results_page.dart';
-import 'package:flutter_app/features/search/screens/location_search_page.dart';
+import 'package:flutter_app/features/location/screens/location_page.dart';
+import 'package:flutter_app/features/location/models/location_model.dart';
 import 'package:flutter_app/features/search/widgets/popular_categories_section.dart';
 import 'package:flutter_app/features/search/widgets/recent_searches_section.dart';
-import 'package:flutter_app/features/search/widgets/search_location_bar.dart';
 import 'package:flutter_app/features/search/widgets/search_app_bar.dart';
 import 'package:flutter_app/features/search/widgets/search_filters_sheet.dart';
+import 'package:flutter_app/features/postlistings/widgets/farm_form_widgets.dart';
 
 /// Search Page
 ///
@@ -30,6 +31,7 @@ class _SearchPageState extends State<SearchPage> with WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final search.SearchController _controller = search.SearchController();
+  final TextEditingController _locationController = TextEditingController();
   
   Timer? _debounceTimer;
   bool _returnedFromSettings = false;
@@ -50,6 +52,9 @@ class _SearchPageState extends State<SearchPage> with WidgetsBindingObserver {
     // Add listener to search field for debounced suggestions
     _searchController.addListener(_onSearchTextChanged);
     
+    // Initialize location controller with current location
+    _updateLocationDisplay();
+    
     // Defer actions that might trigger navigation to after build completes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Auto-focus search bar when page opens
@@ -58,6 +63,15 @@ class _SearchPageState extends State<SearchPage> with WidgetsBindingObserver {
       // Try to detect current location (moved here to avoid Navigator lock)
       _detectLocationOnInit();
     });
+  }
+  
+  /// Update location display text
+  void _updateLocationDisplay() {
+    if (_controller.currentLocation != null && _controller.currentLocation!.isNotEmpty) {
+      _locationController.text = _controller.currentLocation!;
+    } else {
+      _locationController.text = 'Select location';
+    }
   }
 
   @override
@@ -221,6 +235,7 @@ class _SearchPageState extends State<SearchPage> with WidgetsBindingObserver {
     _searchController.removeListener(_onSearchTextChanged);
     _searchController.dispose();
     _searchFocusNode.dispose();
+    _locationController.dispose();
     _controller.removeListener(_onControllerUpdate);
     _controller.dispose();
     super.dispose();
@@ -229,7 +244,9 @@ class _SearchPageState extends State<SearchPage> with WidgetsBindingObserver {
   /// Called when controller notifies changes
   void _onControllerUpdate() {
     if (mounted) {
-      setState(() {});
+      setState(() {
+        _updateLocationDisplay();
+      });
     }
   }
 
@@ -316,29 +333,33 @@ class _SearchPageState extends State<SearchPage> with WidgetsBindingObserver {
   }
 
   /// Handle location tap
-  void _handleLocationTap() {
-    // Navigate to location search page
-    Navigator.push(
+  Future<void> _handleLocationTap() async {
+    // Navigate to location page from location feature
+    final result = await Navigator.push<LocationData>(
       context,
       MaterialPageRoute(
-        builder: (context) => LocationSearchPage(
-          currentLocation: _controller.currentLocation,
-          onLocationSelected: (location, {latitude, longitude}) {
-            _controller.updateLocation(
-              location,
-              latitude: latitude,
-              longitude: longitude,
-            );
-            
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Location updated to $location')),
-              );
-            }
-          },
-        ),
+        builder: (context) => const LocationPage(),
       ),
     );
+
+    if (result != null && mounted) {
+      // Update controller with selected location
+      _controller.updateLocation(
+        result.displayLocation,
+        latitude: result.latitude,
+        longitude: result.longitude,
+      );
+      
+      // Update location display
+      _updateLocationDisplay();
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Location updated to ${result.displayLocation}'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 
   /// Handle category tap
@@ -402,13 +423,26 @@ class _SearchPageState extends State<SearchPage> with WidgetsBindingObserver {
                 children: [
                   const SizedBox(height: 16),
 
-                  // Location Bar
+                  // Location Field (similar to create_farm_page.dart)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: SearchLocationBar(
-                      location: _controller.currentLocation,
-                      onTap: _handleLocationTap,
-                      isDetecting: _controller.isDetectingLocation,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Location',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        FarmLocationField(
+                          controller: _locationController,
+                          onTap: _handleLocationTap,
+                        ),
+                      ],
                     ),
                   ),
 
