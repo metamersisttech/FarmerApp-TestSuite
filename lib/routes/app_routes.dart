@@ -42,6 +42,22 @@ import 'package:flutter_app/features/bidding/screens/my_bids_page.dart';
 import 'package:flutter_app/features/bidding/screens/listing_bids_page.dart';
 import 'package:flutter_app/features/notifications/screens/notification_screen.dart';
 import 'package:flutter_app/features/favourite/screens/favourite_listings_page.dart';
+// Transport feature imports
+import 'package:flutter_app/features/transport/models/transport_request_model.dart';
+import 'package:flutter_app/features/transport/screens/chat/transport_chat_screen.dart';
+import 'package:flutter_app/features/transport/screens/home/transport_dashboard_screen.dart';
+import 'package:flutter_app/features/transport/screens/onboarding/license_upload_screen.dart';
+import 'package:flutter_app/features/transport/screens/onboarding/onboarding_form_screen.dart';
+import 'package:flutter_app/features/transport/screens/onboarding/pending_approval_screen.dart';
+import 'package:flutter_app/features/transport/screens/onboarding/role_request_screen.dart';
+import 'package:flutter_app/features/transport/screens/profile/transport_profile_screen.dart';
+import 'package:flutter_app/features/transport/screens/requests/nearby_requests_screen.dart';
+import 'package:flutter_app/features/transport/screens/requests/request_detail_screen.dart';
+import 'package:flutter_app/features/transport/screens/requests/accept_request_screen.dart';
+import 'package:flutter_app/features/transport/screens/trip/trip_completion_screen.dart';
+import 'package:flutter_app/features/transport/screens/trip/trip_progress_screen.dart';
+import 'package:flutter_app/features/transport/screens/vehicles/vehicle_form_screen.dart';
+import 'package:flutter_app/features/transport/screens/vehicles/vehicle_list_screen.dart';
 
 /// App Routes
 ///
@@ -95,6 +111,22 @@ class AppRoutes {
   static const String listingBids = '/listing-bids';
   static const String notifications = '/notifications';
   static const String favouriteListings = '/favourite-listings';
+
+  // ============ Transport Routes ============
+  static const String transportRoleRequest = '/transport/role-request';
+  static const String transportOnboarding = '/transport/onboarding';
+  static const String transportPendingApproval = '/transport/pending-approval';
+  static const String transportLicenseUpload = '/transport/license-upload';
+  static const String transportProfile = '/transport/profile';
+  static const String transportVehicleList = '/transport/vehicles';
+  static const String transportVehicleForm = '/transport/vehicles/form';
+  static const String transportDashboard = '/transport/dashboard';
+  static const String transportNearbyRequests = '/transport/requests/nearby';
+  static const String transportRequestDetail = '/transport/requests/detail';
+  static const String transportAcceptRequest = '/transport/requests/accept';
+  static const String transportTripProgress = '/transport/trip/progress';
+  static const String transportTripCompletion = '/transport/trip/completion';
+  static const String transportChat = '/transport/chat';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -403,6 +435,146 @@ class AppRoutes {
 
       case favouriteListings:
         return _buildRoute(const FavouriteListingsPage(), settings);
+
+      // ============ Transport Routes ============
+      case transportDashboard:
+        return _buildRoute(const TransportDashboardScreen(), settings);
+
+      case transportNearbyRequests:
+        return _buildRoute(const NearbyRequestsScreen(), settings);
+
+      case transportRequestDetail:
+        final request = settings.arguments as TransportRequestModel?;
+        if (request != null) {
+          return _buildRoute(
+            RequestDetailScreen(request: request),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Request data required')),
+          ),
+          settings,
+        );
+
+      case transportAcceptRequest:
+        final request = settings.arguments as TransportRequestModel?;
+        if (request != null) {
+          return _buildRoute(
+            AcceptRequestScreen(request: request),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Request data required')),
+          ),
+          settings,
+        );
+
+      case transportTripProgress:
+        final requestId = settings.arguments as int?;
+        if (requestId != null) {
+          return _buildRoute(
+            TripProgressScreen(requestId: requestId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Request ID required')),
+          ),
+          settings,
+        );
+
+      case transportVehicleList:
+        return _buildRoute(const VehicleListScreen(), settings);
+
+      case transportRoleRequest:
+        return _buildRoute(const RoleRequestScreen(), settings);
+
+      case transportOnboarding:
+        return _buildRoute(const OnboardingFormScreen(), settings);
+
+      case transportPendingApproval:
+        final requestId = settings.arguments as int?;
+        if (requestId != null) {
+          return _buildRoute(
+            PendingApprovalScreen(requestId: requestId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Request ID required')),
+          ),
+          settings,
+        );
+
+      case transportLicenseUpload:
+        final requestId = settings.arguments as int?;
+        if (requestId != null) {
+          return _buildRoute(
+            LicenseUploadScreen(requestId: requestId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Request ID required')),
+          ),
+          settings,
+        );
+
+      case transportProfile:
+        return _buildRoute(const TransportProfileScreen(), settings);
+
+      case transportVehicleForm:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final vehicleId = args?['vehicleId'] as int?;
+        return _buildRoute(
+          VehicleFormScreen(vehicleId: vehicleId),
+          settings,
+        );
+
+      case transportTripCompletion:
+        final requestId = settings.arguments as int?;
+        if (requestId != null) {
+          return _buildRoute(
+            TripCompletionScreen(requestId: requestId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Request ID required')),
+          ),
+          settings,
+        );
+
+      case transportChat:
+        final args = settings.arguments;
+        if (args is int) {
+          return _buildRoute(
+            TransportChatScreen(requestId: args),
+            settings,
+          );
+        } else if (args is Map<String, dynamic>) {
+          return _buildRoute(
+            TransportChatScreen(
+              requestId: args['requestId'] as int,
+              otherUserName: args['otherUserName'] as String?,
+            ),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Request ID required')),
+          ),
+          settings,
+        );
 
       default:
         return _buildRoute(

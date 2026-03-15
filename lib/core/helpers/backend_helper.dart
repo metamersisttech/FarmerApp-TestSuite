@@ -635,6 +635,16 @@ class BackendHelper {
     }
   }
 
+  /// Cancel a role upgrade request
+  /// DELETE /api/auth/role/upgrade/{id}/
+  Future<void> deleteRoleUpgrade(int requestId) async {
+    try {
+      await _client.delete(ApiEndpoints.roleUpgradeById(requestId));
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Vet Profile Endpoints ============
 
   /// Get vet profile (own)
@@ -1206,6 +1216,331 @@ class BackendHelper {
         ApiEndpoints.locationSearch,
         params: {'q': query},
       );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Transport Provider Endpoints ============
+
+  /// Get transport provider profile
+  /// GET /api/transport/me/
+  Future<Map<String, dynamic>> getTransportProfile() async {
+    try {
+      final response = await _client.get(ApiEndpoints.transportMe);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update transport provider profile
+  /// PATCH /api/transport/me/
+  Future<Map<String, dynamic>> patchTransportProfile(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.transportMe,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update transport provider availability
+  /// PATCH /api/transport/me/availability/
+  Future<Map<String, dynamic>> patchTransportAvailability(bool available) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.transportAvailability,
+        data: {'available': available},
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update transport provider location
+  /// PATCH /api/transport/me/location/
+  Future<Map<String, dynamic>> patchTransportLocation(
+    double latitude,
+    double longitude,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.transportLocation,
+        data: {'latitude': latitude, 'longitude': longitude},
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Transport Vehicle Endpoints ============
+
+  /// Get all vehicles for transport provider
+  /// GET /api/transport/me/vehicles/
+  Future<List<dynamic>> getTransportVehicles() async {
+    try {
+      final response = await _client.get(ApiEndpoints.transportVehicles);
+      if (response.data is List) {
+        return response.data as List<dynamic>;
+      }
+      // Handle paginated response
+      if (response.data is Map && response.data['results'] != null) {
+        return response.data['results'] as List<dynamic>;
+      }
+      return [];
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Add a new vehicle
+  /// POST /api/transport/me/vehicles/
+  Future<Map<String, dynamic>> postTransportVehicle(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportVehicles,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get a specific vehicle
+  /// GET /api/transport/me/vehicles/{vehicleId}/
+  Future<Map<String, dynamic>> getTransportVehicleById(int vehicleId) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.transportVehicleById(vehicleId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update a vehicle
+  /// PATCH /api/transport/me/vehicles/{vehicleId}/
+  Future<Map<String, dynamic>> patchTransportVehicle(
+    int vehicleId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.transportVehicleById(vehicleId),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Delete a vehicle
+  /// DELETE /api/transport/me/vehicles/{vehicleId}/
+  Future<void> deleteTransportVehicle(int vehicleId) async {
+    try {
+      await _client.delete(ApiEndpoints.transportVehicleById(vehicleId));
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Transport Request Endpoints (Provider) ============
+
+  /// Get nearby transport requests
+  /// GET /api/transport/provider/requests/
+  Future<dynamic> getTransportNearbyRequests({
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.transportProviderRequests,
+        params: params,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get single transport request details
+  /// GET /api/transport/provider/requests/{requestId}/
+  Future<Map<String, dynamic>> getTransportRequestById(int requestId) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.transportRequestById(requestId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Accept a transport request
+  /// POST /api/transport/provider/requests/{requestId}/accept/
+  Future<Map<String, dynamic>> postTransportRequestAccept(
+    int requestId,
+    int vehicleId,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportRequestAccept(requestId),
+        data: {'vehicle_id': vehicleId},
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Propose fare for a transport request
+  /// POST /api/transport/provider/requests/{requestId}/propose-fare/
+  Future<Map<String, dynamic>> postTransportProposeFare(
+    int requestId,
+    double fare,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportRequestProposeFare(requestId),
+        data: {'proposed_fare': fare},
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Confirm pickup for a transport request
+  /// POST /api/transport/provider/requests/{requestId}/confirm-pickup/
+  Future<Map<String, dynamic>> postTransportConfirmPickup(int requestId) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportRequestConfirmPickup(requestId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Cancel a transport job
+  /// POST /api/transport/provider/requests/{requestId}/cancel/
+  Future<Map<String, dynamic>> postTransportCancelJob(
+    int requestId,
+    String reason,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportRequestCancel(requestId),
+        data: {'reason': reason},
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Transport Chat Endpoints ============
+
+  /// Get messages for a transport request
+  /// GET /api/transport/requests/{requestId}/messages/
+  Future<dynamic> getTransportMessages(int requestId) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.transportMessages(requestId),
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Send a message on a transport request
+  /// POST /api/transport/requests/{requestId}/messages/
+  Future<Map<String, dynamic>> postTransportMessage(
+    int requestId,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportMessages(requestId),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Mark transport messages as read
+  /// POST /api/transport/requests/{requestId}/messages/read/
+  Future<Map<String, dynamic>> postTransportMessagesRead(int requestId) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportMessagesRead(requestId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get unread message count for a transport request
+  /// GET /api/transport/requests/{requestId}/messages/unread-count/
+  Future<Map<String, dynamic>> getTransportMessagesUnreadCount(
+    int requestId,
+  ) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.transportMessagesUnreadCount(requestId),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ============ Transport Jobs Endpoints ============
+
+  /// Get provider's jobs with optional status filter
+  /// GET /api/transport/provider/my-jobs/?status=ACCEPTED
+  Future<dynamic> getTransportMyJobs({
+    String? status,
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{...?params};
+      if (status != null) {
+        queryParams['status'] = status;
+      }
+      final response = await _client.get(
+        ApiEndpoints.transportMyJobs,
+        params: queryParams.isNotEmpty ? queryParams : null,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get transport dashboard stats
+  /// GET /api/transport/provider/stats/
+  Future<Map<String, dynamic>> getTransportDashboardStats() async {
+    try {
+      final response = await _client.get(ApiEndpoints.transportDashboardStats);
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);
