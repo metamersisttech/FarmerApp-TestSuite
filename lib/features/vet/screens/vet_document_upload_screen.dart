@@ -110,6 +110,8 @@ class _VetDocumentUploadScreenState extends State<VetDocumentUploadScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+    
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
@@ -120,145 +122,168 @@ class _VetDocumentUploadScreenState extends State<VetDocumentUploadScreen>
       ),
       body: Stack(
         children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Info banner
-                  _buildInfoBanner(),
-                  const SizedBox(height: 20),
+          Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Info banner
+                        _buildInfoBanner(),
+                        const SizedBox(height: 20),
 
-                  // Vet Certificate Upload
-                  _buildSectionLabel('Vet Certificate', isRequired: true),
-                  const SizedBox(height: 8),
-                  ImageUploadPicker(
-                    selectedImages:
-                        vetCertificateFile != null ? [vetCertificateFile!] : [],
-                    onImagesChanged: _handleVetCertChanged,
-                    maxImages: 1,
-                    isLoading: isUploadingVetCert,
-                    placeholderText: 'Upload Vet Certificate',
-                    placeholderHint: 'Tap to upload certificate image',
-                    bottomSheetTitle: 'Upload Vet Certificate',
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Degree Certificate Upload
-                  _buildSectionLabel('Degree Certificate', isRequired: true),
-                  const SizedBox(height: 8),
-                  ImageUploadPicker(
-                    selectedImages: degreeCertificateFile != null
-                        ? [degreeCertificateFile!]
-                        : [],
-                    onImagesChanged: _handleDegreeCertChanged,
-                    maxImages: 1,
-                    isLoading: isUploadingDegreeCert,
-                    placeholderText: 'Upload Degree Certificate',
-                    placeholderHint: 'Tap to upload degree image',
-                    bottomSheetTitle: 'Upload Degree Certificate',
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Registration Number
-                  _buildSectionLabel('Registration Number', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: registrationNoController,
-                    hint: 'e.g., VET-MH-2024-12345',
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Registration number is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Qualifications
-                  _buildSectionLabel('Qualifications', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: qualificationsController,
-                    hint: 'e.g., BVSc, MVSc (Surgery)',
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Qualifications are required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Clinic Name
-                  _buildSectionLabel('Clinic Name', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: clinicNameController,
-                    hint: 'e.g., Green Valley Veterinary Clinic',
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Clinic name is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // College Name
-                  _buildSectionLabel('College Name', isRequired: true),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: collegeNameController,
-                    hint: 'e.g., Mumbai Veterinary College',
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'College name is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Specialization (Optional)
-                  _buildSectionLabel('Specialization', isRequired: false),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    controller: specializationController,
-                    hint: 'e.g., Large Animals, Surgery',
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Submit Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: canSubmit ? _handleSubmit : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.authPrimaryColor,
-                        foregroundColor: Colors.white,
-                        disabledBackgroundColor: Colors.grey[300],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                        // Vet Certificate Upload
+                        _buildSectionLabel('Vet Certificate', isRequired: true),
+                        const SizedBox(height: 8),
+                        ImageUploadPicker(
+                          selectedImages:
+                              vetCertificateFile != null ? [vetCertificateFile!] : [],
+                          onImagesChanged: _handleVetCertChanged,
+                          maxImages: 1,
+                          isLoading: isUploadingVetCert,
+                          placeholderText: 'Upload Vet Certificate',
+                          placeholderHint: 'Tap to upload certificate image',
+                          bottomSheetTitle: 'Upload Vet Certificate',
                         ),
-                        elevation: 0,
+                        const SizedBox(height: 20),
+
+                        // Degree Certificate Upload
+                        _buildSectionLabel('Degree Certificate', isRequired: true),
+                        const SizedBox(height: 8),
+                        ImageUploadPicker(
+                          selectedImages: degreeCertificateFile != null
+                              ? [degreeCertificateFile!]
+                              : [],
+                          onImagesChanged: _handleDegreeCertChanged,
+                          maxImages: 1,
+                          isLoading: isUploadingDegreeCert,
+                          placeholderText: 'Upload Degree Certificate',
+                          placeholderHint: 'Tap to upload degree image',
+                          bottomSheetTitle: 'Upload Degree Certificate',
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Registration Number
+                        _buildSectionLabel('Registration Number', isRequired: true),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          controller: registrationNoController,
+                          hint: 'e.g., VET-MH-2024-12345',
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Registration number is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Qualifications
+                        _buildSectionLabel('Qualifications', isRequired: true),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          controller: qualificationsController,
+                          hint: 'e.g., BVSc, MVSc (Surgery)',
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Qualifications are required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Clinic Name
+                        _buildSectionLabel('Clinic Name', isRequired: true),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          controller: clinicNameController,
+                          hint: 'e.g., Green Valley Veterinary Clinic',
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Clinic name is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // College Name
+                        _buildSectionLabel('College Name', isRequired: true),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          controller: collegeNameController,
+                          hint: 'e.g., Mumbai Veterinary College',
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'College name is required';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Specialization (Optional)
+                        _buildSectionLabel('Specialization', isRequired: false),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          controller: specializationController,
+                          hint: 'e.g., Large Animals, Surgery',
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              
+              // Fixed Submit Button at bottom
+              Container(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 12,
+                  bottom: bottomPadding + 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: canSubmit ? _handleSubmit : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.authPrimaryColor,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.grey[300],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Text(
-                        'Submit for Verification',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Submit for Verification',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
 
           // Loading overlay
