@@ -22,6 +22,8 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
   String? selectedFarmName;
   LocationData? selectedLocation;
   bool isLocationRequired = false;
+  bool hasValidLocationSource = false;  // True if location permission granted OR farm with coordinates selected
+  bool selectedFarmHasCoordinates = false;  // True if selected farm has lat/lng
 
   // Error states for validation
   String? farmError;
@@ -130,6 +132,24 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
+  /// Set whether we have a valid location source (location permission OR farm with coordinates selected)
+  void setHasValidLocationSource(bool hasValid) {
+    if (mounted) {
+      setState(() {
+        hasValidLocationSource = hasValid;
+      });
+    }
+  }
+
+  /// Set whether the selected farm has coordinates
+  void setSelectedFarmHasCoordinates(bool hasCoordinates) {
+    if (mounted) {
+      setState(() {
+        selectedFarmHasCoordinates = hasCoordinates;
+      });
+    }
+  }
+
   /// Set selected gender
   void setSelectedGender(String? gender) {
     if (mounted) {
@@ -224,6 +244,20 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
 
     clearAllErrors();
 
+    // Consolidated location validation:
+    // Must have one of: (1) farm with coordinates, (2) manual location, (3) auto-detected location
+    // hasValidLocationSource tracks if we have permission OR farm with coords
+    // isLocationRequired means farm is selected but lacks coordinates
+    if (!hasValidLocationSource) {
+      // No permission and no farm selected
+      setFieldError('location', 'Please grant location access or select a farm');
+      isValid = false;
+    } else if (isLocationRequired && selectedLocation == null) {
+      // Farm selected but lacks coordinates, and no manual location provided
+      setFieldError('location', 'Selected farm has no location - please select a location');
+      isValid = false;
+    }
+
     // Validate Animal Type (required)
     if (selectedAnimalType == null || selectedAnimalType!.isEmpty) {
       setFieldError('animalType', 'Please select an animal type');
@@ -239,12 +273,6 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
     // Validate Gender (required)
     if (selectedGender == null || selectedGender!.isEmpty) {
       setFieldError('gender', 'Please select a gender');
-      isValid = false;
-    }
-
-    // Validate Location (required only if farm doesn't have lat/lng)
-    if (isLocationRequired && selectedLocation == null) {
-      setFieldError('location', 'Please select a location');
       isValid = false;
     }
 

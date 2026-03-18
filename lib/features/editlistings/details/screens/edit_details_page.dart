@@ -3,6 +3,8 @@ import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/data/models/animal_model.dart';
 import 'package:flutter_app/features/editlistings/details/controllers/edit_details_controller.dart';
 import 'package:flutter_app/features/editlistings/details/mixins/edit_details_state_mixin.dart';
+import 'package:flutter_app/features/location/models/location_model.dart';
+import 'package:flutter_app/features/location/screens/location_page.dart';
 import 'package:flutter_app/features/postlistings/details/mixins/details_state_mixin.dart';
 import 'package:flutter_app/features/postlistings/details/widgets/animal_type_dropdown.dart';
 import 'package:flutter_app/features/postlistings/details/widgets/breed_dropdown.dart';
@@ -52,12 +54,21 @@ class _EditDetailsPageState extends State<EditDetailsPage>
 
   Future<void> _loadInitial() async {
     _controller.fetchAnimals();
-    _controller.fetchFarms();
+    // Await fetchFarms so we can check farm coordinates after
+    await _controller.fetchFarms();
 
     final listing = widget.initialListing ?? await _controller.loadListing();
     if (!mounted) return;
     if (listing != null) {
       preFillFromListing(listing);
+
+      // After pre-fill and farms loaded, check farm coordinates
+      // to properly set hasValidLocationSource and isLocationRequired
+      checkFarmCoordinatesAfterLoad(
+        _controller.farms,
+        _controller.isLocationPermissionGranted,
+      );
+
       final species = listing['species']?.toString() ??
           (listing['animal'] is Map
               ? (listing['animal'] as Map)['species']?.toString()
@@ -155,6 +166,20 @@ class _EditDetailsPageState extends State<EditDetailsPage>
     }
   }
 
+  /// Handle location selection
+  Future<void> _handleLocationSelection() async {
+    final result = await Navigator.push<LocationData>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LocationPage(),
+      ),
+    );
+
+    if (result != null) {
+      setSelectedLocation(result);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final content = !_initialLoadDone
@@ -193,11 +218,74 @@ class _EditDetailsPageState extends State<EditDetailsPage>
                           onFarmSelected: (farmId, farmName) {
                             setSelectedFarm(farmId, farmName);
                             _controller.setSelectedFarmId(farmId);
+
+                            // Check farm coordinates after selection
+                            checkFarmCoordinatesAfterLoad(
+                              _controller.farms,
+                              _controller.isLocationPermissionGranted,
+                            );
                           },
                           onFarmCreated: _onFarmCreated,
                         ),
                         if (farmError != null) _buildFieldError(farmError!),
                         const SizedBox(height: 24),
+
+                        // Location Field (only show if farm doesn't have lat/lng)
+                        if (isLocationRequired) ...[
+                          _buildSectionTitle('Location', isRequired: true),
+                          const SizedBox(height: 12),
+                          GestureDetector(
+                            onTap: _handleLocationSelection,
+                            child: AbsorbPointer(
+                              child: TextFormField(
+                                controller: locationController,
+                                decoration: InputDecoration(
+                                  hintText: 'Select location',
+                                  prefixIcon: const Icon(Icons.location_on, size: 20),
+                                  suffixIcon: const Icon(Icons.arrow_forward_ios, size: 16),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: locationError != null ? Colors.red : AppTheme.authPrimaryColor,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: locationError != null ? Colors.red : AppTheme.authPrimaryColor.withOpacity(0.5),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: locationError != null ? Colors.red : AppTheme.authPrimaryColor,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(color: Colors.red, width: 2),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (locationError != null) _buildFieldError(locationError!),
+                          const SizedBox(height: 24),
+                        ],
+
                         _buildSectionTitle('Animal Type', isRequired: true),
                         const SizedBox(height: 12),
                         AnimalTypeDropdown(

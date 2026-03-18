@@ -123,6 +123,50 @@ class ApiEndpoints {
   // ============ Location Search Endpoints ============
   static const String locationSearch = 'locationsearch/';
 
+  // ============ Transport Provider Endpoints ============
+  /// Get/update transport provider profile
+  static const String transportMe = 'transport/me/';
+  /// Update transport provider availability
+  static const String transportAvailability = 'transport/me/availability/';
+  /// Update transport provider location
+  static const String transportLocation = 'transport/me/location/';
+
+  // ============ Transport Vehicle Endpoints ============
+  /// Get all vehicles / Add new vehicle
+  static const String transportVehicles = 'transport/me/vehicles/';
+  /// Get/update/delete specific vehicle
+  static String transportVehicleById(int vehicleId) => 'transport/me/vehicles/$vehicleId/';
+
+  // ============ Transport Request Endpoints (Provider) ============
+  /// Get nearby requests for provider
+  static const String transportProviderRequests = 'transport/provider/requests/';
+  /// Accept a transport request
+  static String transportRequestAccept(int requestId) => 'transport/provider/requests/$requestId/accept/';
+  /// Propose fare for a transport request
+  static String transportRequestProposeFare(int requestId) => 'transport/provider/requests/$requestId/propose-fare/';
+  /// Confirm pickup for a transport request
+  static String transportRequestConfirmPickup(int requestId) => 'transport/provider/requests/$requestId/confirm-pickup/';
+  /// Cancel a transport job
+  static String transportRequestCancel(int requestId) => 'transport/provider/requests/$requestId/cancel/';
+  /// Get single transport request details
+  static String transportRequestById(int requestId) => 'transport/provider/requests/$requestId/';
+
+  // ============ Transport Chat Endpoints ============
+  /// Get messages for a transport request
+  static String transportMessages(int requestId) => 'transport/requests/$requestId/messages/';
+  /// Mark messages as read for a transport request
+  static String transportMessagesRead(int requestId) => 'transport/requests/$requestId/messages/read/';
+  /// Get unread message count for a transport request
+  static String transportMessagesUnreadCount(int requestId) => 'transport/requests/$requestId/messages/unread-count/';
+
+  // ============ Transport Jobs Endpoints ============
+  /// Get provider's jobs (with status filter)
+  static const String transportMyJobs = 'transport/provider/my-jobs/';
+
+  // ============ Transport Stats Endpoints ============
+  /// Get provider dashboard stats
+  static const String transportDashboardStats = 'transport/provider/stats/';
+
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here
 
