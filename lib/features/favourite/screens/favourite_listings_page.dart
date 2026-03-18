@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/favourite/mixins/favourite_listings_state_mixin.dart';
-import 'package:flutter_app/features/viewalllistings/widgets/listing_card.dart';
-import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/features/profile/models/listing_model.dart';
+import 'package:flutter_app/features/viewalllistings/widgets/listing_card.dart';
 import 'package:flutter_app/main.dart' show routeObserver;
+import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Favourite Listings Page
 ///
@@ -19,7 +18,6 @@ class FavouriteListingsPage extends StatefulWidget {
 
 class _FavouriteListingsPageState extends State<FavouriteListingsPage>
     with FavouriteListingsStateMixin, RouteAware {
-  
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -34,11 +32,15 @@ class _FavouriteListingsPageState extends State<FavouriteListingsPage>
   void didPopNext() {
     // Called when the top route has been popped off, and the current route shows up
     // This fires when user returns from animal detail page
-    debugPrint('[FavouriteListingsPage] 🔄 didPopNext - User returned, reloading favorites...');
+    debugPrint(
+      '[FavouriteListingsPage] 🔄 didPopNext - User returned, reloading favorites...',
+    );
     fetchFavorites().then((_) {
       if (mounted) {
         setState(() {});
-        debugPrint('[FavouriteListingsPage] ✅ UI refreshed after loading favorites');
+        debugPrint(
+          '[FavouriteListingsPage] ✅ UI refreshed after loading favorites',
+        );
       }
     });
   }
@@ -55,10 +57,16 @@ class _FavouriteListingsPageState extends State<FavouriteListingsPage>
     // Debug logging
     debugPrint('[FavouriteListingsPage] Building page...');
     debugPrint('[FavouriteListingsPage] isLoading: ${controller.isLoading}');
-    debugPrint('[FavouriteListingsPage] errorMessage: ${controller.errorMessage}');
-    debugPrint('[FavouriteListingsPage] hasFavorites: ${controller.hasFavorites}');
-    debugPrint('[FavouriteListingsPage] favoritesCount: ${controller.favoritesCount}');
-    
+    debugPrint(
+      '[FavouriteListingsPage] errorMessage: ${controller.errorMessage}',
+    );
+    debugPrint(
+      '[FavouriteListingsPage] hasFavorites: ${controller.hasFavorites}',
+    );
+    debugPrint(
+      '[FavouriteListingsPage] favoritesCount: ${controller.favoritesCount}',
+    );
+
     return Material(
       color: Colors.grey[100],
       child: Container(
@@ -71,12 +79,9 @@ class _FavouriteListingsPageState extends State<FavouriteListingsPage>
               foregroundColor: Colors.white,
               elevation: 0,
               pinned: true,
-              title: Text(
-                'Favourite Listings${controller.hasFavorites ? ' (${controller.favoritesCount})' : ''}',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+              title: const Text(
+                'Favourite Listings',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               centerTitle: true,
             ),
@@ -96,7 +101,11 @@ class _FavouriteListingsPageState extends State<FavouriteListingsPage>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error_outline, size: 60, color: Colors.grey[400]),
+                      Icon(
+                        Icons.error_outline,
+                        size: 60,
+                        color: Colors.grey[400],
+                      ),
                       const SizedBox(height: 16),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -148,45 +157,64 @@ class _FavouriteListingsPageState extends State<FavouriteListingsPage>
                       const SizedBox(height: 8),
                       Text(
                         'Start saving your favourite listings',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[500],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                       ),
                     ],
                   ),
                 ),
               )
             else
-              // Grid of favourite listings
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 0.70,
+              // Favourite listings with count header
+              SliverList(
+                delegate: SliverChildListDelegate([
+                  // Count header
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    child: Text(
+                      '${controller.favoritesCount} ${controller.favoritesCount == 1 ? 'Listing' : 'Listings'}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final favorite = controller.favorites[index];
-                      final listing = controller.getListingFromFavorite(favorite);
-                      
-                      if (listing == null) return const SizedBox();
-                      
-                      final listingModel = ListingModel.fromJson(listing);
-                      
-                      return ListingCard(
-                        listing: listingModel,
-                        onTap: () => handleListingTap(listing),
-                        onFavoriteTap: () => handleRemoveFavorite(listingModel.id),
-                        isFavorite: true,
-                      );
-                    },
-                    childCount: controller.favoritesCount,
+                  // Grid of favourite listings
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                            childAspectRatio: 0.70,
+                          ),
+                      itemCount: controller.favoritesCount,
+                      itemBuilder: (context, index) {
+                        final favorite = controller.favorites[index];
+                        final listing = controller.getListingFromFavorite(
+                          favorite,
+                        );
+
+                        if (listing == null) return const SizedBox();
+
+                        final listingModel = ListingModel.fromJson(listing);
+
+                        return ListingCard(
+                          listing: listingModel,
+                          onTap: () => handleListingTap(listing),
+                          onFavoriteTap: () =>
+                              handleRemoveFavorite(listingModel.id),
+                          isFavorite: true,
+                        );
+                      },
+                    ),
                   ),
-                ),
+                ]),
               ),
           ],
         ),
