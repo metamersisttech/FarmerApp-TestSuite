@@ -29,7 +29,7 @@ class _VetOnboardingCarouselScreenState
   }
 
   void _handleSkip() {
-    Navigator.pop(context);
+    Navigator.pushNamed(context, AppRoutes.vetDocumentUpload);
   }
 
   void _handleGetStarted() {
