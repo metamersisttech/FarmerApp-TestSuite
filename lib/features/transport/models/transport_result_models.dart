@@ -8,6 +8,7 @@ import 'package:flutter_app/features/transport/models/onboarding_request_model.d
 import 'package:flutter_app/features/transport/models/transport_message_model.dart';
 import 'package:flutter_app/features/transport/models/transport_provider_model.dart';
 import 'package:flutter_app/features/transport/models/transport_request_model.dart';
+import 'package:flutter_app/features/transport/models/transport_verification_status_model.dart';
 import 'package:flutter_app/features/transport/models/vehicle_model.dart';
 
 /// Base result class
@@ -46,6 +47,31 @@ class OnboardingResult extends TransportResult {
 
   factory OnboardingResult.failed(String errorMessage) {
     return OnboardingResult(
+      success: false,
+      errorMessage: errorMessage,
+    );
+  }
+}
+
+/// Result for verification status check
+class VerificationStatusResult extends TransportResult {
+  final TransportVerificationStatusModel? verificationStatus;
+
+  const VerificationStatusResult({
+    required super.success,
+    super.errorMessage,
+    this.verificationStatus,
+  });
+
+  factory VerificationStatusResult.successful(TransportVerificationStatusModel status) {
+    return VerificationStatusResult(
+      success: true,
+      verificationStatus: status,
+    );
+  }
+
+  factory VerificationStatusResult.failed(String errorMessage) {
+    return VerificationStatusResult(
       success: false,
       errorMessage: errorMessage,
     );

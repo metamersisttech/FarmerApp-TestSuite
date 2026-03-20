@@ -59,6 +59,9 @@ dependencies:
   # Image Picker
   image_picker: ^1.0.7             # Pick images from camera/gallery
 
+  # Path provider for file-based logging
+  path_provider: ^2.1.0            # Access device file system
+
 
   cloud_firestore: ^6.1.1
 

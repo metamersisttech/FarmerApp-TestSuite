@@ -3,7 +3,10 @@
 /// Upload/update driving license (standalone or part of resubmission).
 library;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/features/transport/controllers/transport_onboarding_controller.dart';
 
@@ -23,6 +26,7 @@ class _LicenseUploadScreenState extends State<LicenseUploadScreen> {
   late TransportOnboardingController _controller;
   final _formKey = GlobalKey<FormState>();
   final _licenseNumberController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
   DateTime? _selectedExpiry;
   String? _licenseImagePath;
 
@@ -80,7 +84,7 @@ class _LicenseUploadScreenState extends State<LicenseUploadScreen> {
     // Then resubmit the document
     final success = await _controller.resubmitDocument(
       requestId: widget.requestId,
-      drivingLicenseImageKey: _controller.drivingLicenseImageKey,
+      drivingLicenseKey: _controller.drivingLicenseKey,
       drivingLicenseNumber: _licenseNumberController.text.trim(),
       drivingLicenseExpiry: _selectedExpiry,
     );
@@ -104,29 +108,61 @@ class _LicenseUploadScreenState extends State<LicenseUploadScreen> {
   }
 
   Future<void> _pickImage() async {
-    // TODO: Implement image picker
-    final result = await showDialog<String>(
+    _showImageSourceBottomSheet();
+  }
+
+  void _showImageSourceBottomSheet() {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Upload License Photo'),
-        content: const Text('Image picker will be implemented here.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, 'license_photo.jpg'),
-            child: const Text('Select'),
-          ),
-        ],
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Take a picture'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickFromSource(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Select from gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickFromSource(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
       ),
     );
+  }
 
-    if (result != null) {
-      setState(() {
-        _licenseImagePath = result;
-      });
+  Future<void> _pickFromSource(ImageSource source) async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+      if (pickedFile != null && mounted) {
+        setState(() {
+          _licenseImagePath = pickedFile.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to pick image'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -313,18 +349,12 @@ class _LicenseUploadScreenState extends State<LicenseUploadScreen> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.image,
-                      size: 48,
-                      color: theme.colorScheme.primary,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(_licenseImagePath!),
-                  ],
+              child: SizedBox(
+                width: double.infinity,
+                height: 200,
+                child: Image.file(
+                  File(_licenseImagePath!),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),

@@ -70,10 +70,10 @@ class DocumentModel {
 
   factory DocumentModel.fromJson(Map<String, dynamic> json) {
     return DocumentModel(
-      documentType: json['document_type'] as String? ?? '',
-      documentKey: json['document_key'] as String? ?? json['key'] as String?,
-      status: json['status'] as String? ?? 'PENDING',
-      rejectionReason: json['rejection_reason'] as String?,
+      documentType: json['document_type']?.toString() ?? '',
+      documentKey: json['document_key']?.toString() ?? json['key']?.toString(),
+      status: json['status']?.toString() ?? 'PENDING',
+      rejectionReason: json['rejection_reason']?.toString(),
     );
   }
 
@@ -148,31 +148,54 @@ class OnboardingRequestModel {
           .toList();
     }
 
+    // Extract additional_info for transport-specific fields
+    // The API nests transport fields inside additional_info
+    final additionalInfo = json['additional_info'] as Map<String, dynamic>? ?? {};
+
     return OnboardingRequestModel(
       requestId: json['request_id'] as int? ?? json['id'] as int? ?? 0,
       userId: json['user_id'] as int? ?? json['user'] as int? ?? 0,
-      requestedRole: json['requested_role'] as String? ?? 'transport',
-      status: json['status'] as String? ?? 'PENDING',
-      rejectionReason: json['rejection_reason'] as String?,
+      requestedRole: json['requested_role_name']?.toString() ??
+          json['requested_role']?.toString() ??
+          'transport',
+      status: json['status']?.toString() ?? 'PENDING',
+      rejectionReason: json['rejection_reason']?.toString(),
       submittedAt: json['submitted_at'] != null
-          ? DateTime.parse(json['submitted_at'] as String)
+          ? DateTime.parse(json['submitted_at'].toString())
           : (json['created_at'] != null
-              ? DateTime.parse(json['created_at'] as String)
+              ? DateTime.parse(json['created_at'].toString())
               : DateTime.now()),
       reviewedAt: json['reviewed_at'] != null
-          ? DateTime.parse(json['reviewed_at'] as String)
+          ? DateTime.parse(json['reviewed_at'].toString())
           : null,
-      businessName: json['business_name'] as String?,
-      yearsOfExperience: json['years_of_experience'] as int?,
-      serviceRadiusKm: json['service_radius_km'] as int?,
-      drivingLicenseNumber: json['driving_license_number'] as String?,
-      drivingLicenseExpiry: json['driving_license_expiry'] != null
-          ? DateTime.tryParse(json['driving_license_expiry'] as String)
-          : null,
-      drivingLicenseImage: json['driving_license_image'] as String?,
-      vehicleRcImage: json['vehicle_rc_image'] as String?,
+      // Read transport fields from additional_info first, fall back to top-level
+      businessName: additionalInfo['business_name']?.toString() ??
+          json['business_name']?.toString(),
+      yearsOfExperience: additionalInfo['years_of_experience'] as int? ??
+          json['years_of_experience'] as int?,
+      serviceRadiusKm: additionalInfo['service_radius_km'] as int? ??
+          json['service_radius_km'] as int?,
+      drivingLicenseNumber: additionalInfo['driving_license_number']?.toString() ??
+          json['driving_license_number']?.toString(),
+      drivingLicenseExpiry: _parseLicenseExpiry(additionalInfo, json),
+      drivingLicenseImage: additionalInfo['driving_license']?.toString() ??
+          json['driving_license_image']?.toString(),
+      vehicleRcImage: json['vehicle_rc_image']?.toString(),
       documents: documents,
     );
+  }
+
+  /// Helper to parse license expiry from either additional_info or top-level
+  static DateTime? _parseLicenseExpiry(
+    Map<String, dynamic> additionalInfo,
+    Map<String, dynamic> json,
+  ) {
+    final expiry = additionalInfo['driving_license_expiry'] ??
+        json['driving_license_expiry'];
+    if (expiry != null) {
+      return DateTime.tryParse(expiry.toString());
+    }
+    return null;
   }
 
   Map<String, dynamic> toJson() {

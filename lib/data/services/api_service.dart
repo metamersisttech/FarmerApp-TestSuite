@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_app/config/api_config.dart';
 import 'package:flutter_app/core/errors/exceptions.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
+import 'package:flutter_app/core/services/api_logger.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 
@@ -316,6 +317,8 @@ class ApiService {
       }
       print('└─────────────────────────────────────────');
     }
+    // File logging
+    ApiLogger.logRequest(method, '${ApiConfig.baseUrl}$path', data);
   }
 
   void _logResponse(Response response) {
@@ -325,6 +328,12 @@ class ApiService {
       print('│ 📦 Data: ${response.data}');
       print('└─────────────────────────────────────────');
     }
+    // File logging
+    ApiLogger.logResponse(
+      response.statusCode ?? 0,
+      response.requestOptions.path,
+      response.data,
+    );
   }
 
   void _logError(DioException error) {
@@ -338,5 +347,12 @@ class ApiService {
       }
       print('└─────────────────────────────────────────');
     }
+    // File logging
+    ApiLogger.logError(
+      error.type.toString(),
+      error.requestOptions.path,
+      error.message,
+      error.response?.data,
+    );
   }
 }
