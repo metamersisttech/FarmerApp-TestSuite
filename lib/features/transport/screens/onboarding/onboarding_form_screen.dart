@@ -3,7 +3,10 @@
 /// Captures business details and documents for transport provider onboarding.
 library;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/features/transport/controllers/transport_onboarding_controller.dart';
 import 'package:flutter_app/features/transport/services/transport_navigation_service.dart';
@@ -20,12 +23,13 @@ class _OnboardingFormScreenState extends State<OnboardingFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _businessNameController = TextEditingController();
   final _licenseNumberController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
 
   int? _selectedExperience;
   int? _selectedRadius;
   DateTime? _selectedLicenseExpiry;
   String? _licenseImagePath;
-  String? _rcImagePath;
+  String? _kycDocImagePath;
 
   final List<int> _experienceYears = [1, 2, 3, 5, 10, 15, 20];
   final List<int> _radiusOptions = [25, 50, 75, 100];
@@ -58,12 +62,13 @@ class _OnboardingFormScreenState extends State<OnboardingFormScreen> {
       _showError('Please select license expiry date');
       return false;
     }
-    if (_licenseImagePath == null) {
+    // Check uploaded keys, not local paths (images are uploaded immediately)
+    if (_controller.drivingLicenseKey == null) {
       _showError('Please upload your driving license');
       return false;
     }
-    if (_rcImagePath == null) {
-      _showError('Please upload your vehicle RC');
+    if (_controller.kycDocumentKey == null) {
+      _showError('Please upload your KYC document');
       return false;
     }
     return true;
@@ -78,20 +83,7 @@ class _OnboardingFormScreenState extends State<OnboardingFormScreen> {
   Future<void> _handleSubmit() async {
     if (!_validateForm()) return;
 
-    // First upload the images
-    final licenseUploaded = await _controller.uploadDrivingLicense(_licenseImagePath!);
-    if (!licenseUploaded || !mounted) {
-      _showError(_controller.errorMessage ?? 'Failed to upload license');
-      return;
-    }
-
-    final rcUploaded = await _controller.uploadVehicleRc(_rcImagePath!);
-    if (!rcUploaded || !mounted) {
-      _showError(_controller.errorMessage ?? 'Failed to upload RC');
-      return;
-    }
-
-    // Now submit the form
+    // Images already uploaded during pick - just submit the form
     final success = await _controller.submitOnboarding(
       businessName: _businessNameController.text.trim(),
       yearsOfExperience: _selectedExperience ?? 1,
@@ -211,8 +203,11 @@ class _OnboardingFormScreenState extends State<OnboardingFormScreen> {
                       context,
                       label: 'License Photo',
                       imagePath: _licenseImagePath,
+                      isUploading: controller.isUploading && _licenseImagePath == null,
+                      isUploaded: controller.drivingLicenseKey != null,
                       onPick: () => _pickImage(isLicense: true),
                       onRemove: () {
+                        _controller.clearUploadedLicense();
                         setState(() {
                           _licenseImagePath = null;
                         });
@@ -255,19 +250,22 @@ class _OnboardingFormScreenState extends State<OnboardingFormScreen> {
                     ),
                     const SizedBox(height: 32),
 
-                    // Vehicle RC Section
-                    _buildSectionHeader(context, 'Vehicle RC Document'),
+                    // KYC Document Section
+                    _buildSectionHeader(context, 'KYC Document'),
                     const SizedBox(height: 16),
 
-                    // RC image
+                    // KYC document image
                     _buildImagePicker(
                       context,
-                      label: 'RC Document Photo',
-                      imagePath: _rcImagePath,
+                      label: 'KYC Document Photo',
+                      imagePath: _kycDocImagePath,
+                      isUploading: controller.isUploading && _kycDocImagePath == null,
+                      isUploaded: controller.kycDocumentKey != null,
                       onPick: () => _pickImage(isLicense: false),
                       onRemove: () {
+                        _controller.clearUploadedKyc();
                         setState(() {
-                          _rcImagePath = null;
+                          _kycDocImagePath = null;
                         });
                       },
                     ),
@@ -352,31 +350,115 @@ class _OnboardingFormScreenState extends State<OnboardingFormScreen> {
     required String? imagePath,
     required VoidCallback onPick,
     required VoidCallback onRemove,
+    bool isUploading = false,
+    bool isUploaded = false,
   }) {
     final theme = Theme.of(context);
 
-    if (imagePath != null) {
+    // Show uploading state
+    if (isUploading) {
       return Container(
         height: 150,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: theme.colorScheme.outlineVariant),
         ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(
+              width: 32,
+              height: 32,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Uploading...',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (imagePath != null) {
+      return Container(
+        height: 150,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isUploaded ? theme.colorScheme.primary : theme.colorScheme.outlineVariant,
+            width: isUploaded ? 2 : 1,
+          ),
+        ),
         child: Stack(
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.image, size: 48, color: theme.colorScheme.primary),
-                    const SizedBox(height: 8),
-                    Text(imagePath.split('/').last),
-                  ],
+              child: SizedBox(
+                width: double.infinity,
+                height: 150,
+                child: Image.file(
+                  File(imagePath),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Image file may no longer exist in cache - show placeholder
+                    return Container(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isUploaded ? Icons.check_circle : Icons.image,
+                            size: 48,
+                            color: isUploaded ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            isUploaded ? 'Uploaded' : 'Preview unavailable',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
+            // Upload success indicator
+            if (isUploaded)
+              Positioned(
+                top: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.check,
+                        size: 14,
+                        color: theme.colorScheme.onPrimary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Uploaded',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             Positioned(
               top: 8,
               right: 8,
@@ -434,33 +516,70 @@ class _OnboardingFormScreenState extends State<OnboardingFormScreen> {
   }
 
   Future<void> _pickImage({required bool isLicense}) async {
-    // TODO: Implement image picker using image_picker package
-    final result = await showDialog<String>(
+    _showImageSourceBottomSheet(isLicense: isLicense);
+  }
+
+  void _showImageSourceBottomSheet({required bool isLicense}) {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isLicense ? 'Upload License' : 'Upload RC Document'),
-        content: const Text('Image picker will be implemented here.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, 'selected_image.jpg'),
-            child: const Text('Select'),
-          ),
-        ],
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Take a picture'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickFromSource(ImageSource.camera, isLicense: isLicense);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Select from gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickFromSource(ImageSource.gallery, isLicense: isLicense);
+              },
+            ),
+          ],
+        ),
       ),
     );
+  }
 
-    if (result != null) {
-      setState(() {
+  Future<void> _pickFromSource(ImageSource source, {required bool isLicense}) async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+      if (pickedFile != null && mounted) {
+        // Upload immediately while file exists in cache
+        bool uploaded;
         if (isLicense) {
-          _licenseImagePath = result;
+          uploaded = await _controller.uploadDrivingLicense(pickedFile.path);
         } else {
-          _rcImagePath = result;
+          uploaded = await _controller.uploadKycDocument(pickedFile.path);
         }
-      });
+
+        if (uploaded && mounted) {
+          setState(() {
+            if (isLicense) {
+              _licenseImagePath = pickedFile.path; // Keep for preview (may fail later, that's OK)
+            } else {
+              _kycDocImagePath = pickedFile.path;
+            }
+          });
+        } else if (mounted) {
+          _showError(_controller.errorMessage ?? 'Failed to upload image');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      _showError('Failed to pick image');
     }
   }
 

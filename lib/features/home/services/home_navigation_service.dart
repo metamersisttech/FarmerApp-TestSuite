@@ -11,10 +11,18 @@ import 'package:flutter_app/routes/app_routes.dart';
 class NavigationResult {
   final bool success;
   final String? message;
+  final int? selectedTab;
 
-  const NavigationResult({required this.success, this.message});
+  const NavigationResult({
+    required this.success,
+    this.message,
+    this.selectedTab,
+  });
 
-  factory NavigationResult.success() => const NavigationResult(success: true);
+  factory NavigationResult.success({int? selectedTab}) {
+    return NavigationResult(success: true, selectedTab: selectedTab);
+  }
+  
   factory NavigationResult.comingSoon(String feature) {
     return NavigationResult(
       success: false,
@@ -98,21 +106,13 @@ class HomeNavigationService {
 
   /// Navigate to Marketplace (View All Listings) screen
   /// Returns the tab index if user taps on bottom nav from marketplace
-  static Future<NavigationResult> toMarketplace(
-    BuildContext context, {
-    Function(int)? onTabSelected,
-  }) async {
-    final result = await Navigator.push<int>(
+  static Future<NavigationResult> toViewAllListings(BuildContext context) async {
+    final selectedTab = await Navigator.push<int>(
       context,
       MaterialPageRoute(builder: (context) => const ViewAllListingsPage()),
     );
     
-    // If a tab index was returned, notify the callback
-    if (result != null && onTabSelected != null) {
-      onTabSelected(result);
-    }
-    
-    return NavigationResult.success();
+    return NavigationResult.success(selectedTab: selectedTab);
   }
 
   /// Navigate to Vet Services screen

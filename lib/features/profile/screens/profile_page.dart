@@ -13,6 +13,11 @@ import 'package:flutter_app/features/profile/widgets/kyc_status_card.dart';
 import 'package:flutter_app/features/profile/widgets/logout_button.dart';
 import 'package:flutter_app/features/profile/widgets/profile_header_card.dart';
 import 'package:flutter_app/features/profile/widgets/profile_menu_list.dart';
+import 'package:flutter_app/features/transport/controllers/transport_onboarding_controller.dart';
+import 'package:flutter_app/features/transport/screens/home/transport_dashboard_screen.dart';
+import 'package:flutter_app/features/transport/screens/onboarding/pending_approval_screen.dart';
+import 'package:flutter_app/features/transport/screens/onboarding/role_request_screen.dart';
+import 'package:flutter_app/features/transport/widgets/become_transport_card.dart';
 import 'package:flutter_app/features/vet/controllers/vet_onboarding_controller.dart';
 import 'package:flutter_app/features/vet/screens/vet_onboarding_carousel_screen.dart';
 import 'package:flutter_app/features/vet/screens/vet_verification_status_screen.dart';
@@ -44,6 +49,8 @@ class _ProfilePageState extends State<ProfilePage>
   late final ProfileController _controller;
   bool _isBecomeVetLoading = false;
   bool _isApprovedVet = false;
+  bool _isBecomeTransportLoading = false;
+  bool _isApprovedTransport = false;
 
   @override
   void initState() {
@@ -91,6 +98,7 @@ class _ProfilePageState extends State<ProfilePage>
       _controller.loadProfile(),
       _controller.loadMenuCounts(),
       _checkVetApprovalStatus(),
+      _checkTransportApprovalStatus(),
     ]);
 
     if (!mounted) return;
@@ -116,6 +124,19 @@ class _ProfilePageState extends State<ProfilePage>
       controller.dispose();
     } catch (_) {
       // Silently fail — default to showing BecomeVetCard
+    }
+  }
+
+  Future<void> _checkTransportApprovalStatus() async {
+    try {
+      final controller = TransportOnboardingController();
+      final result = await controller.checkVerificationStatus();
+      if (result.success && result.verificationStatus != null) {
+        _isApprovedTransport = result.verificationStatus!.isApproved;
+      }
+      controller.dispose();
+    } catch (_) {
+      // Silently fail — default to showing BecomeTransportCard
     }
   }
 
@@ -249,6 +270,66 @@ class _ProfilePageState extends State<ProfilePage>
       if (!mounted) return;
       setState(() => _isBecomeVetLoading = false);
       showErrorToast('Failed to switch to vet mode');
+    }
+  }
+
+  void _handleBecomeTransport() async {
+    setState(() => _isBecomeTransportLoading = true);
+
+    try {
+      final controller = TransportOnboardingController();
+      final result = await controller.checkVerificationStatus();
+
+      if (!mounted) {
+        controller.dispose();
+        return;
+      }
+      setState(() => _isBecomeTransportLoading = false);
+
+      if (result.success && result.verificationStatus != null) {
+        final status = result.verificationStatus!;
+        if (status.hasApplied) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PendingApprovalScreen(requestId: status.requestId!),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const RoleRequestScreen(),
+            ),
+          );
+        }
+      } else {
+        showErrorToast(result.errorMessage ?? 'Failed to check transport status');
+      }
+      controller.dispose();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isBecomeTransportLoading = false);
+      showErrorToast('Failed to check transport status');
+    }
+  }
+
+  void _handleSwitchToTransport() async {
+    setState(() => _isBecomeTransportLoading = true);
+
+    try {
+      await CommonHelper().setAppMode('transport');
+      if (!mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const TransportDashboardScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isBecomeTransportLoading = false);
+      showErrorToast('Failed to switch to transport mode');
     }
   }
 
@@ -441,6 +522,21 @@ class _ProfilePageState extends State<ProfilePage>
                             BecomeVetCard(
                               onTap: _handleBecomeVet,
                               isLoading: _isBecomeVetLoading,
+                            ),
+
+                          const SizedBox(height: 16),
+
+                          // Become Transport Provider / Switch to Transport Mode
+                          if (_isApprovedTransport)
+                            SwitchModeCard(
+                              targetMode: 'transport',
+                              onTap: _handleSwitchToTransport,
+                              isLoading: _isBecomeTransportLoading,
+                            )
+                          else
+                            BecomeTransportCard(
+                              onTap: _handleBecomeTransport,
+                              isLoading: _isBecomeTransportLoading,
                             ),
 
                           const SizedBox(height: 16),

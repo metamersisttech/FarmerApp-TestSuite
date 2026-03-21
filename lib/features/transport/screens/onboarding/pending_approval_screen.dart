@@ -149,18 +149,16 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen> {
           const SizedBox(height: 16),
 
           // Rejection reason (if rejected)
-          if (request.status == OnboardingStatus.rejected &&
-              request.rejectionReason != null)
+          if (request.isRejected && request.rejectionReason != null)
             _buildRejectionCard(context, request),
 
           // Document status
-          if (request.status == OnboardingStatus.rejected)
-            _buildDocumentStatusCard(context, request),
+          if (request.isRejected) _buildDocumentStatusCard(context, request),
 
           const SizedBox(height: 24),
 
           // Actions
-          if (request.status == OnboardingStatus.pending)
+          if (request.isPending)
             OutlinedButton(
               onPressed: _handleCancel,
               style: OutlinedButton.styleFrom(
@@ -171,7 +169,7 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen> {
               child: const Text('Cancel Application'),
             ),
 
-          if (request.status == OnboardingStatus.rejected)
+          if (request.isRejected)
             ElevatedButton(
               onPressed: () => TransportNavigationService.navigateToLicenseUpload(
                 context,
@@ -183,7 +181,7 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen> {
               child: const Text('Re-upload Documents'),
             ),
 
-          if (request.status == OnboardingStatus.approved)
+          if (request.isApproved)
             ElevatedButton(
               onPressed: () => TransportNavigationService.navigateToDashboard(context),
               style: ElevatedButton.styleFrom(

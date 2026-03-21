@@ -67,6 +67,9 @@ class ApiEndpoints {
   static const String roleUpgrade = 'auth/role/upgrade/';
   static String roleUpgradeById(int id) => 'auth/role/upgrade/$id/';
 
+  // ============ Transport Onboarding Endpoints ============
+  static const String transportVerificationStatus = 'auth/transport/verification-status/';
+
   // ============ Vet Profile & Availability Endpoints ============
   static const String vetProfile = 'vets/me/';
   static const String vetAvailability = 'vets/me/availability/';

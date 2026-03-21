@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/api_helper.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
+import 'package:flutter_app/core/services/api_logger.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
@@ -27,7 +28,11 @@ Future<void> main() async {
   // Initialize Firebase
   await Firebase.initializeApp();
   print('✅ Firebase initialized');
-  
+
+  // Initialize API logger for file-based logging
+  await ApiLogger.initialize();
+  print('✅ API logger initialized');
+
   // Initialize cache manager (Hive) - must be before app runs
   await CacheManager().initialize();
   print('✅ Cache manager initialized');

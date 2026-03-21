@@ -605,6 +605,19 @@ class BackendHelper {
     }
   }
 
+  // ============ Transport Onboarding Endpoints ============
+
+  /// Get transport verification status
+  /// GET /api/auth/transport/verification-status/
+  Future<Map<String, dynamic>> getTransportVerificationStatus() async {
+    try {
+      final response = await _client.get(ApiEndpoints.transportVerificationStatus);
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// Submit role upgrade request
   /// POST /api/auth/role/upgrade/
   Future<Map<String, dynamic>> postRoleUpgrade(
@@ -640,6 +653,17 @@ class BackendHelper {
   Future<void> deleteRoleUpgrade(int requestId) async {
     try {
       await _client.delete(ApiEndpoints.roleUpgradeById(requestId));
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get a role upgrade request by ID
+  /// GET /api/auth/role/upgrade/{id}/
+  Future<Map<String, dynamic>> getRoleUpgradeById(int requestId) async {
+    try {
+      final response = await _client.get(ApiEndpoints.roleUpgradeById(requestId));
+      return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw _handleError(e);
     }
