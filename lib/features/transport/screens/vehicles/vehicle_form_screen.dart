@@ -3,7 +3,10 @@
 /// Add or edit vehicle details with document uploads.
 library;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/features/transport/controllers/vehicle_controller.dart';
 import 'package:flutter_app/features/transport/models/vehicle_model.dart';
@@ -25,6 +28,7 @@ class VehicleFormScreen extends StatefulWidget {
 class _VehicleFormScreenState extends State<VehicleFormScreen> {
   late VehicleController _controller;
   final _formKey = GlobalKey<FormState>();
+  final ImagePicker _picker = ImagePicker();
 
   final _registrationController = TextEditingController();
   final _makeController = TextEditingController();
@@ -676,66 +680,124 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
   }
 
   Future<void> _pickDocument({required bool isRC}) async {
-    // TODO: Implement document picker
-    final result = await showDialog<String>(
+    _showImageSourceBottomSheet(isRC: isRC);
+  }
+
+  void _showImageSourceBottomSheet({required bool isRC}) {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isRC ? 'Upload RC Document' : 'Upload Insurance'),
-        content: const Text('Document picker will be implemented here.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(
-              context,
-              isRC ? 'rc_document.jpg' : 'insurance.jpg',
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Take a picture'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickFromSource(ImageSource.camera, isRC: isRC);
+              },
             ),
-            child: const Text('Select'),
-          ),
-        ],
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Select from gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickFromSource(ImageSource.gallery, isRC: isRC);
+              },
+            ),
+          ],
+        ),
       ),
     );
+  }
 
-    if (result != null) {
-      setState(() {
-        if (isRC) {
-          _rcDocumentPath = result;
-        } else {
-          _insuranceDocumentPath = result;
-        }
-      });
+  Future<void> _pickFromSource(ImageSource source, {required bool isRC}) async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+      if (pickedFile != null && mounted) {
+        setState(() {
+          if (isRC) {
+            _rcDocumentPath = pickedFile.path;
+          } else {
+            _insuranceDocumentPath = pickedFile.path;
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to pick image'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   Future<void> _pickVehicleImage() async {
-    // TODO: Implement image picker
-    final result = await showDialog<String>(
+    _showVehicleImageSourceBottomSheet();
+  }
+
+  void _showVehicleImageSourceBottomSheet() {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Upload Vehicle Photo'),
-        content: const Text('Image picker will be implemented here.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(
-              context,
-              'vehicle_photo_${_vehicleImagePaths.length + 1}.jpg',
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Take a picture'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickVehicleImageFromSource(ImageSource.camera);
+              },
             ),
-            child: const Text('Select'),
-          ),
-        ],
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Select from gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickVehicleImageFromSource(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
       ),
     );
+  }
 
-    if (result != null && _vehicleImagePaths.length < 5) {
-      setState(() {
-        _vehicleImagePaths.add(result);
-      });
+  Future<void> _pickVehicleImageFromSource(ImageSource source) async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+      if (pickedFile != null && mounted && _vehicleImagePaths.length < 5) {
+        setState(() {
+          _vehicleImagePaths.add(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to pick image'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }
@@ -752,6 +814,7 @@ class _VehicleImageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isNetworkImage = imagePath.startsWith('http');
 
     return Container(
       width: 100,
@@ -764,11 +827,30 @@ class _VehicleImageTile extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Center(
-              child: Icon(
-                Icons.image,
-                color: theme.colorScheme.primary,
-              ),
+            child: SizedBox(
+              width: 100,
+              height: 100,
+              child: isNetworkImage
+                  ? Image.network(
+                      imagePath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                    )
+                  : Image.file(
+                      File(imagePath),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                    ),
             ),
           ),
           Positioned(
