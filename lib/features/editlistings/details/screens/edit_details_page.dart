@@ -47,8 +47,7 @@ class _EditDetailsPageState extends State<EditDetailsPage>
   void initState() {
     super.initState();
     _controller = EditDetailsController(listingId: widget.listingId);
-    initializeControllers();
-    _controller.addListener(_onControllerChanged);
+    initializeDetailsController(_controller);
     _loadInitial();
   }
 
@@ -84,14 +83,9 @@ class _EditDetailsPageState extends State<EditDetailsPage>
 
   @override
   void dispose() {
-    _controller.removeListener(_onControllerChanged);
-    disposeControllers();
+    disposeDetailsController();
     _controller.dispose();
     super.dispose();
-  }
-
-  void _onControllerChanged() {
-    if (mounted) setState(() {});
   }
 
   void _onFarmCreated(Map<String, dynamic>? result) {
@@ -109,13 +103,37 @@ class _EditDetailsPageState extends State<EditDetailsPage>
   }
 
   Future<void> _handleUpdate() async {
-    if (!validateForm()) {
+    // Validate form using controller
+    final isValid = _controller.validateFormData(
+      hasValidLocationSource: hasValidLocationSource,
+      isLocationRequired: isLocationRequired,
+      selectedLocation: selectedLocation,
+      selectedAnimalType: selectedAnimalType,
+      selectedBreed: selectedBreed,
+      selectedGender: selectedGender,
+      weightText: weightController.text,
+      priceText: priceController.text,
+    );
+
+    if (!isValid) {
       showErrorToast('Please fill all required fields');
       return;
     }
     setSubmitting(true);
     try {
-      final formData = getFormData();
+      // Prepare form data using controller
+      final formData = _controller.prepareFormData(
+        selectedAnimalId: selectedAnimalId,
+        selectedGender: selectedGender,
+        selectedAge: selectedAge,
+        selectedFarmId: selectedFarmId,
+        selectedLocation: selectedLocation,
+        selectedBreed: selectedBreed,
+        selectedAnimalType: selectedAnimalType,
+        weightText: weightController.text,
+        priceText: priceController.text,
+      );
+
       final result = await _controller.updateListing(formData);
       if (!mounted) return;
       setSubmitting(false);

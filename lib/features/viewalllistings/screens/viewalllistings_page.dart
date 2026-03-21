@@ -8,14 +8,14 @@ import 'package:flutter_app/features/viewalllistings/widgets/category_filter_chi
 import 'package:flutter_app/features/viewalllistings/widgets/listing_card.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_search_bar.dart';
 import 'package:flutter_app/features/viewalllistings/widgets/listing_sort_bottom_sheet.dart';
-import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/main.dart' show routeObserver;
+import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// View All Listings Page
 ///
 /// Displays all marketplace listings in a grid view.
 /// Accessed when user taps on "Marketplace" quick action.
-/// 
+///
 /// Architecture:
 /// - UI only in this file (build methods)
 /// - Business logic in ViewAllListingsStateMixin
@@ -31,11 +31,10 @@ class ViewAllListingsPage extends StatefulWidget {
 
 class _ViewAllListingsPageState extends State<ViewAllListingsPage>
     with ViewAllListingsStateMixin, HomeStateMixin, RouteAware {
-  
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize controller with Firebase sync (see mixin for implementation)
     // This will:
     // 1. Create controller with firebaseSync instance
@@ -43,7 +42,7 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
     // 3. Fetch initial listings (cache-first strategy)
     initializeController();
     initializeHomeController();
-    
+
     // Fetch marketplace listings and favorites after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchMarketplaceListings();
@@ -68,7 +67,9 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
   void didPopNext() {
     // Called when the top route has been popped off, and the current route shows up
     // This fires when user returns from animal detail page
-    print('[ViewAllListings] 🔄 didPopNext - User returned to browse livestock, reloading favorites...');
+    print(
+      '[ViewAllListings] 🔄 didPopNext - User returned to browse livestock, reloading favorites...',
+    );
     controller.loadFavorites().then((_) {
       if (mounted) {
         setState(() {});
@@ -90,7 +91,8 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: _buildAppBar(),
-      resizeToAvoidBottomInset: false, // Keep bottom nav static when keyboard appears
+      resizeToAvoidBottomInset:
+          false, // Keep bottom nav static when keyboard appears
       body: Column(
         children: [
           // Search bar with filter button
@@ -114,9 +116,7 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
           const SizedBox(height: 16),
 
           // Listings grid
-          Expanded(
-            child: _buildContent(),
-          ),
+          Expanded(child: _buildContent()),
         ],
       ),
       // Floating Add Button (Sell)
@@ -125,7 +125,10 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
       // Bottom Navigation Bar
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: currentBottomNavIndex,
-        onTap: (index) => handleMarketplaceBottomNavigation(index, handleBottomNavTap),
+        onTap: (index) => handleMarketplaceBottomNavigation(
+          index,
+          homeController.onNavigateToTab ?? (_) {},
+        ),
       ),
     );
   }
@@ -214,9 +217,7 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
   Widget _buildContent() {
     if (controller.isLoading) {
       return const Center(
-        child: CircularProgressIndicator(
-          color: AppTheme.authPrimaryColor,
-        ),
+        child: CircularProgressIndicator(color: AppTheme.authPrimaryColor),
       );
     }
 
@@ -229,10 +230,7 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
             const SizedBox(height: 16),
             Text(
               controller.errorMessage!,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -240,7 +238,10 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
               onPressed: handleRefresh,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.authPrimaryColor,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
               child: const Text('Retry'),
             ),
@@ -258,18 +259,12 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
             const SizedBox(height: 16),
             Text(
               'No listings found',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Text(
               'Try adjusting your filters',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
           ],
         ),
@@ -292,7 +287,7 @@ class _ViewAllListingsPageState extends State<ViewAllListingsPage>
         itemBuilder: (context, index) {
           final listing = controller.listings[index];
           final isFavorited = controller.isListingFavorited(listing.id);
-          
+
           return ListingCard(
             listing: listing,
             onTap: () => handleListingTap(listing),
@@ -320,7 +315,7 @@ class _TriColorBorderPainter extends CustomPainter {
 
     // Draw three arcs (120 degrees each = 2.094 radians)
     const sweepAngle = 2.094; // 120 degrees in radians
-    
+
     // Segment 1: Green/Teal (AppTheme.authPrimaryColor) - top
     paint.color = AppTheme.authPrimaryColor;
     canvas.drawArc(
