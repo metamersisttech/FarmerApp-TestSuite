@@ -8,6 +8,7 @@ import 'package:flutter_app/features/profile/widgets/listing_shimmer_card.dart';
 import 'package:flutter_app/features/profile/widgets/listings_count_header.dart';
 import 'package:flutter_app/features/profile/widgets/listings_filter_menu.dart';
 import 'package:flutter_app/features/profile/widgets/my_listings_empty_state.dart';
+import 'package:flutter_app/features/postlistings/screens/post_animal_page.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/shared/widgets/cards/listing_card.dart';
@@ -165,9 +166,17 @@ class _MyListingsPageState extends State<MyListingsPage>
   Widget _buildEmptyState() {
     return MyListingsEmptyState(
       filterStatus: selectedFilter,
-      onCreateListing: () {
-        // Navigate to create listing
-        Navigator.pop(context);
+      onCreateListing: () async {
+        // Navigate to PostAnimalPage
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const PostAnimalPage()),
+        );
+        
+        // Refresh listings if a new listing was created
+        if (result == true && mounted) {
+          await _fetchListings();
+        }
       },
     );
   }
