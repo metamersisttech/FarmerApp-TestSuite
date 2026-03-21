@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/features/postlistings/health/controllers/health_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
 /// Mixin for health page state management
 mixin HealthStateMixin<T extends StatefulWidget> on State<T> {
+  late HealthController healthController;
+
   // Text controllers
   late TextEditingController pashuAadharController;
   late TextEditingController colorController;
@@ -26,18 +29,124 @@ mixin HealthStateMixin<T extends StatefulWidget> on State<T> {
     'under_treatment',
   ];
 
-  /// Initialize text controllers
-  void initializeControllers() {
+  /// Initialize controller and text controllers
+  void initializeHealthController(
+    HealthController controller, {
+    VoidCallback? onNext,
+    Function(String)? onShowSuccess,
+    Function(String)? onShowError,
+  }) {
+    healthController = controller;
+    _onNext = onNext;
+    _onShowSuccess = onShowSuccess;
+    _onShowError = onShowError;
+
+    // Listen to controller changes
+    healthController.addListener(_onControllerChanged);
+
+    // Initialize text controllers
     pashuAadharController = TextEditingController();
     colorController = TextEditingController();
     heightController = TextEditingController();
   }
 
-  /// Dispose text controllers
-  void disposeControllers() {
+  // Callbacks
+  VoidCallback? _onNext;
+  Function(String)? _onShowSuccess;
+  Function(String)? _onShowError;
+
+  /// Handle controller changes
+  void _onControllerChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  /// Default toast implementations
+  void _defaultShowSuccess(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.green),
+      );
+    }
+  }
+
+  void _defaultShowError(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  /// Dispose controller and text controllers
+  void disposeHealthController() {
+    healthController.removeListener(_onControllerChanged);
     pashuAadharController.dispose();
     colorController.dispose();
     heightController.dispose();
+  }
+
+  /// Handle Next button press (coordinated in mixin)
+  Future<void> handleNext(int listingId) async {
+    setSubmitting(true);
+
+    try {
+      // Upload vet certificate if selected but not uploaded
+      if (vetCertificateFile != null && vetCertificateKey == null) {
+        final uploadResult =
+            await healthController.uploadVetCertificate(vetCertificateFile!.path);
+
+        if (!mounted) return;
+
+        if (uploadResult.success && uploadResult.fileKey != null) {
+          setState(() {
+            vetCertificateKey = uploadResult.fileKey;
+          });
+        } else {
+          setSubmitting(false);
+          (_onShowError ?? _defaultShowError)(
+              uploadResult.errorMessage ?? 'Failed to upload certificate');
+          return;
+        }
+      }
+
+      // Build PATCH data using controller
+      final healthData = healthController.prepareHealthData(
+        vaccinationStatus: vaccinationStatus,
+        healthStatus: healthStatus,
+        vetCertificateKey: vetCertificateKey,
+        pashuAadhar: pashuAadharController.text,
+        color: colorController.text,
+        height: heightController.text,
+      );
+
+      // Only call PATCH if there's data to update
+      if (healthData.isNotEmpty) {
+        final result = await healthController.updateHealthInfo(listingId, healthData);
+
+        if (!mounted) return;
+
+        if (result.success) {
+          setSubmitting(false);
+          (_onShowSuccess ?? _defaultShowSuccess)('Health information saved!');
+          _onNext?.call();
+        } else {
+          setSubmitting(false);
+          (_onShowError ?? _defaultShowError)(
+              result.errorMessage ?? 'Failed to save health information');
+        }
+      } else {
+        // No data to update, just proceed
+        if (!mounted) return;
+        setSubmitting(false);
+        _onNext?.call();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setSubmitting(false);
+      (_onShowError ?? _defaultShowError)(e.toString());
+    }
   }
 
   /// Set vaccination status
@@ -162,45 +271,5 @@ mixin HealthStateMixin<T extends StatefulWidget> on State<T> {
         ),
       ),
     );
-  }
-
-  /// Format health status for display
-  String formatHealthStatus(String status) {
-    return status
-        .split('_')
-        .map((word) => word[0].toUpperCase() + word.substring(1))
-        .join(' ');
-  }
-
-  /// Build health data for API
-  Map<String, dynamic> getHealthData() {
-    final patchData = <String, dynamic>{};
-
-    if (vaccinationStatus != null) {
-      patchData['vaccination_status'] = vaccinationStatus;
-    }
-    if (healthStatus != null) {
-      patchData['health_status'] = healthStatus;
-    }
-    if (vetCertificateKey != null) {
-      patchData['vet_certificate'] = vetCertificateKey;
-    }
-
-    final pashuAadhar = pashuAadharController.text.trim();
-    if (pashuAadhar.isNotEmpty) {
-      patchData['pashu_aadhar'] = pashuAadhar;
-    }
-
-    final color = colorController.text.trim();
-    if (color.isNotEmpty) {
-      patchData['color'] = color;
-    }
-
-    final height = double.tryParse(heightController.text.trim());
-    if (height != null && height > 0) {
-      patchData['height_cm'] = height;
-    }
-
-    return patchData;
   }
 }

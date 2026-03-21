@@ -5,6 +5,10 @@ import 'package:flutter_app/features/postlistings/health/services/health_service
 class HealthController extends BaseController {
   final HealthService _healthService;
 
+  // Callbacks for UI feedback
+  Function(String message)? onShowSuccess;
+  Function(String message)? onShowError;
+
   HealthController({HealthService? healthService})
       : _healthService = healthService ?? HealthService();
 
@@ -46,5 +50,52 @@ class HealthController extends BaseController {
 
     setLoading(false);
     return result;
+  }
+
+  /// Format health status for display
+  String formatHealthStatus(String status) {
+    return status
+        .split('_')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
+
+  /// Build health data for API
+  Map<String, dynamic> prepareHealthData({
+    String? vaccinationStatus,
+    String? healthStatus,
+    String? vetCertificateKey,
+    required String pashuAadhar,
+    required String color,
+    required String height,
+  }) {
+    final patchData = <String, dynamic>{};
+
+    if (vaccinationStatus != null) {
+      patchData['vaccination_status'] = vaccinationStatus;
+    }
+    if (healthStatus != null) {
+      patchData['health_status'] = healthStatus;
+    }
+    if (vetCertificateKey != null) {
+      patchData['vet_certificate'] = vetCertificateKey;
+    }
+
+    final pashu = pashuAadhar.trim();
+    if (pashu.isNotEmpty) {
+      patchData['pashu_aadhar'] = pashu;
+    }
+
+    final col = color.trim();
+    if (col.isNotEmpty) {
+      patchData['color'] = col;
+    }
+
+    final heightValue = double.tryParse(height.trim());
+    if (heightValue != null && heightValue > 0) {
+      patchData['height_cm'] = heightValue;
+    }
+
+    return patchData;
   }
 }
