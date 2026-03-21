@@ -105,7 +105,10 @@ class _RecentlyViewedPageState extends State<RecentlyViewedPage>
       // Bottom Navigation Bar
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: currentBottomNavIndex,
-        onTap: (index) => handleRecentlyViewedBottomNavigation(index, handleBottomNavTap),
+        onTap: (index) => handleRecentlyViewedBottomNavigation(
+          index,
+          homeController.onNavigateToTab ?? (_) {},
+        ),
       ),
     );
   }

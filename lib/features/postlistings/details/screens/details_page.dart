@@ -9,6 +9,11 @@ import 'package:flutter_app/features/postlistings/details/widgets/animal_type_dr
 import 'package:flutter_app/features/postlistings/details/widgets/breed_dropdown.dart';
 import 'package:flutter_app/features/postlistings/details/widgets/farm_dropdown.dart';
 import 'package:flutter_app/features/postlistings/details/widgets/gender_selector.dart';
+import 'package:flutter_app/features/postlistings/details/widgets/location_requirement_banner.dart';
+import 'package:flutter_app/features/postlistings/details/widgets/section_title.dart';
+import 'package:flutter_app/features/postlistings/details/widgets/field_error.dart';
+import 'package:flutter_app/features/postlistings/details/widgets/price_type_chip.dart';
+import 'package:flutter_app/features/postlistings/details/widgets/form_input_decoration_helper.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/features/location/models/location_model.dart';
 import 'package:flutter_app/features/location/screens/location_page.dart';
@@ -36,10 +41,7 @@ class _DetailsPageState extends State<DetailsPage>
   void initState() {
     super.initState();
     _controller = DetailsController();
-    initializeControllers();
-
-    // Add listener to rebuild when controller state changes
-    _controller.addListener(_onControllerChanged);
+    initializeDetailsController(_controller);
 
     _controller.fetchAnimals();
     _controller.fetchFarms();
@@ -50,19 +52,9 @@ class _DetailsPageState extends State<DetailsPage>
 
   @override
   void dispose() {
-    _controller.removeListener(_onControllerChanged);
-    disposeControllers();
+    disposeDetailsController();
     _controller.dispose();
     super.dispose();
-  }
-
-  /// Handle controller state changes
-  void _onControllerChanged() {
-    if (mounted) {
-      setState(() {
-        // Rebuild when controller state changes
-      });
-    }
   }
 
   /// Check location permission on page load
@@ -295,7 +287,19 @@ class _DetailsPageState extends State<DetailsPage>
 
   /// Handle Next button press
   Future<void> _handleNext() async {
-    if (!validateForm()) {
+    // Validate form using controller
+    final isValid = _controller.validateFormData(
+      hasValidLocationSource: hasValidLocationSource,
+      isLocationRequired: isLocationRequired,
+      selectedLocation: selectedLocation,
+      selectedAnimalType: selectedAnimalType,
+      selectedBreed: selectedBreed,
+      selectedGender: selectedGender,
+      weightText: weightController.text,
+      priceText: priceController.text,
+    );
+
+    if (!isValid) {
       showErrorToast('Please fill all required fields');
       return;
     }
@@ -303,9 +307,20 @@ class _DetailsPageState extends State<DetailsPage>
     setSubmitting(true);
 
     try {
-      final formData = getFormData();
+      // Prepare form data using controller
+      final formData = _controller.prepareFormData(
+        selectedAnimalId: selectedAnimalId,
+        selectedGender: selectedGender,
+        selectedAge: selectedAge,
+        selectedFarmId: selectedFarmId,
+        selectedLocation: selectedLocation,
+        selectedBreed: selectedBreed,
+        selectedAnimalType: selectedAnimalType,
+        weightText: weightController.text,
+        priceText: priceController.text,
+      );
 
-      // Location is already added by getFormData() if selectedLocation is set.
+      // Location is already added by prepareFormData() if selectedLocation is set.
       // This includes both manual selection and auto-detected location
       // (which was stored via setSelectedLocation in _autoPopulateLocation).
 
@@ -374,11 +389,18 @@ class _DetailsPageState extends State<DetailsPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Location Requirement Banner
-                _buildLocationRequirementBanner(),
+                LocationRequirementBanner(
+                  hasLocationPermission: _controller.isLocationPermissionGranted,
+                  hasFarm: selectedFarmId != null,
+                  farmHasCoordinates: selectedFarmHasCoordinates,
+                  isChecking: _controller.isCheckingLocationPermission,
+                  hasManualLocation: selectedLocation != null,
+                  onEnableLocation: _promptForLocationPermission,
+                ),
                 const SizedBox(height: 16),
 
                 // Farm Selection
-                _buildSectionTitle('Select Farm'),
+                const SectionTitle(title: 'Select Farm'),
                 const SizedBox(height: 12),
                 FarmDropdown(
                   controller: _controller,
@@ -427,13 +449,13 @@ class _DetailsPageState extends State<DetailsPage>
                     _handleDeleteFarm(farmId);
                   },
                 ),
-                if (farmError != null) _buildFieldError(farmError!),
+                if (farmError != null) FieldError(error: farmError!),
 
                 const SizedBox(height: 24),
 
                 // Location Field (only show if farm doesn't have lat/lng)
                 if (isLocationRequired) ...[
-                  _buildSectionTitle('Location', isRequired: true),
+                  const SectionTitle(title: 'Location', isRequired: true),
                   const SizedBox(height: 12),
                   GestureDetector(
                     onTap: _handleLocationSelection,
@@ -483,12 +505,12 @@ class _DetailsPageState extends State<DetailsPage>
                       ),
                     ),
                   ),
-                  if (locationError != null) _buildFieldError(locationError!),
+                  if (locationError != null) FieldError(error: locationError!),
                   const SizedBox(height: 24),
                 ],
 
                 // Animal Type
-                _buildSectionTitle('Animal Type', isRequired: true),
+                const SectionTitle(title: 'Animal Type', isRequired: true),
                 const SizedBox(height: 12),
                 AnimalTypeDropdown(
                   controller: _controller,
@@ -497,12 +519,12 @@ class _DetailsPageState extends State<DetailsPage>
                   error: animalTypeError,
                   onAnimalTypeSelected: _onAnimalTypeSelected,
                 ),
-                if (animalTypeError != null) _buildFieldError(animalTypeError!),
+                if (animalTypeError != null) FieldError(error: animalTypeError!),
 
                 const SizedBox(height: 24),
 
                 // Breed
-                _buildSectionTitle('Breed', isRequired: true),
+                const SectionTitle(title: 'Breed', isRequired: true),
                 const SizedBox(height: 12),
                 BreedDropdown(
                   controller: _controller,
@@ -512,19 +534,19 @@ class _DetailsPageState extends State<DetailsPage>
                   error: breedError,
                   onBreedSelected: _onBreedSelected,
                 ),
-                if (breedError != null) _buildFieldError(breedError!),
+                if (breedError != null) FieldError(error: breedError!),
 
                 const SizedBox(height: 24),
 
                 // Gender
-                _buildSectionTitle('Gender', isRequired: true),
+                const SectionTitle(title: 'Gender', isRequired: true),
                 const SizedBox(height: 12),
                 GenderSelector(
                   selectedGender: selectedGender,
                   error: genderError,
                   onGenderSelected: setSelectedGender,
                 ),
-                if (genderError != null) _buildFieldError(genderError!),
+                if (genderError != null) FieldError(error: genderError!),
 
                 const SizedBox(height: 16),
 
@@ -536,11 +558,11 @@ class _DetailsPageState extends State<DetailsPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionTitle('Age'),
+                          const SectionTitle(title: 'Age'),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<String>(
                             initialValue: selectedAge,
-                            decoration: _buildInputDecoration(
+                            decoration: FormInputDecorationHelper.build(
                               hintText: 'Select age',
                               error: ageError,
                             ),
@@ -557,12 +579,12 @@ class _DetailsPageState extends State<DetailsPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionTitle('Weight (kg)'),
+                          const SectionTitle(title: 'Weight (kg)'),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: weightController,
                             keyboardType: TextInputType.number,
-                            decoration: _buildInputDecoration(
+                            decoration: FormInputDecorationHelper.build(
                               hintText: 'e.g. 350',
                               error: weightError,
                             ),
@@ -581,12 +603,12 @@ class _DetailsPageState extends State<DetailsPage>
                 const SizedBox(height: 16),
 
                 // Price Type
-                _buildSectionTitle('Price Type'),
+                const SectionTitle(title: 'Price Type'),
                 const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
-                      child: _buildPriceTypeChip(
+                      child: PriceTypeChip(
                         label: 'Fixed Price',
                         icon: '💰',
                         isSelected: selectedPriceType == 'Fixed',
@@ -595,7 +617,7 @@ class _DetailsPageState extends State<DetailsPage>
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _buildPriceTypeChip(
+                      child: PriceTypeChip(
                         label: 'Auction',
                         icon: '🔨',
                         isSelected: selectedPriceType == 'Auction',
@@ -608,7 +630,7 @@ class _DetailsPageState extends State<DetailsPage>
                 const SizedBox(height: 16),
 
                 // Enter Price
-                _buildSectionTitle('Enter Price (₹)', isRequired: true),
+                const SectionTitle(title: 'Enter Price (₹)', isRequired: true),
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
@@ -626,7 +648,7 @@ class _DetailsPageState extends State<DetailsPage>
                   child: TextFormField(
                     controller: priceController,
                     keyboardType: TextInputType.number,
-                    decoration: _buildInputDecoration(
+                    decoration: FormInputDecorationHelper.build(
                       hintText: 'e.g. 50000',
                       error: priceError,
                       prefixIcon: const Icon(Icons.currency_rupee, size: 20),
@@ -713,238 +735,6 @@ class _DetailsPageState extends State<DetailsPage>
           ),
         ),
       ],
-    );
-  }
-
-  /// Build location requirement banner showing status
-  Widget _buildLocationRequirementBanner() {
-    final hasLocationPermission = _controller.isLocationPermissionGranted;
-    final hasFarm = selectedFarmId != null;
-    final farmHasCoords = selectedFarmHasCoordinates;
-    final isChecking = _controller.isCheckingLocationPermission;
-
-    // Determine the actual location source status
-    // Valid if: (1) farm with coords, (2) location permission granted, (3) manual location selected
-    final hasManualLocation = selectedLocation != null;
-    final isValid = (hasFarm && farmHasCoords) || hasLocationPermission || hasManualLocation;
-
-    // Show loading state while checking permission
-    if (isChecking) {
-      return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.withOpacity(0.3)),
-        ),
-        child: const Row(
-          children: [
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            SizedBox(width: 10),
-            Text(
-              'Checking location access...',
-              style: TextStyle(fontSize: 13, color: Colors.grey),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Determine the status message
-    String statusMessage;
-    if (hasFarm && farmHasCoords) {
-      statusMessage = 'Using farm location';
-    } else if (hasFarm && !farmHasCoords && hasManualLocation) {
-      statusMessage = 'Using selected location';
-    } else if (hasFarm && !farmHasCoords && hasLocationPermission) {
-      statusMessage = 'Farm has no location - using current location';
-    } else if (hasFarm && !farmHasCoords) {
-      statusMessage = 'Farm has no location - please select a location';
-    } else if (hasLocationPermission) {
-      statusMessage = 'Using current location';
-    } else if (hasManualLocation) {
-      statusMessage = 'Using selected location';
-    } else {
-      statusMessage = 'Select a farm or enable location access';
-    }
-
-    // Show warning state if farm lacks coordinates and no fallback
-    final showWarning = hasFarm && !farmHasCoords && !hasLocationPermission && !hasManualLocation;
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isValid
-            ? Colors.green.withOpacity(0.1)
-            : (showWarning ? Colors.orange.withOpacity(0.1) : Colors.orange.withOpacity(0.1)),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isValid
-              ? Colors.green.withOpacity(0.3)
-              : Colors.orange.withOpacity(0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isValid ? Icons.check_circle : (showWarning ? Icons.warning : Icons.info_outline),
-            color: isValid ? Colors.green : Colors.orange,
-            size: 20,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              statusMessage,
-              style: TextStyle(
-                fontSize: 13,
-                color: isValid ? Colors.green.shade700 : Colors.orange.shade700,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          if (!isValid && !hasLocationPermission)
-            TextButton(
-              onPressed: _promptForLocationPermission,
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-              ),
-              child: const Text('Enable'),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, {bool isRequired = false}) {
-    return Row(
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        if (isRequired)
-          const Text(
-            ' *',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.red,
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildFieldError(String error) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 6, left: 4),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline, size: 14, color: Colors.red.shade700),
-          const SizedBox(width: 4),
-          Text(
-            error,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.red.shade700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPriceTypeChip({
-    required String label,
-    required String icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.authPrimaryColor.withOpacity(0.1) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? AppTheme.authPrimaryColor : AppTheme.authPrimaryColor.withOpacity(0.5),
-            width: isSelected ? 2 : 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? AppTheme.authPrimaryColor.withOpacity(0.2)
-                  : AppTheme.authPrimaryColor.withOpacity(0.1),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 20)),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? AppTheme.authPrimaryColor : Colors.black87,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  InputDecoration _buildInputDecoration({
-    required String hintText,
-    String? error,
-    Widget? prefixIcon,
-    bool filled = false,
-  }) {
-    return InputDecoration(
-      hintText: hintText,
-      errorText: error,
-      prefixIcon: prefixIcon,
-      filled: filled,
-      fillColor: filled ? Colors.white : null,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: error != null ? Colors.red : AppTheme.authPrimaryColor,
-          width: 1.5,
-        ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: error != null ? Colors.red : AppTheme.authPrimaryColor.withOpacity(0.5),
-          width: 1.5,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: error != null ? Colors.red : AppTheme.authPrimaryColor,
-          width: 2,
-        ),
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
     );
   }
 }

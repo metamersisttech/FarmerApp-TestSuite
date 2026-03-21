@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/location/models/location_model.dart';
+import 'package:flutter_app/features/postlistings/details/controllers/details_controller.dart';
 
 /// Mixin for details page state management
 mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
+  late DetailsController detailsController;
+
   // Text controllers
   late TextEditingController animalSearchController;
   late TextEditingController breedSearchController;
@@ -38,8 +41,18 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
   // Loading states
   bool isSubmitting = false;
 
-  /// Initialize text controllers
-  void initializeControllers() {
+  /// Initialize controller and text controllers
+  void initializeDetailsController(DetailsController controller) {
+    detailsController = controller;
+
+    // Set up callbacks
+    detailsController.onFieldError = _handleFieldError;
+    detailsController.onClearErrors = _handleClearErrors;
+
+    // Listen to controller changes
+    detailsController.addListener(_onControllerChanged);
+
+    // Initialize text controllers
     animalSearchController = TextEditingController();
     breedSearchController = TextEditingController();
     farmSearchController = TextEditingController();
@@ -48,8 +61,26 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
     locationController = TextEditingController();
   }
 
-  /// Dispose text controllers
-  void disposeControllers() {
+  /// Handle controller changes
+  void _onControllerChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  /// Handle field error from controller
+  void _handleFieldError(String field, String? error) {
+    setFieldError(field, error);
+  }
+
+  /// Handle clear errors from controller
+  void _handleClearErrors() {
+    clearAllErrors();
+  }
+
+  /// Dispose controller and text controllers
+  void disposeDetailsController() {
+    detailsController.removeListener(_onControllerChanged);
     animalSearchController.dispose();
     breedSearchController.dispose();
     farmSearchController.dispose();
@@ -236,142 +267,5 @@ mixin DetailsStateMixin<T extends StatefulWidget> on State<T> {
         isSubmitting = submitting;
       });
     }
-  }
-
-  /// Validate all required fields
-  bool validateForm() {
-    bool isValid = true;
-
-    clearAllErrors();
-
-    // Consolidated location validation:
-    // Must have one of: (1) farm with coordinates, (2) manual location, (3) auto-detected location
-    // hasValidLocationSource tracks if we have permission OR farm with coords
-    // isLocationRequired means farm is selected but lacks coordinates
-    if (!hasValidLocationSource) {
-      // No permission and no farm selected
-      setFieldError('location', 'Please grant location access or select a farm');
-      isValid = false;
-    } else if (isLocationRequired && selectedLocation == null) {
-      // Farm selected but lacks coordinates, and no manual location provided
-      setFieldError('location', 'Selected farm has no location - please select a location');
-      isValid = false;
-    }
-
-    // Validate Animal Type (required)
-    if (selectedAnimalType == null || selectedAnimalType!.isEmpty) {
-      setFieldError('animalType', 'Please select an animal type');
-      isValid = false;
-    }
-
-    // Validate Breed (required)
-    if (selectedBreed == null || selectedBreed!.isEmpty) {
-      setFieldError('breed', 'Please select a breed');
-      isValid = false;
-    }
-
-    // Validate Gender (required)
-    if (selectedGender == null || selectedGender!.isEmpty) {
-      setFieldError('gender', 'Please select a gender');
-      isValid = false;
-    }
-
-    // Weight is optional - only validate if provided
-    final weight = weightController.text.trim();
-    if (weight.isNotEmpty) {
-      final weightValue = double.tryParse(weight);
-      if (weightValue == null || weightValue <= 0) {
-        setFieldError('weight', 'Please enter a valid weight');
-        isValid = false;
-      }
-    }
-
-    // Validate Price (required)
-    final price = priceController.text.trim();
-    if (price.isEmpty) {
-      setFieldError('price', 'Please enter price');
-      isValid = false;
-    } else {
-      final priceValue = double.tryParse(price);
-      if (priceValue == null || priceValue <= 0) {
-        setFieldError('price', 'Please enter a valid price');
-        isValid = false;
-      }
-    }
-
-    return isValid;
-  }
-
-  /// Convert age string to months
-  int getAgeInMonths() {
-    switch (selectedAge) {
-      case '1 Year':
-        return 12;
-      case '2 Years':
-        return 24;
-      case '3 Years':
-        return 36;
-      case '4 Years':
-        return 48;
-      case '5+ Years':
-        return 60;
-      default:
-        return 0;
-    }
-  }
-
-  /// Get form data as Map for API
-  Map<String, dynamic> getFormData() {
-    final ageMonths = getAgeInMonths();
-    final ageYears = ageMonths > 0 ? (ageMonths / 12).round() : 0;
-    final weight = double.tryParse(weightController.text.trim());
-
-    // Generate title from form data
-    String title = selectedBreed ?? selectedAnimalType ?? 'Animal';
-    if (ageYears > 0) {
-      title += ' - $ageYears ${ageYears == 1 ? 'Year' : 'Years'} Old';
-    }
-
-    // Generate description
-    final descParts = <String>[];
-    descParts.add(
-        'Healthy ${selectedGender?.toLowerCase() ?? ''} ${selectedBreed ?? selectedAnimalType}.');
-    if (ageYears > 0) {
-      descParts.add('Age: $ageYears ${ageYears == 1 ? 'year' : 'years'}.');
-    }
-    if (weight != null && weight > 0) {
-      descParts.add('Weight: ${weight.toStringAsFixed(0)} kg.');
-    }
-    final description = descParts.join(' ');
-
-    final data = <String, dynamic>{
-      'title': title,
-      'description': description,
-      'animal': selectedAnimalId,
-      'gender': selectedGender?.toLowerCase(),
-      'price': double.tryParse(priceController.text.trim()) ?? 0,
-      'currency': 'INR',
-    };
-
-    // Add optional fields only if they have values
-    if (selectedFarmId != null) {
-      data['farm'] = selectedFarmId;
-    }
-    if (ageMonths > 0) {
-      data['age_months'] = ageMonths;
-    }
-    if (weight != null && weight > 0) {
-      data['weight_kg'] = weight;
-    }
-
-    // Add location if selected (for listings where farm doesn't have lat/lng)
-    if (selectedLocation?.latitude != null && selectedLocation?.longitude != null) {
-      data['location'] = {
-        'lat': selectedLocation!.latitude,
-        'long': selectedLocation!.longitude,
-      };
-    }
-
-    return data;
   }
 }
