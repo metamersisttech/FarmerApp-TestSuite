@@ -51,7 +51,9 @@ class _TransportDashboardScreenState extends State<TransportDashboardScreen> {
             ),
             body: controller.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : RefreshIndicator(
+                : controller.needsLocationSetup
+                    ? _buildLocationRequiredView(context, controller)
+                    : RefreshIndicator(
                     onRefresh: controller.refresh,
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -101,6 +103,49 @@ class _TransportDashboardScreenState extends State<TransportDashboardScreen> {
                   ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildLocationRequiredView(BuildContext context, TransportDashboardController controller) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.location_off, size: 64, color: Colors.orange),
+            const SizedBox(height: 16),
+            Text(
+              'Location Required',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please enable location access to start accepting transport requests.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final success = await controller.setupInitialLocation();
+                if (!success && mounted) {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(controller.errorMessage ?? 'Failed to get location'),
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.my_location),
+              label: const Text('Enable Location'),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -37,6 +37,11 @@ class TransportDashboardController extends BaseController {
   /// Check if has profile
   bool get hasProfile => _profile != null;
 
+  /// Check if location needs to be set
+  bool get needsLocationSetup =>
+      _profile != null &&
+      (_profile!.latitude == null || _profile!.longitude == null);
+
   /// Get formatted earnings
   String get formattedEarnings => '\u20B9${_totalEarningsToday.toStringAsFixed(0)}';
 
@@ -108,6 +113,28 @@ class TransportDashboardController extends BaseController {
       _completedTripsToday = result.completedTripsToday ?? 0;
       _totalEarningsToday = result.totalEarningsToday ?? 0.0;
       notifyListeners();
+    }
+  }
+
+  /// Setup initial location (for first-time providers)
+  Future<bool> setupInitialLocation() async {
+    final hasPermission = await _checkLocationPermission();
+    if (!hasPermission) {
+      setError('Location permission required');
+      return false;
+    }
+
+    setLoading(true);
+    try {
+      await _updateLocationNow();
+      await _loadProfile(); // Reload profile to confirm location is set
+      notifyListeners();
+      return true;
+    } catch (e) {
+      setError('Failed to update location: $e');
+      return false;
+    } finally {
+      setLoading(false);
     }
   }
 
