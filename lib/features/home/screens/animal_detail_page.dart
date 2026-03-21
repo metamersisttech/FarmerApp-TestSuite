@@ -39,9 +39,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
     super.initState();
     initializeAnimalDetail();
 
-    // Fetch animal details after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      fetchDetails();
+      controller.fetchAnimalDetail(listingId);
     });
   }
 
@@ -62,12 +61,12 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
           : _buildContent(),
       bottomNavigationBar: controller.hasData
           ? BottomActionBar(
-              onCallTap: handleCallTap,
-              onChatTap: handleChatTap,
-              onVideoTap: handleVideoTap,
-              onBuyNowTap: handleBuyNowTap,
-              isOwner: isOwner,
-              onViewBidsTap: handleViewBidsTap,
+              onCallTap: () => controller.handleCall(),
+              onChatTap: () => controller.handleChat(context, listingId),
+              onVideoTap: () => controller.handleVideo(),
+              onBuyNowTap: () => controller.handleBuyNow(),
+              isOwner: controller.isOwner,
+              onViewBidsTap: () => controller.navigateToViewBids(context, listingId),
             )
           : null,
     );
@@ -109,12 +108,12 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 OutlinedButton(
-                  onPressed: handleBackTap,
+                  onPressed: () => controller.navigateBack(context),
                   child: const Text('Go Back'),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
-                  onPressed: fetchDetails,
+                  onPressed: () => controller.fetchAnimalDetail(listingId),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.authPrimaryColor,
                   ),
@@ -143,9 +142,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
             currentIndex: currentImageIndex,
             pageController: imagePageController,
             onPageChanged: setImageIndex,
-            onBackTap: handleBackTap,
-            onShareTap: handleShareTap,
-            onFavoriteTap: handleFavoriteTap,
+            onBackTap: () => controller.navigateBack(context),
+            onShareTap: () => controller.handleShare(),
+            onFavoriteTap: () => controller.toggleFavorite(),
             isFavorite: controller.isFavorite,
           ),
 
@@ -184,17 +183,16 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
           if (animal.seller != null)
             SellerInfoCard(
               seller: animal.seller!,
-              onContactTap: handleSellerContactTap,
+              onContactTap: () => controller.handleSellerContact(),
             ),
 
-          // Transport Section (hardcoded for now)
+          // Transport Section
           const TransportSection(
             isAvailable: true,
             estimatedCost: 3500,
             onBookTap: null,
           ),
 
-          // Bottom padding for bottom action bar
           const SizedBox(height: 20),
         ],
       ),

@@ -1,145 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/features/home/controllers/animal_detail_controller.dart';
-import 'package:flutter_app/features/messaging/services/messaging_service.dart';
-import 'package:flutter_app/routes/app_routes.dart';
 
-/// Mixin for Animal Detail page functionality and coordination
-/// Contains all business logic coordination and UI event handlers
+/// Mixin for reusable Animal Detail state coordination
+/// 
+/// Purpose: Share common state management patterns
+/// - Controller lifecycle management
+/// - Listener setup and teardown
+/// - Image gallery state coordination
+/// - UI state synchronization
+/// 
+/// Does NOT contain business logic - only coordinates state
 mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
   late AnimalDetailController controller;
   int currentImageIndex = 0;
   late PageController imagePageController;
 
-  bool _isOwner = false;
-
-  /// Whether the current user owns this listing
-  bool get isOwner => _isOwner;
-
   /// Get the listing ID (must be implemented by the screen)
   int get listingId;
 
-  /// Initialize controller and image controller
-  void initializeAnimalDetail() {
+  /// Initialize controller and image controller with callbacks
+  void initializeAnimalDetail({
+    Function(String)? onShowComingSoon,
+    Function(String)? onShowSuccess,
+    Function(String)? onShowError,
+  }) {
     controller = AnimalDetailController();
+    controller.onShowComingSoon = onShowComingSoon ?? _defaultShowComingSoon;
+    controller.onShowSuccess = onShowSuccess ?? _defaultShowSuccess;
+    controller.onShowError = onShowError ?? _defaultShowError;
+    
+    // Add listener to rebuild when controller state changes
+    controller.addListener(_onControllerChanged);
+    
     imagePageController = PageController();
+  }
+
+  /// Handle controller state changes
+  void _onControllerChanged() {
+    if (mounted) {
+      setState(() {
+        // Rebuild when controller state changes
+      });
+    }
   }
 
   /// Dispose controllers
   void disposeAnimalDetail() {
+    controller.removeListener(_onControllerChanged);
     controller.dispose();
     imagePageController.dispose();
-  }
-
-  /// Fetch animal details from API
-  /// Fetch animal details from API
-  Future<void> fetchDetails() async {
-    await controller.fetchAnimalDetail(listingId);
-
-    if (!mounted) return;
-
-    // Check ownership
-    try {
-      final user = await CommonHelper().getLoggedInUser();
-      if (user != null && controller.animalDetail?.seller != null) {
-        _isOwner = controller.animalDetail!.seller!.id == user.id;
-      }
-    } catch (_) {
-      // Silently fail ownership check
-    }
-
-    if (!mounted) return;
-
-    setState(() {});
-
-    if (controller.errorMessage != null) {
-      showErrorToast(controller.errorMessage!);
-    }
-  }
-
-  /// Handle back button tap
-  void handleBackTap() {
-    Navigator.of(context).pop();
-  }
-
-  /// Handle share button tap
-  void handleShareTap() {
-    controller.shareAnimal();
-    showComingSoonAction('Share');
-  }
-
-  /// Handle favorite button tap
-  Future<void> handleFavoriteTap() async {
-    await controller.toggleFavorite();
-
-    if (!mounted) return;
-
-    setState(() {});
-
-    if (controller.errorMessage != null) {
-      showErrorToast(controller.errorMessage!);
-    } else {
-      showSuccessToast(
-        controller.isFavorite ? 'Added to favorites' : 'Removed from favorites',
-      );
-    }
-  }
-
-  /// Handle call button tap
-  void handleCallTap() {
-    showComingSoonAction('Call');
-  }
-
-  /// Handle chat button tap - start or open conversation with seller
-  Future<void> handleChatTap() async {
-    if (!mounted) return;
-
-    // Show a brief loading indicator
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Opening chat...'),
-        duration: Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    final messagingService = MessagingService();
-    final result = await messagingService.startConversation(listingId);
-
-    if (!mounted) return;
-
-    // Dismiss the loading snackbar
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-    if (result.success && result.conversation != null) {
-      Navigator.pushNamed(
-        context,
-        AppRoutes.directChat,
-        arguments: result.conversation,
-      );
-    } else {
-      showErrorToast(result.message ?? 'Failed to start conversation');
-    }
-  }
-
-  /// Handle video button tap
-  void handleVideoTap() {
-    showComingSoonAction('Video call');
-  }
-
-  /// Handle buy now button tap
-  void handleBuyNowTap() {
-    showComingSoonAction('Buy Now');
-  }
-
-  /// Handle book transport tap
-  void handleBookTransportTap() {
-    showComingSoonAction('Book Transport');
-  }
-
-  /// Handle seller contact tap
-  void handleSellerContactTap() {
-    showComingSoonAction('Contact Seller');
   }
 
   /// Set the current image index
@@ -178,10 +87,9 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
-  // ========== Toast/SnackBar Methods ==========
+  // ========== Default Toast/SnackBar Methods ==========
 
-  /// Show coming soon action toast
-  void showComingSoonAction(String actionName) {
+  void _defaultShowComingSoon(String actionName) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -193,8 +101,7 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// Show success toast
-  void showSuccessToast(String message) {
+  void _defaultShowSuccess(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -207,8 +114,7 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// Show error toast
-  void showErrorToast(String message) {
+  void _defaultShowError(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -219,9 +125,5 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
         ),
       );
     }
-  }
-
-  void handleViewBidsTap() {
-    Navigator.pushNamed(context, AppRoutes.listingBids, arguments: listingId);
   }
 }

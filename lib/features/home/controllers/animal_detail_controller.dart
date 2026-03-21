@@ -1,23 +1,39 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_app/core/base/base_controller.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/animal_detail_model.dart';
 import 'package:flutter_app/features/home/services/animal_detail_service.dart';
+import 'package:flutter_app/features/messaging/services/messaging_service.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// Animal Detail Controller
 ///
 /// Manages the state and business logic for the Animal Detail page.
 /// Uses AnimalDetailService for data operations.
+/// Handles all business decisions and navigation logic.
 class AnimalDetailController extends BaseController {
   final AnimalDetailService _animalDetailService;
+  final MessagingService _messagingService;
+  final CommonHelper _commonHelper;
+  
+  // Callbacks
+  Function(String)? onShowComingSoon;
+  Function(String)? onShowSuccess;
+  Function(String)? onShowError;
 
   AnimalDetailModel? _animalDetail;
   bool _isFavorite = false;
+  bool _isOwner = false;
 
   /// Current animal detail data
   AnimalDetailModel? get animalDetail => _animalDetail;
 
   /// Whether the listing is favorited
   bool get isFavorite => _isFavorite;
+  
+  /// Whether the current user owns this listing
+  bool get isOwner => _isOwner;
 
   /// Check if data is loaded successfully
   bool get hasData => _animalDetail != null;
@@ -28,8 +44,13 @@ class AnimalDetailController extends BaseController {
   /// Get listing title
   String? get title => _animalDetail?.title;
 
-  AnimalDetailController({AnimalDetailService? animalDetailService})
-      : _animalDetailService = animalDetailService ?? AnimalDetailService();
+  AnimalDetailController({
+    AnimalDetailService? animalDetailService,
+    MessagingService? messagingService,
+    CommonHelper? commonHelper,
+  })  : _animalDetailService = animalDetailService ?? AnimalDetailService(),
+        _messagingService = messagingService ?? MessagingService(),
+        _commonHelper = commonHelper ?? CommonHelper();
 
   /// Fetch animal details from the API
   Future<void> fetchAnimalDetail(int listingId) async {
@@ -49,6 +70,9 @@ class AnimalDetailController extends BaseController {
 
       // Check favorite status
       await _checkFavoriteStatus(listingId);
+      
+      // Check ownership
+      await _checkOwnership();
 
       notifyListeners();
     } catch (e) {
@@ -70,7 +94,18 @@ class AnimalDetailController extends BaseController {
       _isFavorite = await _animalDetailService.isFavorited(listingId);
     } catch (e) {
       debugPrint('[AnimalDetailController] Error checking favorite status: $e');
-      // Don't fail the whole load if favorite check fails
+    }
+  }
+  
+  /// Check ownership of the listing
+  Future<void> _checkOwnership() async {
+    try {
+      final user = await _commonHelper.getLoggedInUser();
+      if (user != null && _animalDetail?.seller != null) {
+        _isOwner = _animalDetail!.seller!.id == user.id;
+      }
+    } catch (e) {
+      debugPrint('[AnimalDetailController] Error checking ownership: $e');
     }
   }
 
@@ -94,42 +129,111 @@ class AnimalDetailController extends BaseController {
         debugPrint('[AnimalDetailController] Removed from favorites: $listingId');
       }
       
-      // Clear any previous errors on success
       clearError();
+      
+      // Show success message
+      if (onShowSuccess != null) {
+        onShowSuccess!(_isFavorite ? 'Added to favorites' : 'Removed from favorites');
+      }
     } catch (e) {
       final errorMessage = e.toString().replaceAll('Exception: ', '');
       
-      // Check if the error is "already in favorites"
       if (errorMessage.contains('already in your favorites')) {
-        // Don't revert - keep the optimistic update (it's already favorited)
         _isFavorite = true;
         notifyListeners();
-        debugPrint('[AnimalDetailController] Listing already favorited, keeping as favorite');
+        debugPrint('[AnimalDetailController] Listing already favorited');
         
-        // Set a friendly error message
-        if (!isDisposed) {
-          setError('Already in favorites');
+        if (onShowError != null) {
+          onShowError!('Already in favorites');
         }
-        rethrow; // Rethrow so UI shows it's already favorited
       } else {
-        // For other errors, revert the optimistic update
         _isFavorite = previousState;
         notifyListeners();
         
         debugPrint('[AnimalDetailController] Error toggling favorite: $e');
-        if (!isDisposed) {
-          setError(errorMessage);
+        if (onShowError != null) {
+          onShowError!(errorMessage);
         }
-        rethrow;
       }
     }
   }
 
-  /// Share the animal listing
-  void shareAnimal() {
+  /// Handle share action
+  void handleShare() {
     if (_animalDetail == null) return;
     // TODO: Implement share functionality using share_plus package
     debugPrint('[AnimalDetailController] Share: ${_animalDetail?.title}');
+    if (onShowComingSoon != null) {
+      onShowComingSoon!('Share');
+    }
+  }
+
+  /// Handle call action
+  void handleCall() {
+    if (onShowComingSoon != null) {
+      onShowComingSoon!('Call');
+    }
+  }
+
+  /// Handle chat action - start or open conversation with seller
+  Future<void> handleChat(BuildContext context, int listingId) async {
+    try {
+      final result = await _messagingService.startConversation(listingId);
+
+      if (result.success && result.conversation != null) {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.directChat,
+          arguments: result.conversation,
+        );
+      } else {
+        if (onShowError != null) {
+          onShowError!(result.message ?? 'Failed to start conversation');
+        }
+      }
+    } catch (e) {
+      if (onShowError != null) {
+        onShowError!('Failed to start conversation');
+      }
+    }
+  }
+
+  /// Handle video call action
+  void handleVideo() {
+    if (onShowComingSoon != null) {
+      onShowComingSoon!('Video call');
+    }
+  }
+
+  /// Handle buy now action
+  void handleBuyNow() {
+    if (onShowComingSoon != null) {
+      onShowComingSoon!('Buy Now');
+    }
+  }
+
+  /// Handle book transport action
+  void handleBookTransport() {
+    if (onShowComingSoon != null) {
+      onShowComingSoon!('Book Transport');
+    }
+  }
+
+  /// Handle seller contact action
+  void handleSellerContact() {
+    if (onShowComingSoon != null) {
+      onShowComingSoon!('Contact Seller');
+    }
+  }
+
+  /// Navigate to view bids
+  void navigateToViewBids(BuildContext context, int listingId) {
+    Navigator.pushNamed(context, AppRoutes.listingBids, arguments: listingId);
+  }
+
+  /// Navigate back
+  void navigateBack(BuildContext context) {
+    Navigator.of(context).pop();
   }
 
   /// Report the listing
