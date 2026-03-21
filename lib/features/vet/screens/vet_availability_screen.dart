@@ -61,12 +61,13 @@ class _VetAvailabilityScreenState extends State<VetAvailabilityScreen>
       builder: (sheetContext) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
+            final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
             return Padding(
               padding: EdgeInsets.only(
                 left: 20,
                 right: 20,
                 top: 20,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom + bottomPadding + 20,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -237,12 +238,13 @@ class _VetAvailabilityScreenState extends State<VetAvailabilityScreen>
       builder: (sheetContext) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
+            final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
             return Padding(
               padding: EdgeInsets.only(
                 left: 20,
                 right: 20,
                 top: 20,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom + bottomPadding + 20,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,

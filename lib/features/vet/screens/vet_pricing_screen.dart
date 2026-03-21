@@ -134,125 +134,148 @@ class _VetPricingScreenState extends State<VetPricingScreen>
   }
 
   Widget _buildPricingForm() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Info banner
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppTheme.authPrimaryColor.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.authPrimaryColor.withOpacity(0.2),
-                ),
-              ),
-              child: Row(
+    return Column(
+      children: [
+        // Scrollable content
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: AppTheme.authPrimaryColor,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Set your consultation fees. Farmers will see these prices when booking appointments.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[700],
-                        height: 1.4,
+                  // Info banner
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppTheme.authPrimaryColor.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppTheme.authPrimaryColor.withOpacity(0.2),
                       ),
                     ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: AppTheme.authPrimaryColor,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Set your consultation fees. Farmers will see these prices when booking appointments.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[700],
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Fee cards
+                  _buildFeeCard(
+                    icon: Icons.local_hospital_outlined,
+                    iconColor: AppTheme.authPrimaryColor,
+                    label: 'In-Clinic Consultation',
+                    hint: 'e.g., 500',
+                    controller: _consultationFeeController,
+                  ),
+                  const SizedBox(height: 16),
+
+                  _buildFeeCard(
+                    icon: Icons.videocam_outlined,
+                    iconColor: Colors.blue,
+                    label: 'Video Consultation',
+                    hint: 'e.g., 400',
+                    controller: _videoFeeController,
+                  ),
+                  const SizedBox(height: 16),
+
+                  _buildFeeCard(
+                    icon: Icons.home_outlined,
+                    iconColor: Colors.orange,
+                    label: 'Home Visit',
+                    hint: 'e.g., 1000',
+                    controller: _homeVisitFeeController,
+                  ),
+                  const SizedBox(height: 16),
+
+                  _buildFeeCard(
+                    icon: Icons.emergency_outlined,
+                    iconColor: Colors.red,
+                    label: 'Emergency Fee Multiplier',
+                    hint: 'e.g., 1.5',
+                    controller: _emergencyMultiplierController,
+                    prefix: null,
+                    suffix: 'x',
+                    helperText: 'Emergency fee = Consultation fee x multiplier',
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Fee cards
-            _buildFeeCard(
-              icon: Icons.local_hospital_outlined,
-              iconColor: AppTheme.authPrimaryColor,
-              label: 'In-Clinic Consultation',
-              hint: 'e.g., 500',
-              controller: _consultationFeeController,
-            ),
-            const SizedBox(height: 16),
-
-            _buildFeeCard(
-              icon: Icons.videocam_outlined,
-              iconColor: Colors.blue,
-              label: 'Video Consultation',
-              hint: 'e.g., 400',
-              controller: _videoFeeController,
-            ),
-            const SizedBox(height: 16),
-
-            _buildFeeCard(
-              icon: Icons.home_outlined,
-              iconColor: Colors.orange,
-              label: 'Home Visit',
-              hint: 'e.g., 1000',
-              controller: _homeVisitFeeController,
-            ),
-            const SizedBox(height: 16),
-
-            _buildFeeCard(
-              icon: Icons.emergency_outlined,
-              iconColor: Colors.red,
-              label: 'Emergency Fee Multiplier',
-              hint: 'e.g., 1.5',
-              controller: _emergencyMultiplierController,
-              prefix: null,
-              suffix: 'x',
-              helperText: 'Emergency fee = Consultation fee x multiplier',
-            ),
-            const SizedBox(height: 32),
-
-            // Save button
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: isSaving ? null : _handleSave,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.authPrimaryColor,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.grey[300],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  elevation: 0,
-                ),
-                child: isSaving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Text(
-                        'Save Pricing',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
+          ),
         ),
-      ),
+
+        // Fixed bottom button with safe area padding
+        Container(
+          padding: EdgeInsets.fromLTRB(
+            16,
+            12,
+            16,
+            MediaQuery.of(context).viewPadding.bottom + 16,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: isSaving ? null : _handleSave,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.authPrimaryColor,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.grey[300],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+              ),
+              child: isSaving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text(
+                      'Save Pricing',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
