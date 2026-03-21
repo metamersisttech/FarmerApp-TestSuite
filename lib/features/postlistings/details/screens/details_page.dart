@@ -41,13 +41,33 @@ class _DetailsPageState extends State<DetailsPage>
   void initState() {
     super.initState();
     _controller = DetailsController();
-    initializeDetailsController(_controller);
+    initializeDetailsController(
+      _controller,
+      onNext: widget.onNext,
+      onShowSuccess: showSuccessToast,
+      onShowError: showErrorToast,
+      onShowInfo: showInfoToast,
+      onNavigateToLocation: () async {
+        return await Navigator.push<LocationData>(
+          context,
+          MaterialPageRoute(builder: (context) => const LocationPage()),
+        );
+      },
+      onNavigateToEditFarm: (farmId, farm) async {
+        return await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditFarmPage(farmId: farmId, farmData: farm),
+          ),
+        );
+      },
+    );
 
     _controller.fetchAnimals();
     _controller.fetchFarms();
 
     // Check location permission on load
-    _checkLocationPermissionOnLoad();
+    checkLocationPermissionOnLoad();
   }
 
   @override
@@ -55,327 +75,6 @@ class _DetailsPageState extends State<DetailsPage>
     disposeDetailsController();
     _controller.dispose();
     super.dispose();
-  }
-
-  /// Check location permission on page load
-  Future<void> _checkLocationPermissionOnLoad() async {
-    final hasPermission = await _controller.checkLocationPermissionStatus();
-
-    if (hasPermission) {
-      await _autoPopulateLocation();
-    } else {
-      // Schedule dialog to show after build completes
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _promptForLocationPermission();
-        }
-      });
-    }
-  }
-
-  /// Auto-populate location from device GPS
-  Future<void> _autoPopulateLocation() async {
-    final location = await _controller.fetchCurrentLocation();
-
-    if (location != null && mounted) {
-      // Only set hasValidLocationSource = true AFTER we successfully get location
-      setHasValidLocationSource(true);
-      setSelectedLocation(location);
-      showSuccessToast('Location detected: ${location.displayLocation}');
-    } else if (mounted) {
-      // Location fetch failed - only set valid source if we already have a farm with coords
-      if (!selectedFarmHasCoordinates) {
-        setHasValidLocationSource(false);
-      }
-      showInfoToast('Could not detect location - please select manually');
-    }
-  }
-
-  /// Prompt user for location permission
-  Future<void> _promptForLocationPermission() async {
-    if (!mounted) return;
-
-    final shouldEnable = await LocationService.showLocationPermissionDialog(context);
-
-    if (shouldEnable && mounted) {
-      final granted = await _controller.requestLocationPermission();
-
-      if (granted) {
-        // Try to auto-populate location - hasValidLocationSource will be set
-        // only if location fetch succeeds
-        await _autoPopulateLocation();
-      } else {
-        showInfoToast('Please select a farm to continue');
-      }
-    }
-  }
-
-  /// Handle create farm result
-  void _onFarmCreated(Map<String, dynamic>? result) {
-    if (result != null) {
-      _controller.fetchFarms();
-
-      final farmId = result['farm_id'] ?? result['id'];
-      if (farmId != null) {
-        final farmName = result['name']?.toString();
-        setSelectedFarm(
-          farmId is int ? farmId : int.tryParse(farmId.toString()),
-          farmName,
-        );
-
-        // Check if farm has lat/lng and update location requirement
-        final farmHasCoords = _checkFarmLocation(result);
-
-        // Set valid source based on farm coords or location permission
-        if (farmHasCoords || _controller.isLocationPermissionGranted) {
-          setHasValidLocationSource(true);
-        } else {
-          setHasValidLocationSource(false);
-        }
-      }
-    }
-  }
-
-  /// Check if selected farm has location data
-  /// Returns true if farm has coordinates, false otherwise
-  bool _checkFarmLocation(Map<String, dynamic> farm) {
-    // Handle empty map (farm not found)
-    if (farm.isEmpty) {
-      setLocationRequired(true);
-      setSelectedFarmHasCoordinates(false);
-      return false;
-    }
-
-    final lat = farm['latitude'];
-    final lng = farm['longitude'];
-
-    // If farm has both lat and lng, don't require location field
-    if (lat != null && lng != null) {
-      setLocationRequired(false);
-      setSelectedFarmHasCoordinates(true);
-      clearLocationSelection();
-      return true;
-    } else {
-      setLocationRequired(true);
-      setSelectedFarmHasCoordinates(false);
-      return false;
-    }
-  }
-
-  /// Handle location selection
-  Future<void> _handleLocationSelection() async {
-    final result = await Navigator.push<LocationData>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const LocationPage(),
-      ),
-    );
-
-    if (result != null) {
-      setSelectedLocation(result);
-    }
-  }
-
-  /// Handle edit farm action
-  Future<void> _handleEditFarm(int farmId) async {
-    // Find the farm data
-    final farm = _controller.farms.firstWhere(
-      (f) {
-        final id = f['farm_id'];
-        final fId = id is int ? id : int.tryParse(id.toString()) ?? 0;
-        return fId == farmId;
-      },
-      orElse: () => {},
-    );
-
-    if (farm.isEmpty) {
-      showErrorToast('Farm not found');
-      return;
-    }
-
-    // Navigate to edit farm page
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditFarmPage(
-          farmId: farmId,
-          farmData: farm,
-        ),
-      ),
-    );
-
-    // Refresh farms list if edit was successful
-    if (result != null) {
-      await _controller.fetchFarms();
-      
-      // Update selected farm if it was the one edited
-      if (selectedFarmId == farmId) {
-        final updatedFarmName = result['name']?.toString();
-        setSelectedFarm(farmId, updatedFarmName);
-      }
-      
-      showSuccessToast('Farm updated successfully!');
-    }
-  }
-
-  /// Handle delete farm action
-  Future<void> _handleDeleteFarm(int farmId) async {
-    // Find the farm data
-    final farm = _controller.farms.firstWhere(
-      (f) {
-        final id = f['farm_id'];
-        final fId = id is int ? id : int.tryParse(id.toString()) ?? 0;
-        return fId == farmId;
-      },
-      orElse: () => {},
-    );
-
-    if (farm.isEmpty) {
-      showErrorToast('Farm not found');
-      return;
-    }
-
-    final farmName = farm['name']?.toString() ?? 'this farm';
-
-    // Show confirmation dialog
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Delete Farm'),
-          content: Text('Are you sure you want to delete "$farmName"? This action cannot be undone.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed != true) return;
-
-    // Proceed with deletion
-    try {
-      await _controller.deleteFarm(farmId);
-
-      if (!mounted) return;
-
-      // If the deleted farm was selected, clear selection
-      if (selectedFarmId == farmId) {
-        setSelectedFarm(null, null);
-        _controller.setSelectedFarmId(null);
-      }
-
-      // Refresh farms list
-      await _controller.fetchFarms();
-
-      showSuccessToast('Farm deleted successfully!');
-    } catch (e) {
-      if (!mounted) return;
-      showErrorToast(e.toString());
-    }
-  }
-
-  /// Handle Next button press
-  Future<void> _handleNext() async {
-    // Validate form using controller
-    final isValid = _controller.validateFormData(
-      hasValidLocationSource: hasValidLocationSource,
-      isLocationRequired: isLocationRequired,
-      selectedLocation: selectedLocation,
-      selectedAnimalType: selectedAnimalType,
-      selectedBreed: selectedBreed,
-      selectedGender: selectedGender,
-      weightText: weightController.text,
-      priceText: priceController.text,
-    );
-
-    if (!isValid) {
-      showErrorToast('Please fill all required fields');
-      return;
-    }
-
-    setSubmitting(true);
-
-    try {
-      // Prepare form data using controller
-      final formData = _controller.prepareFormData(
-        selectedAnimalId: selectedAnimalId,
-        selectedGender: selectedGender,
-        selectedAge: selectedAge,
-        selectedFarmId: selectedFarmId,
-        selectedLocation: selectedLocation,
-        selectedBreed: selectedBreed,
-        selectedAnimalType: selectedAnimalType,
-        weightText: weightController.text,
-        priceText: priceController.text,
-      );
-
-      // Location is already added by prepareFormData() if selectedLocation is set.
-      // This includes both manual selection and auto-detected location
-      // (which was stored via setSelectedLocation in _autoPopulateLocation).
-
-      final result = await _controller.createListing(formData);
-
-      if (!mounted) return;
-
-      if (result.success && result.listingId != null) {
-        setSubmitting(false);
-        showSuccessToast('Listing created successfully!');
-        widget.onNext(result.listingId!);
-      } else {
-        setSubmitting(false);
-        showErrorToast(result.errorMessage ?? 'Failed to create listing');
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setSubmitting(false);
-      showErrorToast(e.toString());
-    }
-  }
-
-  /// Handle animal type selection
-  void _onAnimalTypeSelected(String? value) {
-    setSelectedAnimal(value);
-    _controller.setSelectedAnimalType(value);
-
-    if (value != null) {
-      // Clear breed selection and fetch new breeds
-      setSelectedBreed(null, null);
-      breedSearchController.clear();
-      _controller.fetchBreedsForSpecies(value);
-    }
-  }
-
-  /// Handle breed selection
-  void _onBreedSelected(String? value) {
-    if (value != null) {
-      // Find and set the animal ID
-      final animal = _controller.allAnimalModels.firstWhere(
-        (a) =>
-            a.species.toLowerCase() == selectedAnimalType?.toLowerCase() &&
-            a.breed.toLowerCase() == value.toLowerCase(),
-        orElse: () => AnimalModel(
-          animalId: 0,
-          species: '',
-          breed: '',
-          typicalLifeYears: 0,
-        ),
-      );
-      final animalId = animal.animalId > 0 ? animal.animalId : null;
-      setSelectedBreed(value, animalId);
-      _controller.setSelectedBreed(value);
-      _controller.setSelectedAnimalId(animalId);
-    }
   }
 
   @override
@@ -395,7 +94,7 @@ class _DetailsPageState extends State<DetailsPage>
                   farmHasCoordinates: selectedFarmHasCoordinates,
                   isChecking: _controller.isCheckingLocationPermission,
                   hasManualLocation: selectedLocation != null,
-                  onEnableLocation: _promptForLocationPermission,
+                  onEnableLocation: promptForLocationPermission,
                 ),
                 const SizedBox(height: 16),
 
@@ -423,7 +122,7 @@ class _DetailsPageState extends State<DetailsPage>
                       );
 
                       // Check if farm has coordinates
-                      final farmHasCoords = _checkFarmLocation(selectedFarm);
+                      final farmHasCoords = checkFarmLocation(selectedFarm);
 
                       // Farm with coordinates OR location permission = valid source
                       // If farm lacks coords but we have location permission, still valid
@@ -441,12 +140,12 @@ class _DetailsPageState extends State<DetailsPage>
                       setLocationRequired(false);
                     }
                   },
-                  onFarmCreated: _onFarmCreated,
+                  onFarmCreated: onFarmCreated,
                   onFarmEdit: (farmId) {
-                    _handleEditFarm(farmId);
+                    handleEditFarm(farmId);
                   },
                   onFarmDelete: (farmId) {
-                    _handleDeleteFarm(farmId);
+                    handleDeleteFarm(farmId);
                   },
                 ),
                 if (farmError != null) FieldError(error: farmError!),
@@ -458,7 +157,7 @@ class _DetailsPageState extends State<DetailsPage>
                   const SectionTitle(title: 'Location', isRequired: true),
                   const SizedBox(height: 12),
                   GestureDetector(
-                    onTap: _handleLocationSelection,
+                    onTap: handleLocationSelection,
                     child: AbsorbPointer(
                       child: TextFormField(
                         controller: locationController,
@@ -517,7 +216,7 @@ class _DetailsPageState extends State<DetailsPage>
                   searchController: animalSearchController,
                   selectedAnimalType: selectedAnimalType,
                   error: animalTypeError,
-                  onAnimalTypeSelected: _onAnimalTypeSelected,
+                  onAnimalTypeSelected: onAnimalTypeSelected,
                 ),
                 if (animalTypeError != null) FieldError(error: animalTypeError!),
 
@@ -532,7 +231,7 @@ class _DetailsPageState extends State<DetailsPage>
                   selectedBreed: selectedBreed,
                   selectedAnimalType: selectedAnimalType,
                   error: breedError,
-                  onBreedSelected: _onBreedSelected,
+                  onBreedSelected: onBreedSelected,
                 ),
                 if (breedError != null) FieldError(error: breedError!),
 
@@ -707,7 +406,7 @@ class _DetailsPageState extends State<DetailsPage>
               if (widget.onPrevious != null) const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: isSubmitting ? null : _handleNext,
+                  onPressed: isSubmitting ? null : handleNext,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.authPrimaryColor,
                     disabledBackgroundColor: AppTheme.authPrimaryColor.withOpacity(0.6),

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/features/postlistings/health/controllers/health_controller.dart';
 import 'package:flutter_app/features/postlistings/health/mixins/health_state_mixin.dart';
+import 'package:flutter_app/features/postlistings/health/widgets/health_form_input_decoration.dart';
 import 'package:flutter_app/features/postlistings/health/widgets/health_status_dropdown.dart';
+import 'package:flutter_app/features/postlistings/health/widgets/navigation_buttons.dart';
+import 'package:flutter_app/features/postlistings/health/widgets/section_title.dart';
 import 'package:flutter_app/features/postlistings/health/widgets/vaccination_selector.dart';
 import 'package:flutter_app/features/postlistings/health/widgets/vet_certificate_picker.dart';
-import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Health Page - Health information
 class HealthPage extends StatefulWidget {
@@ -32,67 +34,19 @@ class _HealthPageState extends State<HealthPage>
   void initState() {
     super.initState();
     _controller = HealthController();
-    initializeControllers();
+    initializeHealthController(
+      _controller,
+      onNext: widget.onNext,
+      onShowSuccess: showSuccessToast,
+      onShowError: showErrorToast,
+    );
   }
 
   @override
   void dispose() {
-    disposeControllers();
+    disposeHealthController();
     _controller.dispose();
     super.dispose();
-  }
-
-  /// Handle Next button press
-  Future<void> _handleNext() async {
-    setSubmitting(true);
-
-    try {
-      // Upload vet certificate if selected but not uploaded
-      if (vetCertificateFile != null && vetCertificateKey == null) {
-        final uploadResult =
-            await _controller.uploadVetCertificate(vetCertificateFile!.path);
-
-        if (!mounted) return;
-
-        if (uploadResult.success && uploadResult.fileKey != null) {
-          setState(() {
-            vetCertificateKey = uploadResult.fileKey;
-          });
-        } else {
-          setSubmitting(false);
-          showErrorToast(uploadResult.errorMessage ?? 'Failed to upload certificate');
-          return;
-        }
-      }
-
-      // Build PATCH data
-      final healthData = getHealthData();
-
-      // Only call PATCH if there's data to update
-      if (healthData.isNotEmpty) {
-        final result = await _controller.updateHealthInfo(widget.listingId, healthData);
-
-        if (!mounted) return;
-
-        if (result.success) {
-          setSubmitting(false);
-          showSuccessToast('Health information saved!');
-          widget.onNext();
-        } else {
-          setSubmitting(false);
-          showErrorToast(result.errorMessage ?? 'Failed to save health information');
-        }
-      } else {
-        // No data to update, just proceed
-        if (!mounted) return;
-        setSubmitting(false);
-        widget.onNext();
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setSubmitting(false);
-      showErrorToast(e.toString());
-    }
   }
 
   @override
@@ -121,7 +75,7 @@ class _HealthPageState extends State<HealthPage>
                 const SizedBox(height: 24),
 
                 // Vaccination Status
-                _buildSectionTitle('Vaccination Status'),
+                const HealthSectionTitle(title: 'Vaccination Status'),
                 const SizedBox(height: 12),
                 VaccinationSelector(
                   vaccinationStatus: vaccinationStatus,
@@ -131,19 +85,19 @@ class _HealthPageState extends State<HealthPage>
                 const SizedBox(height: 24),
 
                 // Health Status
-                _buildSectionTitle('Health Status'),
+                const HealthSectionTitle(title: 'Health Status'),
                 const SizedBox(height: 12),
                 HealthStatusDropdown(
                   healthStatus: healthStatus,
                   healthStatusOptions: healthStatusOptions,
                   onHealthStatusSelected: setHealthStatus,
-                  formatHealthStatus: formatHealthStatus,
+                  formatHealthStatus: _controller.formatHealthStatus,
                 ),
 
                 const SizedBox(height: 24),
 
                 // Vet Certificate
-                _buildSectionTitle('Vet Certificate'),
+                const HealthSectionTitle(title: 'Vet Certificate'),
                 const SizedBox(height: 12),
                 VetCertificatePicker(
                   vetCertificateFile: vetCertificateFile,
@@ -155,11 +109,11 @@ class _HealthPageState extends State<HealthPage>
                 const SizedBox(height: 24),
 
                 // Pashu Aadhar
-                _buildSectionTitle('Pashu Aadhar'),
+                const HealthSectionTitle(title: 'Pashu Aadhar'),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: pashuAadharController,
-                  decoration: _buildInputDecoration(
+                  decoration: HealthFormInputDecoration.build(
                     hintText: 'Enter animal ID number',
                     prefixIcon: const Icon(Icons.badge_outlined, size: 20),
                   ),
@@ -175,11 +129,11 @@ class _HealthPageState extends State<HealthPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionTitle('Color'),
+                          const HealthSectionTitle(title: 'Color'),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: colorController,
-                            decoration: _buildInputDecoration(
+                            decoration: HealthFormInputDecoration.build(
                               hintText: 'e.g. Brown',
                             ),
                           ),
@@ -191,12 +145,12 @@ class _HealthPageState extends State<HealthPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionTitle('Height (cm)'),
+                          const HealthSectionTitle(title: 'Height (cm)'),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: heightController,
                             keyboardType: TextInputType.number,
-                            decoration: _buildInputDecoration(
+                            decoration: HealthFormInputDecoration.build(
                               hintText: 'e.g. 140',
                             ),
                           ),
@@ -213,118 +167,12 @@ class _HealthPageState extends State<HealthPage>
         ),
 
         // Fixed navigation buttons at bottom
-        Container(
-          padding: EdgeInsets.fromLTRB(
-            20,
-            20,
-            20,
-            MediaQuery.of(context).padding.bottom + 20, // Add system nav bar padding
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: isSubmitting ? null : widget.onPrevious,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.grey[300]!),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: const Text(
-                    'Previous',
-                    style: TextStyle(fontSize: 16, color: Colors.black87),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: isSubmitting ? null : _handleNext,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.authPrimaryColor,
-                    disabledBackgroundColor: AppTheme.authPrimaryColor.withOpacity(0.6),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: isSubmitting
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text(
-                          'Next',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                ),
-              ),
-            ],
-          ),
+        HealthNavigationButtons(
+          isSubmitting: isSubmitting,
+          onPrevious: widget.onPrevious,
+          onNext: () => handleNext(widget.listingId),
         ),
       ],
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: Colors.black87,
-      ),
-    );
-  }
-
-  InputDecoration _buildInputDecoration({
-    required String hintText,
-    Widget? prefixIcon,
-  }) {
-    return InputDecoration(
-      hintText: hintText,
-      prefixIcon: prefixIcon,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: AppTheme.authPrimaryColor.withOpacity(0.5),
-          width: 1.5,
-        ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: AppTheme.authPrimaryColor.withOpacity(0.5),
-          width: 1.5,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
-          color: AppTheme.authPrimaryColor,
-          width: 2,
-        ),
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
     );
   }
 }
