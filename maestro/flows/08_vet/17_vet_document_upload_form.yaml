@@ -1,0 +1,85 @@
+# Test vet document upload form: all text fields, both image pickers, submit
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Document Upload"
+    optional: true
+- tapOn:
+    id: document_upload_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_17_upload_form
+- tapOn:
+    id: registration_number_field
+    optional: true
+- tapOn:
+    text: "Registration"
+    optional: true
+- inputText: "VET123456"
+- tapOn:
+    id: qualifications_field
+    optional: true
+- tapOn:
+    text: "Qualifications"
+    optional: true
+- inputText: "BVSc, MVSc"
+- tapOn:
+    id: clinic_name_field
+    optional: true
+- tapOn:
+    text: "Clinic Name"
+    optional: true
+- inputText: "Test Animal Clinic"
+- tapOn:
+    id: college_field
+    optional: true
+- tapOn:
+    text: "College"
+    optional: true
+- inputText: "Mumbai Vet College"
+- tapOn:
+    id: specialization_field
+    optional: true
+- tapOn:
+    text: "Specialization"
+    optional: true
+- inputText: "General Practice"
+- takeScreenshot: vet_17_fields_filled
+- tapOn:
+    description: "Upload certificate"
+    optional: true
+- tapOn:
+    id: certificate_upload_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: vet_17_cert_picker
+- pressKey:
+    key: back
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    description: "Upload ID"
+    optional: true
+- tapOn:
+    id: id_upload_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: vet_17_id_picker
+- pressKey:
+    key: back
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Submit for Verification"
+    optional: true
+- tapOn:
+    id: submit_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_17_after_submit

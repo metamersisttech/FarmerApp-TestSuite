@@ -1,0 +1,84 @@
+# Test the filter sheet: open it, change location/category, apply filters
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Search"
+    optional: true
+- tapOn:
+    id: search_tab
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: search_field
+    optional: true
+- inputText: "Cattle"
+- tapOn:
+    text: "Search"
+    optional: true
+- pressKey: Enter
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: search_08_results
+- tapOn:
+    id: filter_btn
+    optional: true
+- tapOn:
+    description: "Filter"
+    optional: true
+- tapOn:
+    text: "Filter"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: search_08_filter_sheet_opened
+- tapOn:
+    id: category_filter
+    optional: true
+- tapOn:
+    text: "Goat"
+    optional: true
+- tapOn:
+    index: 1
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    id: location_filter
+    optional: true
+- tapOn:
+    text: "Location"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: search_08_filters_set
+- tapOn:
+    text: "Apply"
+    optional: true
+- tapOn:
+    id: apply_filters_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: search_08_filters_applied
+- tapOn:
+    id: filter_btn
+    optional: true
+- tapOn:
+    description: "Filter"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    text: "Reset"
+    optional: true
+- tapOn:
+    text: "Clear"
+    optional: true
+- tapOn:
+    id: reset_filters_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: search_08_filters_reset

@@ -1,0 +1,55 @@
+# Test Call, Chat, and Video buttons on animal detail page.
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    id: "listing_card"
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: home_09_listing_detail
+- tapOn:
+    text: "Call"
+    optional: true
+- tapOn:
+    id: "call_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: home_09_call_tapped
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    text: "Chat"
+    optional: true
+- tapOn:
+    id: "chat_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: home_09_chat_tapped
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    text: "Video"
+    optional: true
+- tapOn:
+    id: "video_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: home_09_video_tapped
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    text: "Contact"
+    optional: true
+- tapOn:
+    id: "contact_seller_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: home_09_contact_seller

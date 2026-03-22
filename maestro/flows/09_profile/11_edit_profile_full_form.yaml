@@ -1,0 +1,107 @@
+# Test edit profile: fill all fields including DOB picker and profile picture picker
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Edit Profile"
+    optional: true
+- tapOn:
+    id: "edit_profile_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: profile_11_edit_profile_opened
+- tapOn:
+    id: "full_name_field"
+    optional: true
+- tapOn:
+    text: "Full Name"
+    optional: true
+- clearText
+- inputText: "Test Farmer Updated"
+- tapOn:
+    id: "display_name_field"
+    optional: true
+- tapOn:
+    text: "Display Name"
+    optional: true
+- clearText
+- inputText: "TFarmer"
+- tapOn:
+    id: "about_field"
+    optional: true
+- tapOn:
+    text: "About"
+    optional: true
+- tapOn:
+    text: "Bio"
+    optional: true
+- clearText
+- inputText: "Test farmer bio for automated testing"
+- tapOn:
+    id: "address_field"
+    optional: true
+- tapOn:
+    text: "Address"
+    optional: true
+- clearText
+- inputText: "123 Test Street, Mumbai"
+- tapOn:
+    id: "state_field"
+    optional: true
+- tapOn:
+    text: "State"
+    optional: true
+- clearText
+- inputText: "Maharashtra"
+- tapOn:
+    id: "district_field"
+    optional: true
+- tapOn:
+    text: "District"
+    optional: true
+- clearText
+- inputText: "Mumbai"
+- takeScreenshot: profile_11_fields_filled
+- tapOn:
+    description: "Calendar"
+    optional: true
+- tapOn:
+    id: "dob_picker_btn"
+    optional: true
+- tapOn:
+    description: "Select date"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: profile_11_dob_picker_opened
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    id: "profile_picture_picker"
+    optional: true
+- tapOn:
+    description: "Change photo"
+    optional: true
+- tapOn:
+    text: "Change"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: profile_11_photo_picker_opened
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    text: "Save"
+    optional: true
+- tapOn:
+    id: "save_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: profile_11_after_save

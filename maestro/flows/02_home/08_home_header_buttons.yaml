@@ -1,0 +1,57 @@
+# Test home page header buttons:
+# location tap, notifications tap, marketplace tap, vet services tap.
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- takeScreenshot: home_08_home_loaded
+- tapOn:
+    id: "location_tap"
+    optional: true
+- tapOn:
+    id: "home_location_btn"
+    optional: true
+- tapOn:
+    description: "Location"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: home_08_location_tapped
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    id: "notification_btn"
+    optional: true
+- tapOn:
+    description: "Notifications"
+    optional: true
+- tapOn:
+    text: "🔔"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: home_08_notifications_tapped
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    text: "Marketplace"
+    optional: true
+- tapOn:
+    id: "marketplace_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: home_08_marketplace_tapped
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    text: "Vet Services"
+    optional: true
+- tapOn:
+    id: "vet_services_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: home_08_vet_services_tapped
+- pressKey: back

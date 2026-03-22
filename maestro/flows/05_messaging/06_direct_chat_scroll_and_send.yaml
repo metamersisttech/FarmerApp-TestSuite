@@ -1,0 +1,46 @@
+# Test direct chat: scroll up to load older messages, send a message
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Messages"
+    optional: true
+- tapOn:
+    text: "Conversations"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    index: 0
+    id: "conversation_tile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: messaging_06_chat_opened
+- swipe:
+    direction: DOWN
+    duration: 500
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: messaging_06_scrolled_older
+- tapOn:
+    id: "message_field"
+    optional: true
+- tapOn:
+    text: "Type a message"
+    optional: true
+- tapOn:
+    text: "Message"
+    optional: true
+- inputText: "Hello from automated test"
+- takeScreenshot: messaging_06_message_typed
+- tapOn:
+    id: "send_btn"
+    optional: true
+- tapOn:
+    description: "Send"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: messaging_06_message_sent

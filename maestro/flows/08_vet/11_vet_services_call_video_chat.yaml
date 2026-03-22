@@ -1,0 +1,55 @@
+# Test Call, Video, Chat buttons on vet cards in the vet services list
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Vet Services"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_11_services_list
+- tapOn:
+    id: call_vet_btn
+    index: 0
+    optional: true
+- tapOn:
+    description: "Call"
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: vet_11_call_tapped
+- pressKey:
+    key: back
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: video_vet_btn
+    index: 0
+    optional: true
+- tapOn:
+    description: "Video"
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: vet_11_video_tapped
+- pressKey:
+    key: back
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: chat_vet_btn
+    index: 0
+    optional: true
+- tapOn:
+    description: "Chat"
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: vet_11_chat_tapped
+- pressKey:
+    key: back
+    optional: true

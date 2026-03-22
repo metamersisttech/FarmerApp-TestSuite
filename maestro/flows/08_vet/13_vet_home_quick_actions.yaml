@@ -1,0 +1,55 @@
+# Test quick action buttons on vet home page: Availability, Pricing, Profile, Notifications, View All appointments
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_13_vet_home
+- tapOn:
+    text: "Availability"
+    optional: true
+- tapOn:
+    id: availability_quick_action
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: vet_13_availability_opened
+- pressKey:
+    key: back
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Pricing"
+    optional: true
+- tapOn:
+    id: pricing_quick_action
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: vet_13_pricing_opened
+- pressKey:
+    key: back
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- tapOn:
+    id: profile_quick_action
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: vet_13_profile_opened
+- pressKey:
+    key: back
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "View All"
+    optional: true
+- tapOn:
+    id: view_all_appointments_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: vet_13_all_appointments

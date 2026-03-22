@@ -1,0 +1,50 @@
+# Test availability toggle and View Requests / My Vehicles links on transport dashboard
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Transport Dashboard"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: transport_20_dashboard
+- tapOn:
+    id: "availability_toggle"
+    optional: true
+- tapOn:
+    description: "Availability"
+    optional: true
+- tapOn:
+    text: "Available"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: transport_20_availability_toggled
+- tapOn:
+    id: "availability_toggle"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    text: "View Requests"
+    optional: true
+- tapOn:
+    id: "view_requests_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: transport_20_requests_opened
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Vehicles"
+    optional: true
+- tapOn:
+    id: "my_vehicles_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: transport_20_vehicles_opened
+- pressKey: back
+- waitForAnimationToEnd

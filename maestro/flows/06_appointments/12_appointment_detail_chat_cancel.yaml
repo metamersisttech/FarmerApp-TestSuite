@@ -1,0 +1,48 @@
+# Test Chat button and Cancel button (with AlertDialog) on appointment detail screen
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Appointments"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: appt_12_detail
+- tapOn:
+    text: "Chat"
+    optional: true
+- tapOn:
+    id: chat_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: appt_12_chat_opened
+- pressKey:
+    key: back
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Cancel"
+    optional: true
+- tapOn:
+    id: cancel_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: appt_12_cancel_dialog
+- tapOn:
+    text: "No"
+    optional: true
+- tapOn:
+    text: "Back"
+    optional: true
+- tapOn:
+    text: "Keep"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: appt_12_cancel_dismissed

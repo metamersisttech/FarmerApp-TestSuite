@@ -1,0 +1,74 @@
+# Test vehicle form: fill all fields and image pickers (without submitting)
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Transport Dashboard"
+    optional: true
+- tapOn:
+    text: "My Vehicles"
+    optional: true
+- tapOn:
+    id: "my_vehicles_btn"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    description: "Add Vehicle"
+    optional: true
+- tapOn:
+    text: "Add Vehicle"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: transport_24_vehicle_form
+- tapOn:
+    id: "registration_field"
+    optional: true
+- tapOn:
+    text: "Registration"
+    optional: true
+- inputText: "MH01AB1234"
+- tapOn:
+    id: "make_field"
+    optional: true
+- tapOn:
+    text: "Make"
+    optional: true
+- inputText: "Tata"
+- tapOn:
+    id: "model_field"
+    optional: true
+- tapOn:
+    text: "Model"
+    optional: true
+- inputText: "Ace"
+- tapOn:
+    id: "vehicle_type_dropdown"
+    optional: true
+- tapOn:
+    text: "Vehicle Type"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: transport_24_fields_filled
+- tapOn:
+    id: "photo_upload_btn"
+    optional: true
+- tapOn:
+    description: "Add Photo"
+    optional: true
+- tapOn:
+    text: "Upload"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: transport_24_photo_picker
+- pressKey: back
+- waitForAnimationToEnd
+- takeScreenshot: transport_24_photo_cancelled

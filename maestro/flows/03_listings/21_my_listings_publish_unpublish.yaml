@@ -1,0 +1,60 @@
+# Test Publish and Unpublish from the My Listings popup menu.
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- tapOn:
+    id: "profile_tab"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    text: "My Listings"
+    optional: true
+- tapOn:
+    id: "my_listings_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: listings_21_my_listings
+- tapOn:
+    id: "listing_more_menu"
+    index: 0
+    optional: true
+- tapOn:
+    description: "More options"
+    index: 0
+    optional: true
+- tapOn:
+    id: "popup_menu_btn"
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: listings_21_popup_menu_open
+- tapOn:
+    text: "Publish"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: listings_21_after_publish
+- tapOn:
+    id: "listing_more_menu"
+    index: 0
+    optional: true
+- tapOn:
+    description: "More options"
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    text: "Unpublish"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: listings_21_after_unpublish

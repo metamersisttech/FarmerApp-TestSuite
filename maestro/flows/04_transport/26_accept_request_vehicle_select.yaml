@@ -1,0 +1,49 @@
+# Test vehicle selector and accept button on accept request screen
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Nearby Requests"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "request_card"
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Accept Request"
+    optional: true
+- tapOn:
+    id: "accept_request_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: transport_26_accept_screen
+- tapOn:
+    id: "vehicle_selector_card"
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: transport_26_vehicle_selected
+- tapOn:
+    text: "Accept"
+    optional: true
+- tapOn:
+    id: "accept_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: transport_26_confirm_dialog
+- tapOn:
+    text: "No"
+    optional: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: transport_26_cancelled

@@ -1,0 +1,24 @@
+# Test My Bids menu item from profile, and navigation to listing from a bid
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "My Bids"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: profile_12_my_bids_from_profile
+- tapOn:
+    index: 0
+    id: "bid_card"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: profile_12_bid_listing_detail
+- pressKey: back

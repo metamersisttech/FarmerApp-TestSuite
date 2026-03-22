@@ -1,0 +1,29 @@
+# Test copy phone button on transport request detail screen
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Nearby Requests"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "request_card"
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: transport_25_request_detail
+- tapOn:
+    description: "Copy phone"
+    optional: true
+- tapOn:
+    id: "copy_phone_btn"
+    optional: true
+- tapOn:
+    description: "Copy"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: transport_25_phone_copied

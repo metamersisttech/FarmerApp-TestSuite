@@ -1,0 +1,60 @@
+# Test all 4 fee fields and Save Pricing on vet pricing screen
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Pricing"
+    optional: true
+- tapOn:
+    id: pricing_quick_action
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_16_pricing_screen
+- tapOn:
+    id: consultation_fee_field
+    optional: true
+- tapOn:
+    text: "Consultation"
+    optional: true
+- clearText:
+    optional: true
+- inputText: "500"
+- tapOn:
+    id: video_fee_field
+    optional: true
+- tapOn:
+    text: "Video"
+    optional: true
+- clearText:
+    optional: true
+- inputText: "400"
+- tapOn:
+    id: home_visit_fee_field
+    optional: true
+- tapOn:
+    text: "Home Visit"
+    optional: true
+- clearText:
+    optional: true
+- inputText: "800"
+- tapOn:
+    id: emergency_multiplier_field
+    optional: true
+- tapOn:
+    text: "Emergency"
+    optional: true
+- clearText:
+    optional: true
+- inputText: "1.5"
+- takeScreenshot: vet_16_fields_filled
+- tapOn:
+    text: "Save Pricing"
+    optional: true
+- tapOn:
+    id: save_pricing_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_16_pricing_saved

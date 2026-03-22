@@ -1,0 +1,67 @@
+# Test fare proposal: -500/+500 buttons and Propose Fare on trip progress screen
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Transport Dashboard"
+    optional: true
+- tapOn:
+    text: "My Bookings"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: transport_21_trip_progress
+- tapOn:
+    text: "-500"
+    optional: true
+- tapOn:
+    id: "fare_minus_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: transport_21_minus_tapped
+- tapOn:
+    text: "+500"
+    optional: true
+- tapOn:
+    id: "fare_plus_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: transport_21_plus_tapped
+- tapOn:
+    text: "Suggested"
+    optional: true
+- tapOn:
+    id: "fare_suggested_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: "fare_field"
+    optional: true
+- tapOn:
+    text: "Fare"
+    optional: true
+- clearText
+- inputText: "2500"
+- takeScreenshot: transport_21_fare_entered
+- tapOn:
+    text: "Propose Fare"
+    optional: true
+- tapOn:
+    id: "propose_fare_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: transport_21_fare_proposed
+- tapOn:
+    text: "Confirm"
+    optional: true
+- tapOn:
+    text: "Yes"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: transport_21_after_confirm

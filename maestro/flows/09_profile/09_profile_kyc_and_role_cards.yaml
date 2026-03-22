@@ -1,0 +1,52 @@
+# Test KYC status card, Become Vet card, Become Transport card taps
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: profile_09_profile_page
+- tapOn:
+    id: "kyc_status_card"
+    optional: true
+- tapOn:
+    text: "KYC"
+    optional: true
+- tapOn:
+    text: "Verify"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: profile_09_kyc_tapped
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    id: "become_vet_card"
+    optional: true
+- tapOn:
+    text: "Become a Vet"
+    optional: true
+- tapOn:
+    text: "Vet"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: profile_09_become_vet_tapped
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    id: "become_transport_card"
+    optional: true
+- tapOn:
+    text: "Become a Transporter"
+    optional: true
+- tapOn:
+    text: "Transport"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: profile_09_become_transport_tapped
+- pressKey: back

@@ -1,0 +1,58 @@
+# Test Use Current Location, recent searches, clear all, category chips on search page
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Search"
+    optional: true
+- tapOn:
+    id: search_tab
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: search_07_search_page
+- tapOn:
+    text: "Use Current Location"
+    optional: true
+- tapOn:
+    id: use_location_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: search_07_location_tapped
+- pressKey:
+    key: back
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: recent_search_item
+    index: 0
+    optional: true
+- tapOn:
+    text: "Recent"
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: search_07_recent_tapped
+- pressKey:
+    key: back
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Clear All"
+    optional: true
+- tapOn:
+    id: clear_all_searches_btn
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: search_07_cleared
+- tapOn:
+    id: category_chip
+    index: 0
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: search_07_category_selected

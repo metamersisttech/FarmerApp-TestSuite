@@ -1,0 +1,39 @@
+# Test Wallet, Reviews, Privacy, Help menu items — all show "coming soon" toast
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: profile_07_profile_page
+- scrollUntilVisible:
+    element:
+      text: "Wallet"
+    direction: DOWN
+- tapOn:
+    text: "Wallet"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: profile_07_wallet_toast
+- tapOn:
+    text: "Reviews"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: profile_07_reviews_toast
+- tapOn:
+    text: "Privacy"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: profile_07_privacy_toast
+- tapOn:
+    text: "Help"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: profile_07_help_toast

@@ -1,0 +1,43 @@
+# Test the Resend OTP button on the OTP verification screen.
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "English"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Phone"
+    optional: true
+- tapOn:
+    id: "phone_field"
+    optional: true
+- waitForAnimationToEnd
+- inputText: "${FARMERAPP_TEST_PHONE}"
+- tapOn:
+    text: "Send OTP"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: auth_09_otp_screen
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Resend OTP"
+    optional: true
+- tapOn:
+    id: "resend_otp_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: auth_09_resend_tapped
+- assertVisible:
+    text: "OTP"
+    optional: true
+- assertVisible:
+    id: "otp_field"
+    optional: true

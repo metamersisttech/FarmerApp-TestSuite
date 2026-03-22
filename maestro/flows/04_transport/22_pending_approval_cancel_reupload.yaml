@@ -1,0 +1,42 @@
+# Test Cancel Application and Re-upload Documents buttons on pending approval screen
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Transport"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: transport_22_pending_screen
+- tapOn:
+    text: "Re-upload Documents"
+    optional: true
+- tapOn:
+    id: "reupload_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: transport_22_reupload_tapped
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    text: "Cancel Application"
+    optional: true
+- tapOn:
+    id: "cancel_application_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: transport_22_cancel_dialog
+- tapOn:
+    text: "No"
+    optional: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- tapOn:
+    text: "Back"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: transport_22_cancel_dismissed

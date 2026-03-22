@@ -1,0 +1,32 @@
+# Test Language option from profile menu and the language switcher widget in header
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: profile_08_profile_page
+- tapOn:
+    text: "Language"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: profile_08_language_picker_opened
+- tapOn:
+    text: "Hindi"
+    optional: true
+- tapOn:
+    text: "हिंदी"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: profile_08_hindi_selected
+- tapOn:
+    text: "English"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: profile_08_english_restored
