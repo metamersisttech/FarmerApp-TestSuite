@@ -170,6 +170,16 @@ class ApiEndpoints {
   /// Get provider dashboard stats
   static const String transportDashboardStats = 'transport/provider/stats/';
 
+  // ============ Transport Request Endpoints (Farmer/Requestor) ============
+  /// List farmer's own requests / Create a new transport request
+  static const String farmerTransportRequests = 'transport/requests/';
+  /// Get / cancel a specific transport request (farmer side)
+  static String farmerTransportRequestById(int id) => 'transport/requests/$id/';
+  /// Farmer cancels their own request
+  static String farmerTransportRequestCancel(int id) => 'transport/requests/$id/cancel/';
+  /// Farmer approves fare proposed by transport provider
+  static String farmerTransportApproveFare(int id) => 'transport/requests/$id/approve-fare/';
+
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here
 

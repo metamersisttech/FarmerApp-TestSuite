@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/helpers/api_helper.dart';
 import 'package:flutter_app/core/helpers/backend_helper.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_app/features/profile/widgets/logout_button.dart';
 import 'package:flutter_app/features/profile/widgets/profile_header_card.dart';
 import 'package:flutter_app/features/profile/widgets/profile_menu_list.dart';
 import 'package:flutter_app/features/transport/controllers/transport_onboarding_controller.dart';
+import 'package:flutter_app/features/transport/screens/farmer/my_transport_bookings_screen.dart';
 import 'package:flutter_app/features/transport/screens/home/transport_dashboard_screen.dart';
 import 'package:flutter_app/features/transport/screens/onboarding/pending_approval_screen.dart';
 import 'package:flutter_app/features/transport/screens/onboarding/role_request_screen.dart';
@@ -26,6 +28,7 @@ import 'package:flutter_app/features/vet_dashboard/screens/vet_home_page.dart';
 import 'package:flutter_app/features/vet_dashboard/widgets/switch_mode_card.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
+import 'package:flutter_app/shared/widgets/common/language_switcher_widget.dart';
 import 'package:flutter_app/features/favourite/services/favourite_badge_service.dart';
 import 'package:flutter_app/features/profile/services/my_listings_badge_service.dart';
 import 'package:flutter_app/main.dart' show routeObserver;
@@ -206,10 +209,9 @@ class _ProfilePageState extends State<ProfilePage>
 
   void _handleKycTap() {
     if (profile?.isKycVerified == true) {
-      showSuccessToast('Your KYC is already verified');
+      showSuccessToast('profile.kyc_verified'.tr());
     } else {
-      // TODO: Navigate to KYC verification page
-      showSuccessToast('KYC Verification - Coming soon!');
+      showSuccessToast('profile.kyc_coming_soon'.tr());
     }
   }
 
@@ -389,13 +391,11 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   void _handleWallet() {
-    // TODO: Navigate to wallet page
-    showSuccessToast('Wallet & Payments - Coming soon!');
+    showSuccessToast('wallet.coming_soon'.tr());
   }
 
   void _handleReviews() {
-    // TODO: Navigate to reviews page
-    showSuccessToast('Reviews & Ratings - Coming soon!');
+    showSuccessToast('common.coming_soon'.tr());
   }
 
   void _handleNotifications() {
@@ -403,18 +403,15 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   void _handleLanguage() {
-    // TODO: Navigate to language selection page
-    showSuccessToast('Language - Coming soon!');
+    LanguageSwitcherWidget.showPicker(context);
   }
 
   void _handlePrivacy() {
-    // TODO: Navigate to privacy settings page
-    showSuccessToast('Privacy & Security - Coming soon!');
+    showSuccessToast('common.coming_soon'.tr());
   }
 
   void _handleHelp() {
-    // TODO: Navigate to help & support page
-    showSuccessToast('Help & Support - Coming soon!');
+    showSuccessToast('common.coming_soon'.tr());
   }
 
   void _handleLogout() {
@@ -422,22 +419,19 @@ class _ProfilePageState extends State<ProfilePage>
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text('auth.logout'.tr()),
+        content: Text('auth.logout_confirm'.tr()),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text('common.cancel'.tr()),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(dialogContext);
 
-              // Show loading
               setLoading(true);
-
-              // Call logout API
               final success = await _controller.logout();
 
               if (!mounted) return;
@@ -445,27 +439,36 @@ class _ProfilePageState extends State<ProfilePage>
               setLoading(false);
 
               if (success) {
-                showSuccessToast('Logged out successfully');
-                // Navigate to welcome/login page
+                showSuccessToast('auth.logout_success'.tr());
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   '/',
                   (route) => false,
                 );
               } else {
-                showErrorToast('Failed to logout. Please try again.');
+                showErrorToast('auth.logout_failed'.tr());
               }
             },
-            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+            child: Text(
+              'auth.logout'.tr(),
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
     );
   }
 
+  void _handleTransportBookings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (_) => const MyTransportBookingsScreen()),
+    );
+  }
+
   void _handleSettings() {
-    // TODO: Navigate to settings page
-    showSuccessToast('Settings - Coming soon!');
+    Navigator.pushNamed(context, AppRoutes.settings);
   }
 
   @override
@@ -560,6 +563,7 @@ class _ProfilePageState extends State<ProfilePage>
                               onLanguageTap: _handleLanguage,
                               onPrivacyTap: _handlePrivacy,
                               onHelpTap: _handleHelp,
+                              onTransportBookingsTap: _handleTransportBookings,
                             ),
                           ),
 
@@ -597,24 +601,46 @@ class _ProfilePageState extends State<ProfilePage>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Profile',
-            style: TextStyle(
+          Text(
+            'profile.title'.tr(),
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          GestureDetector(
-            onTap: _handleSettings,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(10),
+          Row(
+            children: [
+              // Language switcher in profile header
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    textTheme: Theme.of(context).textTheme.apply(
+                      bodyColor: Colors.white,
+                      displayColor: Colors.white,
+                    ),
+                    iconTheme: const IconThemeData(color: Colors.white),
+                  ),
+                  child: const LanguageSwitcherWidget(compact: true),
+                ),
               ),
-              child: const Icon(Icons.settings, color: Colors.white, size: 22),
-            ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: _handleSettings,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.settings, color: Colors.white, size: 22),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -641,13 +667,13 @@ class _ProfilePageState extends State<ProfilePage>
           Icon(Icons.person_outline, size: 60, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'Failed to load profile',
+            'profile.load_failed'.tr(),
             style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),
           TextButton(
             onPressed: _handleRefresh,
-            child: const Text('Tap to retry'),
+            child: Text('profile.tap_retry'.tr()),
           ),
         ],
       ),

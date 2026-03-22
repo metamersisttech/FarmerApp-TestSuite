@@ -8,6 +8,7 @@ import 'package:flutter_app/features/home/widgets/animal_detail/health_vaccinati
 import 'package:flutter_app/features/home/widgets/animal_detail/image_gallery_section.dart';
 import 'package:flutter_app/features/home/widgets/animal_detail/seller_info_card.dart';
 import 'package:flutter_app/features/home/widgets/animal_detail/transport_section.dart';
+import 'package:flutter_app/features/transport/screens/farmer/book_transport_screen.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Animal Detail Page
@@ -187,10 +188,20 @@ class _AnimalDetailPageState extends State<AnimalDetailPage>
             ),
 
           // Transport Section
-          const TransportSection(
-            isAvailable: true,
-            estimatedCost: 3500,
-            onBookTap: null,
+          TransportSection(
+            isAvailable: animal.transportAvailable || true,
+            estimatedCost: animal.estimatedTransportCost ?? 3500,
+            onBookTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BookTransportScreen(
+                  listingId: animal.id,
+                  animalName: animal.title,
+                  sellerLocation: animal.seller?.location ?? animal.location,
+                  animalSpecies: animal.breed,
+                ),
+              ),
+            ),
           ),
 
           const SizedBox(height: 20),

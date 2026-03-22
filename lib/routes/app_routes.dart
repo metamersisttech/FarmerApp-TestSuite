@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/data/models/user_model.dart';
+import 'package:flutter_app/features/language/screens/language_selection_screen.dart';
+import 'package:flutter_app/features/settings/screens/settings_screen.dart';
 import 'package:flutter_app/features/auth/screens/email_login_page.dart';
 import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/auth/screens/register_page.dart';
@@ -42,8 +44,12 @@ import 'package:flutter_app/features/bidding/screens/my_bids_page.dart';
 import 'package:flutter_app/features/bidding/screens/listing_bids_page.dart';
 import 'package:flutter_app/features/notifications/screens/notification_screen.dart';
 import 'package:flutter_app/features/favourite/screens/favourite_listings_page.dart';
+import 'package:flutter_app/features/useridentity/screens/choose_identity_page.dart';
 // Transport feature imports
 import 'package:flutter_app/features/transport/models/transport_request_model.dart';
+import 'package:flutter_app/features/transport/screens/farmer/book_transport_screen.dart';
+import 'package:flutter_app/features/transport/screens/farmer/my_transport_bookings_screen.dart';
+import 'package:flutter_app/features/transport/screens/farmer/farmer_transport_detail_screen.dart';
 import 'package:flutter_app/features/transport/screens/chat/transport_chat_screen.dart';
 import 'package:flutter_app/features/transport/screens/home/transport_dashboard_screen.dart';
 import 'package:flutter_app/features/transport/screens/onboarding/license_upload_screen.dart';
@@ -68,6 +74,7 @@ import 'package:flutter_app/features/transport/screens/vehicles/vehicle_list_scr
 
 class AppRoutes {
   // ============ Route Names ============
+  static const String languageSelection = '/language-selection';
   static const String login = '/'; // Login is now the initial route
   static const String signup = '/signup'; // Alias for login
   // static const String phoneLogin = '/phone-login'; // Alias for login
@@ -111,8 +118,14 @@ class AppRoutes {
   static const String listingBids = '/listing-bids';
   static const String notifications = '/notifications';
   static const String favouriteListings = '/favourite-listings';
+  static const String chooseIdentity = '/choose-identity';
 
-  // ============ Transport Routes ============
+  // ============ Farmer Transport Routes ============
+  static const String bookTransport = '/transport/book';
+  static const String myTransportBookings = '/transport/my-bookings';
+  static const String farmerTransportDetail = '/transport/booking-detail';
+
+  // ============ Transport Provider Routes ============
   static const String transportRoleRequest = '/transport/role-request';
   static const String transportOnboarding = '/transport/onboarding';
   static const String transportPendingApproval = '/transport/pending-approval';
@@ -131,6 +144,9 @@ class AppRoutes {
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case languageSelection:
+        return _buildRoute(const LanguageSelectionScreen(), settings);
+
       case login:
       case signup:
       case phoneLogin:
@@ -177,6 +193,9 @@ class AppRoutes {
           user = args['user'] as UserModel?;
         }
         return _buildRoute(MainShellPage(user: user), settings);
+
+      case '/settings':
+        return _buildRoute(const SettingsScreen(), settings);
 
       case profile:
         return _buildRoute(const ProfilePage(), settings);
@@ -436,7 +455,46 @@ class AppRoutes {
       case favouriteListings:
         return _buildRoute(const FavouriteListingsPage(), settings);
 
-      // ============ Transport Routes ============
+      case chooseIdentity:
+        final args = settings.arguments;
+        return _buildRoute(
+          ChooseIdentityPage(user: args is UserModel ? args : null),
+          settings,
+        );
+
+      // ============ Farmer Transport Routes ============
+      case bookTransport:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          BookTransportScreen(
+            listingId: args?['listingId'] as int?,
+            animalName: args?['animalName'] as String?,
+            sellerLocation: args?['sellerLocation'] as String?,
+            sellerLat: args?['sellerLat'] as double?,
+            sellerLng: args?['sellerLng'] as double?,
+            animalSpecies: args?['animalSpecies'] as String?,
+          ),
+          settings,
+        );
+
+      case myTransportBookings:
+        return _buildRoute(const MyTransportBookingsScreen(), settings);
+
+      case farmerTransportDetail:
+        final requestId = settings.arguments as int?;
+        if (requestId != null) {
+          return _buildRoute(
+            FarmerTransportDetailScreen(requestId: requestId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+              body: Center(child: Text('Request ID required'))),
+          settings,
+        );
+
+      // ============ Transport Provider Routes ============
       case transportDashboard:
         return _buildRoute(const TransportDashboardScreen(), settings);
 

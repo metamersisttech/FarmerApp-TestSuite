@@ -1604,6 +1604,78 @@ class BackendHelper {
     );
   }
 
+  // ============ Farmer Transport Request Endpoints ============
+
+  /// Create a new farmer transport request
+  /// POST /api/transport/requests/
+  Future<Map<String, dynamic>> postFarmerTransportRequest(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.farmerTransportRequests,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get farmer's transport requests
+  /// GET /api/transport/requests/?status=...
+  Future<dynamic> getFarmerTransportRequests({String? status}) async {
+    try {
+      final queryParams = status != null ? '?status=$status' : '';
+      final response = await _client.get(
+        '${ApiEndpoints.farmerTransportRequests}$queryParams',
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get farmer transport request by ID
+  /// GET /api/transport/requests/{id}/
+  Future<Map<String, dynamic>> getFarmerTransportRequestById(int id) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.farmerTransportRequestById(id),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Cancel a farmer transport request
+  /// POST /api/transport/requests/{id}/cancel/
+  Future<void> postCancelFarmerTransportRequest(int id) async {
+    try {
+      await _client.post(
+        ApiEndpoints.farmerTransportRequestCancel(id),
+        data: {},
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Approve fare for a farmer transport request
+  /// POST /api/transport/requests/{id}/approve-fare/
+  Future<Map<String, dynamic>> postApproveFarmerTransportFare(int id) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.farmerTransportApproveFare(id),
+        data: {},
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// Extract field-level errors from Django response
   String? _extractFieldErrors(Map<dynamic, dynamic> data) {
     final errors = <String>[];

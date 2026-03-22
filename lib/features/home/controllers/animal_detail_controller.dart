@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter_app/core/base/base_controller.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/animal_detail_model.dart';
@@ -158,14 +159,27 @@ class AnimalDetailController extends BaseController {
     }
   }
 
-  /// Handle share action
+  /// Handle share action — share listing via system share sheet
   void handleShare() {
-    if (_animalDetail == null) return;
-    // TODO: Implement share functionality using share_plus package
-    debugPrint('[AnimalDetailController] Share: ${_animalDetail?.title}');
-    if (onShowComingSoon != null) {
-      onShowComingSoon!('Share');
-    }
+    final animal = _animalDetail;
+    if (animal == null) return;
+
+    final price = animal.formattedPrice;
+    final title = animal.title;
+    final breed = animal.breed ?? '';
+    final location = animal.location ?? '';
+
+    final text = StringBuffer()
+      ..writeln('🐄 $title')
+      ..writeln('💰 $price')
+      ..writeln('📍 $location');
+    if (breed.isNotEmpty) text.writeln('🐾 $breed');
+    text.writeln();
+    text.writeln('Check this listing on FarmerApp!');
+
+    Share.share(text.toString());
+
+    debugPrint('[AnimalDetailController] Shared: $title');
   }
 
   /// Handle call action

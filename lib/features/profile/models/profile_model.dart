@@ -175,6 +175,7 @@ class ProfileMenuItem {
     VoidCallback? onLanguageTap,
     VoidCallback? onPrivacyTap,
     VoidCallback? onHelpTap,
+    VoidCallback? onTransportBookingsTap,
   }) {
     return [
       ProfileMenuItem(
@@ -197,6 +198,12 @@ class ProfileMenuItem {
         icon: Icons.calendar_today_outlined,
         badgeCount: bookingsCount > 0 ? bookingsCount : null,
         onTap: onBookingsTap,
+      ),
+      ProfileMenuItem(
+        id: 'transport_bookings',
+        title: 'My Transport Bookings',
+        icon: Icons.local_shipping_outlined,
+        onTap: onTransportBookingsTap,
       ),
       ProfileMenuItem(
         id: 'my_bids',
