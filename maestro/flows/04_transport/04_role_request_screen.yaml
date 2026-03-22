@@ -1,0 +1,21 @@
+# Transport 04 — Transport provider role request screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Become Transport Provider"
+    optional: true
+- tapOn:
+    text: "Transport Provider"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: transport_04_role_request
+- pressKey: back
+- waitForAnimationToEnd

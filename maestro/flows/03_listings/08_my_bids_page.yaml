@@ -1,0 +1,18 @@
+# Listings 08 — My Bids page loads
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Bids"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: listings_08_my_bids
+- assertNotVisible:
+    text: "Unfortunately"

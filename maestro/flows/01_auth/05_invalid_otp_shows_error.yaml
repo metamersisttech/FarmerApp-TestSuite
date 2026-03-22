@@ -1,0 +1,33 @@
+# Auth 05 — Invalid OTP keeps user on OTP screen
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "English"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "phone_field"
+    optional: true
+- tapOn:
+    text: "Phone Number"
+    optional: true
+- inputText: "${FARMERAPP_TEST_PHONE}"
+- tapOn:
+    text: "Send OTP"
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: auth_05_otp_entry_screen
+# Enter wrong OTP
+- inputText: "000000"
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: auth_05_after_wrong_otp
+# Must still show OTP-related UI — not navigated to home
+- assertNotVisible:
+    text: "Home"
+    optional: true

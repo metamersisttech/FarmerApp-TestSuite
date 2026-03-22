@@ -1,0 +1,22 @@
+# Listings 10 — Notifications screen loads
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Notifications"
+    optional: true
+- tapOn:
+    id: "notification_icon"
+    optional: true
+- tapOn:
+    description: "Notifications"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: listings_10_notifications
+- assertNotVisible:
+    text: "Unfortunately"
+- pressKey: back
+- waitForAnimationToEnd

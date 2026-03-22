@@ -1,0 +1,22 @@
+# Vet 06 — Vet pricing screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Pricing"
+    optional: true
+- tapOn:
+    text: "Set Pricing"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_06_pricing
+- tapOn:
+    text: "Consultation Fee"
+    optional: true
+- inputText: "500"
+- takeScreenshot: vet_06_pricing_filled
+- pressKey: back
+- waitForAnimationToEnd

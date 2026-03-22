@@ -1,0 +1,33 @@
+# Transport 07 — Add vehicle form
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Vehicles"
+    optional: true
+- tapOn:
+    text: "Vehicles"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Add Vehicle"
+    optional: true
+- tapOn:
+    text: "+"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: transport_07_vehicle_form
+- tapOn:
+    text: "Vehicle Number"
+    optional: true
+- inputText: "MH12AB1234"
+- tapOn:
+    text: "Capacity"
+    optional: true
+- inputText: "5"
+- takeScreenshot: transport_07_form_filled
+- pressKey: back
+- waitForAnimationToEnd

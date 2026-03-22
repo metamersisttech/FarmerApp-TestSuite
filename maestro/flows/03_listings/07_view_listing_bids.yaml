@@ -1,0 +1,27 @@
+# Listings 07 — View bids on a listing
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Listings"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+    id: "listing_item"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: listings_07_listing_detail
+- tapOn:
+    text: "Bids"
+    optional: true
+- tapOn:
+    text: "View Bids"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: listings_07_bids_screen
+- pressKey: back
+- waitForAnimationToEnd

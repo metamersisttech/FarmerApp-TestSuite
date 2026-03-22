@@ -1,0 +1,59 @@
+# Listings 02 — Post Animal: complete 4-step wizard (details→health→media→preview)
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Listings"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Post Animal"
+    optional: true
+- tapOn:
+    text: "+"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+# Step 1 — Details
+- takeScreenshot: listings_02_step1_details
+- tapOn:
+    text: "Species"
+    optional: true
+- tapOn:
+    text: "Cattle"
+    optional: true
+- tapOn:
+    text: "Breed"
+    optional: true
+- tapOn:
+    text: "Gir"
+    optional: true
+- tapOn:
+    text: "Next"
+    optional: true
+- waitForAnimationToEnd
+# Step 2 — Health
+- takeScreenshot: listings_02_step2_health
+- tapOn:
+    text: "Next"
+    optional: true
+- waitForAnimationToEnd
+# Step 3 — Media
+- takeScreenshot: listings_02_step3_media
+- tapOn:
+    text: "Next"
+    optional: true
+- waitForAnimationToEnd
+# Step 4 — Preview
+- takeScreenshot: listings_02_step4_preview
+- tapOn:
+    text: "Submit"
+    optional: true
+- tapOn:
+    text: "Post"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 12000
+- takeScreenshot: listings_02_submitted

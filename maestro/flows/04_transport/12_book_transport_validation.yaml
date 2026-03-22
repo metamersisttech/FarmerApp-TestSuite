@@ -1,0 +1,24 @@
+# Transport 12 — Book transport form validation (empty submit shows errors)
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Book Transport"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: transport_12_empty_form
+# Submit with empty fields
+- tapOn:
+    id: "submit_btn"
+    optional: true
+- tapOn:
+    text: "Request Transport"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: transport_12_validation_errors
+# Validation errors should appear
+- assertVisible:
+    text: "required"
+    optional: true

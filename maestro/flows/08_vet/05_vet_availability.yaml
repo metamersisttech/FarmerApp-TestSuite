@@ -1,0 +1,17 @@
+# Vet 05 — Vet availability screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Availability"
+    optional: true
+- tapOn:
+    text: "Set Availability"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_05_availability
+- pressKey: back
+- waitForAnimationToEnd

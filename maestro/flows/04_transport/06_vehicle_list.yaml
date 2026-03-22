@@ -1,0 +1,17 @@
+# Transport 06 — Vehicle list screen (provider)
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Vehicles"
+    optional: true
+- tapOn:
+    text: "Vehicles"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: transport_06_vehicle_list
+- assertNotVisible:
+    text: "Unfortunately"

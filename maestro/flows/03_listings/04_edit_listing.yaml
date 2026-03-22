@@ -1,0 +1,30 @@
+# Listings 04 — Edit an existing listing
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Listings"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+# Tap first listing
+- tapOn:
+    index: 0
+    id: "listing_item"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: listings_04_listing_detail
+# Open edit
+- tapOn:
+    text: "Edit"
+    optional: true
+- tapOn:
+    id: "edit_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: listings_04_edit_screen
+- pressKey: back
+- waitForAnimationToEnd

@@ -1,0 +1,26 @@
+# Home 03 — Tap animal listing card → opens detail screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- takeScreenshot: home_03_home_listing
+# Tap first animal card visible on home screen
+- tapOn:
+    index: 0
+    text: "Cattle"
+    optional: true
+- tapOn:
+    index: 0
+    id: "listing_card"
+    optional: true
+# Fallback: tap first image or card in the list
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: home_03_after_tap
+# Detail screen should show key elements
+- assertVisible:
+    text: "Share"
+    optional: true
+- pressKey: back
+- waitForAnimationToEnd

@@ -1,0 +1,25 @@
+# Listings 06 — Share listing triggers share sheet
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+    id: "listing_card"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: listings_06_detail_screen
+- tapOn:
+    text: "Share"
+    optional: true
+- tapOn:
+    id: "share_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: listings_06_share_sheet
+# Dismiss share sheet
+- pressKey: back
+- waitForAnimationToEnd

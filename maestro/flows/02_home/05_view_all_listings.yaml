@@ -1,0 +1,20 @@
+# Home 05 — View All Listings page loads and scrolls
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "View All"
+    optional: true
+- tapOn:
+    text: "See All"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: home_05_all_listings
+- scroll
+- waitForAnimationToEnd
+- takeScreenshot: home_05_after_scroll
+- pressKey: back
+- waitForAnimationToEnd

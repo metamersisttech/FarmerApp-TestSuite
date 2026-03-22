@@ -1,0 +1,19 @@
+# Transport 10 — Transport provider profile screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Transport Profile"
+    optional: true
+- tapOn:
+    text: "Provider Profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: transport_10_provider_profile
+- assertNotVisible:
+    text: "Unfortunately"
+- pressKey: back
+- waitForAnimationToEnd

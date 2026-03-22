@@ -1,0 +1,17 @@
+# Listings 03 — My Listings page shows posted animals
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Listings"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: listings_03_my_listings
+- assertNotVisible:
+    text: "Unfortunately"
+- scroll
+- waitForAnimationToEnd
+- takeScreenshot: listings_03_scrolled

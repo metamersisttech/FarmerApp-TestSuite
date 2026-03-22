@@ -1,0 +1,19 @@
+# Vet 03 — Vet verification status screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Verification Status"
+    optional: true
+- tapOn:
+    text: "Vet Status"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_03_verification_status
+- assertNotVisible:
+    text: "Unfortunately"
+- pressKey: back
+- waitForAnimationToEnd

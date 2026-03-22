@@ -1,0 +1,17 @@
+# Appointments 04 — My Appointments list loads
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Appointments"
+    optional: true
+- tapOn:
+    text: "Appointments"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: appt_04_my_appointments
+- assertNotVisible:
+    text: "Unfortunately"

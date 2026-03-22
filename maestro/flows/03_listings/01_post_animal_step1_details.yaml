@@ -1,0 +1,24 @@
+# Listings 01 — Post Animal: Step 1 Details page renders
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Listings"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Post Animal"
+    optional: true
+- tapOn:
+    text: "+"
+    optional: true
+- tapOn:
+    id: "add_listing_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: listings_01_details_page
+- assertNotVisible:
+    text: "Unfortunately"

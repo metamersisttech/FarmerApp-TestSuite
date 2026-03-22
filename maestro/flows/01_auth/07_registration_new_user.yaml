@@ -1,0 +1,52 @@
+# Auth 07 — Registration flow for new user
+# Note: Uses a unique test number to avoid conflicts; adjust as needed.
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 10000
+- tapOn:
+    text: "English"
+    optional: true
+- waitForAnimationToEnd
+# Tap register / sign up
+- tapOn:
+    text: "Register"
+    optional: true
+- tapOn:
+    text: "Sign Up"
+    optional: true
+- tapOn:
+    text: "Create Account"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: auth_07_register_screen
+# Fill registration form
+- tapOn:
+    text: "Name"
+    optional: true
+- inputText: "Test Farmer"
+- tapOn:
+    text: "Phone"
+    optional: true
+- inputText: "${FARMERAPP_TEST_PHONE}"
+- tapOn:
+    text: "Email"
+    optional: true
+- inputText: "${FARMERAPP_TEST_EMAIL}"
+- tapOn:
+    text: "Password"
+    optional: true
+- inputText: "${FARMERAPP_TEST_PASSWORD}"
+- takeScreenshot: auth_07_form_filled
+- tapOn:
+    text: "Register"
+    optional: true
+- tapOn:
+    text: "Sign Up"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 10000
+- takeScreenshot: auth_07_after_register

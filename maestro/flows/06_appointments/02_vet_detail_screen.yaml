@@ -1,0 +1,25 @@
+# Appointments 02 — Vet detail screen loads
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Vet Services"
+    optional: true
+- tapOn:
+    text: "Find a Vet"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn:
+    index: 0
+    id: "vet_card"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: appt_02_vet_detail
+- assertNotVisible:
+    text: "Unfortunately"
+- pressKey: back
+- waitForAnimationToEnd

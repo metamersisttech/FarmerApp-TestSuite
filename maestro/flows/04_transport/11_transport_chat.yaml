@@ -1,0 +1,27 @@
+# Transport 11 — Transport chat screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Bookings"
+    optional: true
+- tapOn:
+    text: "My Transport Bookings"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn:
+    index: 0
+    id: "request_"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Chat"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: transport_11_transport_chat
+- pressKey: back
+- waitForAnimationToEnd

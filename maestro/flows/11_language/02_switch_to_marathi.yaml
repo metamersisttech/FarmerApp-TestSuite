@@ -1,0 +1,35 @@
+# Language 02 — Switch to Marathi
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Settings"
+    optional: true
+- tapOn:
+    text: "Language"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Marathi"
+    optional: true
+- tapOn:
+    text: "मराठी"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: language_02_marathi_active
+# Restore English
+- tapOn:
+    text: "English"
+    optional: true
+- tapOn:
+    text: "इंग्रजी"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: language_02_english_restored

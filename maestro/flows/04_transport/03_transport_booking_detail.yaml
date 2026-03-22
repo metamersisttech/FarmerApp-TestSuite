@@ -1,0 +1,25 @@
+# Transport 03 — Transport booking detail screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Bookings"
+    optional: true
+- tapOn:
+    text: "My Transport Bookings"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: transport_03_bookings_list
+# Tap first booking if any
+- tapOn:
+    index: 0
+    id: "request_"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: transport_03_booking_detail
+- pressKey: back
+- waitForAnimationToEnd

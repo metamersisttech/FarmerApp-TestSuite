@@ -1,0 +1,26 @@
+# Vet 01 — Vet onboarding carousel renders
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Become a Vet"
+    optional: true
+- tapOn:
+    text: "Register as Vet"
+    optional: true
+- tapOn:
+    text: "Vet Onboarding"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_01_onboarding_carousel
+# Swipe through carousel
+- swipe:
+    direction: LEFT
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: vet_01_carousel_slide2
+- pressKey: back
+- waitForAnimationToEnd

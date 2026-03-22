@@ -1,0 +1,17 @@
+# Vet 04 — Vet profile screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Vet Profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_04_vet_profile
+- scroll
+- waitForAnimationToEnd
+- takeScreenshot: vet_04_profile_scrolled
+- pressKey: back
+- waitForAnimationToEnd

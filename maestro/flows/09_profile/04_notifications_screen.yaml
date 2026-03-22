@@ -1,0 +1,19 @@
+# Profile 04 — Notifications screen loads
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    description: "Notifications"
+    optional: true
+- tapOn:
+    text: "Notifications"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: profile_04_notifications
+- assertNotVisible:
+    text: "Unfortunately"
+- pressKey: back
+- waitForAnimationToEnd

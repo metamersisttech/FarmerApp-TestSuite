@@ -1,0 +1,22 @@
+# Search 02 — Search with no results shows empty state
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Search"
+    optional: true
+- tapOn:
+    id: "search_field"
+    optional: true
+- waitForAnimationToEnd
+- inputText: "xyzxyzxyznonexistent99999"
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: search_02_empty_results
+# Should show empty state, not crash
+- assertNotVisible:
+    text: "Unfortunately"
+- pressKey: back
+- waitForAnimationToEnd

@@ -1,0 +1,38 @@
+# Appointments 03 — Book appointment form
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Vet Services"
+    optional: true
+- tapOn:
+    text: "Find a Vet"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn:
+    index: 0
+    id: "vet_card"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Book Appointment"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: appt_03_book_form
+- tapOn:
+    text: "Date"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "OK"
+    optional: true
+- tapOn:
+    text: "Confirm"
+    optional: true
+- takeScreenshot: appt_03_form_filled
+- pressKey: back
+- waitForAnimationToEnd

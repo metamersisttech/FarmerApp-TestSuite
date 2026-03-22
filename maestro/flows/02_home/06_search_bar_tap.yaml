@@ -1,0 +1,17 @@
+# Home 06 — Search bar tap opens search screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Search"
+    optional: true
+- tapOn:
+    id: "search_bar"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: home_06_search_screen_open
+- pressKey: back
+- waitForAnimationToEnd

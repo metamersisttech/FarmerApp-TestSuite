@@ -1,0 +1,37 @@
+# Search 04 — Location filter on search results
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Search"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Filter"
+    optional: true
+- tapOn:
+    id: "filter_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: search_04_filter_panel
+- tapOn:
+    text: "Location"
+    optional: true
+- tapOn:
+    text: "State"
+    optional: true
+- tapOn:
+    text: "Bihar"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Apply"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: search_04_filtered_results
+- pressKey: back
+- waitForAnimationToEnd

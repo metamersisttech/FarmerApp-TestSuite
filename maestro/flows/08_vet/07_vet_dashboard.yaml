@@ -1,0 +1,20 @@
+# Vet 07 — Vet dashboard (home page for vets)
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Vet Home"
+    optional: true
+- tapOn:
+    text: "Vet Dashboard"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: vet_07_dashboard
+- assertNotVisible:
+    text: "Unfortunately"
+- scroll
+- waitForAnimationToEnd
+- takeScreenshot: vet_07_dashboard_scrolled

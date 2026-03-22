@@ -1,0 +1,35 @@
+# Language 03 — Switch to Punjabi
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Settings"
+    optional: true
+- tapOn:
+    text: "Language"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Punjabi"
+    optional: true
+- tapOn:
+    text: "ਪੰਜਾਬੀ"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: language_03_punjabi_active
+# Restore English
+- tapOn:
+    text: "English"
+    optional: true
+- tapOn:
+    text: "ਅੰਗਰੇਜ਼ੀ"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: language_03_english_restored

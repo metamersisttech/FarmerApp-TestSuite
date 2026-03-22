@@ -1,0 +1,29 @@
+# Search 03 — Tap search result opens animal detail
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Search"
+    optional: true
+- tapOn:
+    id: "search_field"
+    optional: true
+- waitForAnimationToEnd
+- inputText: "Cattle"
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: search_03_results
+# Tap first result
+- tapOn:
+    index: 0
+    id: "search_result_item"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: search_03_detail_opened
+- pressKey: back
+- waitForAnimationToEnd
+- pressKey: back
+- waitForAnimationToEnd

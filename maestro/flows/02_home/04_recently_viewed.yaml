@@ -1,0 +1,17 @@
+# Home 04 — Recently Viewed section loads
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+# Navigate to recently viewed (profile or home section)
+- tapOn:
+    text: "Recently Viewed"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: home_04_recently_viewed
+- assertNotVisible:
+    text: "Unfortunately"
+- pressKey: back
+- waitForAnimationToEnd

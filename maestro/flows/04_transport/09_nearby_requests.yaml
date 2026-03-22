@@ -1,0 +1,17 @@
+# Transport 09 — Nearby transport requests screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Nearby Requests"
+    optional: true
+- tapOn:
+    text: "Find Requests"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 10000
+- takeScreenshot: transport_09_nearby_requests
+- assertNotVisible:
+    text: "Unfortunately"

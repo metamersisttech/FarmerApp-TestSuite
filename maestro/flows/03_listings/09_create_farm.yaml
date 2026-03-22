@@ -1,0 +1,30 @@
+# Listings 09 — Create Farm page renders and accepts input
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Listings"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Create Farm"
+    optional: true
+- tapOn:
+    text: "Add Farm"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: listings_09_create_farm
+- tapOn:
+    text: "Farm Name"
+    optional: true
+- inputText: "Test Farm"
+- tapOn:
+    text: "Location"
+    optional: true
+- inputText: "Bihar, India"
+- takeScreenshot: listings_09_form_filled
+- pressKey: back
+- waitForAnimationToEnd
