@@ -79,10 +79,11 @@ app.*.map.json
 .env.*.local
 *.env
 
-# Firebase configuration (contains sensitive keys)
-# Uncomment if you want to keep these out of git
-# android/app/google-services.json
-# ios/Runner/GoogleService-Info.plist
+# Firebase configuration — contains API keys, NEVER commit
+# Store as GitHub Secret: GOOGLE_SERVICES_JSON_B64
+# Restore locally: ./scripts/setup_firebase_key.sh decode <base64>
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
 
 # Local configuration
 local.properties
