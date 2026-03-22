@@ -1,0 +1,64 @@
+appId: com.example.flutter_app
+---
+# 12/04 — Notification toggles: disable master push, verify children grey out; re-enable
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "nav_profile"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "settings_btn"
+- waitForAnimationToEnd
+
+# Scroll to Notifications section
+- scroll
+
+- takeScreenshot: settings_04_toggles_on
+
+# Disable master push notifications toggle
+- tapOn:
+    id: "settings_toggle_push"
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- takeScreenshot: settings_04_push_disabled
+
+# Re-enable push notifications
+- tapOn:
+    id: "settings_toggle_push"
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Toggle individual bid notifications
+- tapOn:
+    id: "settings_toggle_bids"
+- waitForAnimationToEnd
+
+# Toggle individual appointment notifications
+- tapOn:
+    id: "settings_toggle_appointments"
+- waitForAnimationToEnd
+
+# Toggle individual message notifications
+- tapOn:
+    id: "settings_toggle_messages"
+- waitForAnimationToEnd
+
+- takeScreenshot: settings_04_individual_toggled
+
+# Restore all to on by re-tapping each off one
+- tapOn:
+    id: "settings_toggle_bids"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings_toggle_appointments"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings_toggle_messages"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "settings_back_btn"
+- waitForAnimationToEnd

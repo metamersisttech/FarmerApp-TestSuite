@@ -1,0 +1,55 @@
+appId: com.example.flutter_app
+---
+# 12/05 — Delete account danger tile: opens warning dialog, cancel keeps account
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "nav_profile"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "settings_btn"
+- waitForAnimationToEnd
+
+# Tap Delete Account (danger tile)
+- tapOn:
+    id: "settings_delete_account"
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- takeScreenshot: settings_05_delete_dialog
+
+# Verify warning dialog and danger icon
+- assertVisible:
+    text: "Delete Account"
+- assertVisible:
+    text: "permanently erase"
+
+# Cancel — do NOT delete account
+- tapOn:
+    id: "delete_account_cancel_btn"
+- waitForAnimationToEnd
+
+# Still on Settings
+- assertVisible:
+    text: "Settings"
+
+# Also test Clear Cache dialog
+- scroll
+- scroll
+- tapOn:
+    id: "settings_clear_cache"
+- waitForAnimationToEnd
+
+- takeScreenshot: settings_05_clear_cache_dialog
+- assertVisible:
+    text: "Clear Cache"
+
+- tapOn:
+    id: "clear_cache_cancel_btn"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "settings_back_btn"
+- waitForAnimationToEnd

@@ -1,29 +1,27 @@
-# Settings 02 — Change language from Settings screen
-
 appId: com.example.flutter_app
 ---
+# 12/02 — Change language from Settings → App Preferences → Language
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
 - tapOn:
-    text: "Profile"
-    optional: true
+    id: "nav_profile"
 - waitForAnimationToEnd
 
 - tapOn:
-    text: "Settings"
-    optional: true
+    id: "settings_btn"
 - waitForAnimationToEnd
 
 - takeScreenshot: settings_02_before_language
 
+# Scroll to App Preferences section
+- scroll
 - tapOn:
-    text: "Language"
-    optional: true
+    id: "settings_language"
 - waitForAnimationToEnd:
     timeout: 4000
 
-- takeScreenshot: settings_02_language_picker
+- takeScreenshot: settings_02_language_screen
 
 # Select Hindi
 - tapOn:

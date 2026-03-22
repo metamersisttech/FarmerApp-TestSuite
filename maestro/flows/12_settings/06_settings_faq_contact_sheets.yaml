@@ -1,0 +1,62 @@
+appId: com.example.flutter_app
+---
+# 12/06 — FAQ and Contact Us bottom sheets open and close
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "nav_profile"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "settings_btn"
+- waitForAnimationToEnd
+
+# Scroll to Help section
+- scroll
+- scroll
+
+# Open FAQ sheet
+- tapOn:
+    id: "settings_faq"
+- waitForAnimationToEnd:
+    timeout: 4000
+
+- takeScreenshot: settings_06_faq_sheet
+
+- assertVisible:
+    text: "Frequently Asked Questions"
+
+# Expand first FAQ item
+- tapOn:
+    text: "How do I post a listing?"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: settings_06_faq_expanded
+
+# Close sheet
+- pressKey: back
+- waitForAnimationToEnd
+
+# Open Contact sheet
+- tapOn:
+    id: "settings_contact"
+- waitForAnimationToEnd:
+    timeout: 4000
+
+- takeScreenshot: settings_06_contact_sheet
+
+- assertVisible:
+    text: "Contact Us"
+- assertVisible:
+    text: "support@farmerapp.in"
+- assertVisible:
+    text: "Mon–Sat"
+
+- pressKey: back
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "settings_back_btn"
+- waitForAnimationToEnd

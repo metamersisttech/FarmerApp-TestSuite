@@ -1,30 +1,72 @@
-# Settings 01 — Settings screen loads all options
-
 appId: com.example.flutter_app
 ---
+# 12/01 — Settings screen loads all sections
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
 - tapOn:
-    text: "Profile"
-    optional: true
+    id: "nav_profile"
 - waitForAnimationToEnd
 
+# Open settings via gear icon in profile header
 - tapOn:
-    text: "Settings"
-    optional: true
+    id: "settings_btn"
 - waitForAnimationToEnd:
     timeout: 5000
 
-- takeScreenshot: settings_01_screen
+- takeScreenshot: settings_01_open
 
+# Verify screen title
+- assertVisible:
+    text: "Settings"
+
+# Verify Account tiles visible
+- assertVisible:
+    id: "settings_change_password"
+- assertVisible:
+    id: "settings_kyc"
+- assertVisible:
+    id: "settings_logout_all_devices"
+- assertVisible:
+    id: "settings_delete_account"
+
+# Scroll to Notifications section
+- scroll
+- assertVisible:
+    id: "settings_toggle_push"
+- assertVisible:
+    id: "settings_toggle_bids"
+- assertVisible:
+    id: "settings_toggle_appointments"
+- assertVisible:
+    id: "settings_toggle_messages"
+
+- takeScreenshot: settings_01_notifications
+
+# Scroll to Preferences + Help
+- scroll
+- assertVisible:
+    id: "settings_language"
+- assertVisible:
+    id: "settings_clear_cache"
+- assertVisible:
+    id: "settings_faq"
+- assertVisible:
+    id: "settings_contact"
+
+# Scroll to About
+- scroll
+- assertVisible:
+    id: "settings_version"
+- assertVisible:
+    id: "settings_licenses"
+
+- takeScreenshot: settings_01_about
+
+# No crash
 - assertNotVisible:
     text: "Unfortunately"
 
-# Scroll to see all settings options
-- scroll
-- waitForAnimationToEnd
-- takeScreenshot: settings_01_scrolled
-
-- pressKey: back
+- tapOn:
+    id: "settings_back_btn"
 - waitForAnimationToEnd
