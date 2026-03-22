@@ -1,0 +1,50 @@
+# Auth 01 — OTP Login Happy Path
+# Full login flow: phone entry → OTP → Home screen
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+- tapOn:
+    text: "English"
+    optional: true
+
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Phone"
+    optional: true
+
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "phone_field"
+    optional: true
+- tapOn:
+    text: "Phone Number"
+    optional: true
+
+- inputText: "${FARMERAPP_TEST_PHONE}"
+
+- tapOn:
+    text: "Send OTP"
+
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- takeScreenshot: auth_01_otp_screen
+
+- inputText: "${FARMERAPP_TEST_OTP}"
+
+- waitForAnimationToEnd:
+    timeout: 12000
+
+- takeScreenshot: auth_01_after_login
+
+# Should NOT still be on login screen
+- assertNotVisible:
+    text: "Send OTP"

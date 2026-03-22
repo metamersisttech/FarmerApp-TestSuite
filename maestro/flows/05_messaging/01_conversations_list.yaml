@@ -1,0 +1,22 @@
+# Messaging 01 — Conversations list screen loads
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Messages"
+    optional: true
+- tapOn:
+    text: "Chat"
+    optional: true
+- tapOn:
+    text: "Conversations"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- takeScreenshot: messaging_01_conversations

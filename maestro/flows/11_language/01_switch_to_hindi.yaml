@@ -1,0 +1,46 @@
+# Language 01 — Switch app language to Hindi
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Profile"
+    optional: true
+
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Settings"
+    optional: true
+- tapOn:
+    text: "Language"
+    optional: true
+
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Hindi"
+    optional: true
+- tapOn:
+    text: "हिंदी"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+- takeScreenshot: language_01_hindi_active
+
+# Switch back to English so subsequent tests are not affected
+- tapOn:
+    text: "English"
+    optional: true
+- tapOn:
+    text: "अंग्रेजी"
+    optional: true
+
+- waitForAnimationToEnd
+
+- takeScreenshot: language_01_english_restored

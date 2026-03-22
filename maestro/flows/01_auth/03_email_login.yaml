@@ -1,0 +1,49 @@
+# Auth 03 — Email Login Flow
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+- tapOn:
+    text: "English"
+    optional: true
+
+- waitForAnimationToEnd
+
+# Navigate to email login
+- tapOn:
+    text: "Email"
+    optional: true
+- tapOn:
+    text: "Login with Email"
+    optional: true
+
+- waitForAnimationToEnd
+
+- takeScreenshot: auth_03_email_login_screen
+
+- tapOn:
+    text: "Email"
+    optional: true
+- inputText: "${FARMERAPP_TEST_EMAIL}"
+
+- tapOn:
+    text: "Password"
+    optional: true
+- inputText: "${FARMERAPP_TEST_PASSWORD}"
+
+- tapOn:
+    text: "Login"
+    optional: true
+- tapOn:
+    text: "Sign In"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 12000
+
+- takeScreenshot: auth_03_after_email_login

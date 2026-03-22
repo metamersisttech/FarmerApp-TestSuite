@@ -1,0 +1,56 @@
+# ============================================================
+# FarmerApp — Reusable Login Helper
+# ============================================================
+# Include in any flow with:
+#   - runFlow: ../../helpers/login_helper.yaml
+#
+# Requires env vars (set in .env.test or passed via --env):
+#   FARMERAPP_TEST_PHONE  — test phone number
+#   FARMERAPP_TEST_OTP    — fixed OTP for test account
+# ============================================================
+
+appId: com.example.flutter_app
+---
+# Fresh launch with cleared state
+- launchApp:
+    clearState: true
+
+# Wait for splash + Firebase init
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Language screen — select English if visible
+- tapOn:
+    text: "English"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Welcome / phone login screen
+- tapOn:
+    text: "Phone"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Enter phone number
+- tapOn:
+    id: "phone_field"
+    optional: true
+- tapOn:
+    text: "Phone Number"
+    optional: true
+- inputText: "${FARMERAPP_TEST_PHONE}"
+
+# Send OTP
+- tapOn:
+    text: "Send OTP"
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# Enter OTP
+- inputText: "${FARMERAPP_TEST_OTP}"
+
+# Wait for home screen
+- waitForAnimationToEnd:
+    timeout: 12000

@@ -1,0 +1,40 @@
+# Home 01 — Bottom navigation: visit all 4 tabs and screenshot each
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+
+- waitForAnimationToEnd
+
+- takeScreenshot: home_01_home_tab
+
+# Tab: Favourite
+- tapOn:
+    text: "Favourite"
+    optional: true
+- tapOn:
+    text: "Favorites"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: home_01_favourite_tab
+
+# Tab: My Listings
+- tapOn:
+    text: "My Listings"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: home_01_my_listings_tab
+
+# Tab: Profile
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: home_01_profile_tab
+
+# Back to Home
+- tapOn:
+    text: "Home"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: home_01_back_to_home

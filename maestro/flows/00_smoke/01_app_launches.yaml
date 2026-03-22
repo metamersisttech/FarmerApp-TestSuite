@@ -1,0 +1,18 @@
+# Smoke 01 — App launches without crash
+# Verifies the app starts, splash renders, and at least one widget is visible.
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+- takeScreenshot: smoke_01_launch_complete
+
+# Assert app rendered something (not black screen / crash dialog)
+- assertNotVisible:
+    text: "Unfortunately"   # Android crash dialog
+- assertNotVisible:
+    text: "has stopped"

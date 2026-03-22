@@ -1,0 +1,27 @@
+# Profile 01 — View profile screen and settings
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Profile"
+    optional: true
+
+- waitForAnimationToEnd
+
+- takeScreenshot: profile_01_view
+
+- tapOn:
+    text: "Settings"
+    optional: true
+
+- waitForAnimationToEnd
+
+- takeScreenshot: profile_01_settings
+
+- pressKey: back
+
+- waitForAnimationToEnd

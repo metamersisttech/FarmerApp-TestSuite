@@ -1,0 +1,14 @@
+# Smoke 02 — Language selection screen renders with English option
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+- takeScreenshot: smoke_02_language_screen
+
+- assertVisible:
+    text: "English"

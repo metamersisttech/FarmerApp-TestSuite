@@ -1,0 +1,29 @@
+# Smoke 05 — Back button does not crash or force-close the app
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+- tapOn:
+    text: "English"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Press back — should NOT exit app or crash
+- pressKey: back
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- takeScreenshot: smoke_05_after_back
+
+- assertNotVisible:
+    text: "Unfortunately"
+- assertNotVisible:
+    text: "has stopped"

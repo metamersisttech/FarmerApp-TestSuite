@@ -1,3 +1,32 @@
+# =============================================================================
+# FarmerApp Test Suite — .gitignore additions
+# =============================================================================
+
+# Test credentials — NEVER commit
+.env.test
+
+# Test reports (auto-generated — too large for git)
+docs/testing/reports/
+
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Maestro temp files
+maestro/.maestro/
+
+# Screen recordings (large binary files)
+*.mp4
+*.mov
+
+# Android build outputs
+build/
+
+# =============================================================================
 # Miscellaneous
 *.class
 *.log

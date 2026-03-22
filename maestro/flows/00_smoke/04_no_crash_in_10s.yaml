@@ -1,0 +1,32 @@
+# Smoke 04 — App stays alive for 10 seconds without ANR/crash
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Basic interaction to rule out frozen UI
+- tapOn:
+    text: "English"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- scroll
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- takeScreenshot: smoke_04_ten_second_check
+
+# Must NOT show crash dialogs
+- assertNotVisible:
+    text: "Unfortunately"
+- assertNotVisible:
+    text: "has stopped"
+- assertNotVisible:
+    text: "keeps stopping"

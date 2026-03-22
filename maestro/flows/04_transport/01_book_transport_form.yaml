@@ -1,0 +1,62 @@
+# Transport 01 — Book Transport: fill form and submit
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+
+- waitForAnimationToEnd
+
+# Navigate to Book Transport
+# (may be reachable via an animal detail or directly from home)
+- tapOn:
+    text: "Book Transport"
+    optional: true
+
+- waitForAnimationToEnd
+
+- takeScreenshot: transport_01_form_initial
+
+# Fill Pickup Location
+- tapOn:
+    id: "pickup_field"
+    optional: true
+- tapOn:
+    text: "Pickup Location"
+    optional: true
+- inputText: "Village A, Bihar"
+
+# Fill Destination
+- tapOn:
+    id: "destination_field"
+    optional: true
+- tapOn:
+    text: "Destination"
+    optional: true
+- inputText: "Market B, Maharashtra"
+
+# Animal Count
+- clearText:
+    id: "count_field"
+    optional: true
+- tapOn:
+    id: "count_field"
+    optional: true
+- tapOn:
+    text: "Animal Count"
+    optional: true
+- inputText: "2"
+
+- takeScreenshot: transport_01_form_filled
+
+# Submit
+- tapOn:
+    id: "submit_btn"
+    optional: true
+- tapOn:
+    text: "Request Transport"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 15000
+
+- takeScreenshot: transport_01_after_submit

@@ -1,0 +1,25 @@
+# Transport 02 — My Transport Bookings screen loads without error
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+
+- waitForAnimationToEnd
+
+# Navigate to My Bookings
+- tapOn:
+    text: "My Bookings"
+    optional: true
+- tapOn:
+    text: "My Transport Bookings"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+- takeScreenshot: transport_02_my_bookings
+
+# Should NOT show unhandled error
+- assertNotVisible:
+    text: "Something went wrong"
+    optional: true

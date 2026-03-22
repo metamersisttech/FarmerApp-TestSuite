@@ -1,0 +1,27 @@
+# Search 01 — Search for animals by name
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Search"
+    optional: true
+- tapOn:
+    id: "search_field"
+    optional: true
+
+- waitForAnimationToEnd
+
+- inputText: "Cow"
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: search_01_results
+
+- pressKey: back
+
+- waitForAnimationToEnd

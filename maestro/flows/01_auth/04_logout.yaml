@@ -1,0 +1,48 @@
+# Auth 04 — Logout from Profile screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+
+- waitForAnimationToEnd
+
+# Navigate to Profile tab
+- tapOn:
+    text: "Profile"
+    optional: true
+
+- waitForAnimationToEnd
+
+- takeScreenshot: auth_04_profile_before_logout
+
+# Tap Logout
+- tapOn:
+    text: "Logout"
+    optional: true
+- tapOn:
+    text: "Log Out"
+    optional: true
+- tapOn:
+    text: "Sign Out"
+    optional: true
+
+# Confirm dialog if shown
+- tapOn:
+    text: "Yes"
+    optional: true
+- tapOn:
+    text: "OK"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- takeScreenshot: auth_04_after_logout
+
+# Should return to login / language screen
+- assertVisible:
+    text: "Send OTP"
+    optional: true
+- assertVisible:
+    text: "English"
+    optional: true

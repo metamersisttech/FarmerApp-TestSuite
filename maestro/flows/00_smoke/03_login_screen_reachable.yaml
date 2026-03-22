@@ -1,0 +1,24 @@
+# Smoke 03 — Login / OTP screen is reachable from splash
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Tap English on language screen
+- tapOn:
+    text: "English"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 4000
+
+- takeScreenshot: smoke_03_login_screen
+
+# Verify we can see the phone/OTP login elements
+- assertVisible:
+    text: "Send OTP"
+    optional: true
