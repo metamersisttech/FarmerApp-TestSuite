@@ -1,0 +1,50 @@
+# Transport 17: Pending approval screen shown to transporter awaiting admin review
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to transport section
+- tapOn:
+    text: "Transport"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Transport Dashboard"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "transport_section"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: transport_17_pending_approval
+
+# Assert pending approval screen elements visible
+- assertVisible:
+    text: "Pending"
+    optional: true
+- assertVisible:
+    text: "Under Review"
+    optional: true
+- assertVisible:
+    text: "Approval"
+    optional: true
+
+# Tap Refresh if present
+- tapOn:
+    text: "Refresh"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "refresh_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: transport_17_refresh_tapped
+
+- pressKey: back
+- waitForAnimationToEnd

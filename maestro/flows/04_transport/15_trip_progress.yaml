@@ -1,0 +1,65 @@
+# Transport 15: Trip progress screen shows live status
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to My Bookings or Transport Dashboard
+- tapOn:
+    text: "My Bookings"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Transport Dashboard"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: transport_15_booking_list
+
+# Tap an In Progress / Active booking
+- tapOn:
+    text: "In Progress"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Active"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "active_booking_item"
+    optional: true
+- waitForAnimationToEnd
+
+# Look for trip progress screen
+- tapOn:
+    id: "trip_progress_screen"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Trip in Progress"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "En Route"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: transport_15_trip_progress
+
+# Tap optional action buttons
+- tapOn:
+    text: "Update Location"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Mark Arrived"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: transport_15_progress_actions
+
+- pressKey: back
+- waitForAnimationToEnd

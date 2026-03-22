@@ -1,0 +1,62 @@
+# Vet Document Re-upload — vet with rejected documents re-uploads via vet_document_reupload_screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to vet profile or verification status
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Verification"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: vet_09_verification_status
+
+# Tap re-upload if rejection message is visible
+- tapOn:
+    text: "Re-upload"
+    optional: true
+- tapOn:
+    text: "Update Documents"
+    optional: true
+- tapOn:
+    id: "reupload_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: vet_09_reupload_screen
+
+# Tap Upload Certificate
+- tapOn:
+    text: "Upload Certificate"
+    optional: true
+- tapOn:
+    id: "upload_certificate_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: vet_09_upload_tapped
+
+# Cancel out of picker/permission dialog
+- pressKey: back
+- waitForAnimationToEnd
+
+# Tap Upload ID if present
+- tapOn:
+    text: "Upload ID"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- pressKey: back
+- waitForAnimationToEnd
+
+- takeScreenshot: vet_09_after_cancel

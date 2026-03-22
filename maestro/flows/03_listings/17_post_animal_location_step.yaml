@@ -1,0 +1,65 @@
+# Listings 17 - Post New Animal - Location Step
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Post Animal"
+    optional: true
+- tapOn:
+    text: "Sell Animal"
+    optional: true
+- tapOn:
+    id: "fab_post_animal"
+    optional: true
+- tapOn:
+    description: "Post Animal"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Next"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    text: "Location"
+    optional: true
+- tapOn:
+    id: "location_tab"
+    optional: true
+- tapOn:
+    text: "Next"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: listings_17_location_step
+- tapOn:
+    id: "location_search_field"
+    optional: true
+- tapOn:
+    text: "Search Location"
+    optional: true
+- tapOn:
+    text: "Enter Location"
+    optional: true
+- inputText: "Mumbai"
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: listings_17_city_typed
+- tapOn:
+    index: 0
+    id: "location_result"
+    optional: true
+- tapOn:
+    text: "Mumbai"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: listings_17_location_selected
+- tapOn:
+    text: "Cancel"
+    optional: true
+- pressKey: BACK
+- waitForAnimationToEnd

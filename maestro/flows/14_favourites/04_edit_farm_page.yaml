@@ -1,0 +1,62 @@
+# Edit Farm Page — user edits an existing farm's details
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Profile"
+    optional: true
+- tapOn:
+    id: "profile_tab"
+    optional: true
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "My Farms"
+    optional: true
+- tapOn:
+    text: "Farms"
+    optional: true
+- tapOn:
+    id: "my_farms_btn"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: favourites_04_farm_list
+
+- tapOn:
+    index: 0
+    id: "farm_list_item"
+    optional: true
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Edit"
+    optional: true
+- tapOn:
+    id: "edit_farm_btn"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: favourites_04_edit_farm
+
+- tapOn:
+    id: "farm_name_field"
+    optional: true
+- clearText
+- inputText: "Updated Test Farm"
+- tapOn:
+    text: "Farm Name"
+    optional: true
+- clearText
+- inputText: "Updated Test Farm"
+- takeScreenshot: favourites_04_farm_name_updated
+
+- tapOn:
+    text: "Save"
+    optional: true
+- tapOn:
+    id: "save_farm_btn"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: favourites_04_farm_saved

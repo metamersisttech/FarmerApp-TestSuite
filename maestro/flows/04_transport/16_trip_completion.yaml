@@ -1,0 +1,74 @@
+# Transport 16: Transporter marks trip as complete
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to active trip or booking
+- tapOn:
+    text: "My Bookings"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Active"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "active_trip_item"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: transport_16_active_trip
+
+# Navigate to trip completion screen
+- tapOn:
+    text: "Complete Trip"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Mark Delivered"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "complete_trip_btn"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: transport_16_completion_screen
+
+# Optionally tap Upload Proof, screenshot, then cancel
+- tapOn:
+    text: "Upload Proof"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "upload_proof_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: transport_16_upload_proof
+
+- tapOn:
+    text: "Cancel"
+    optional: true
+- waitForAnimationToEnd
+
+# Confirm trip completion
+- tapOn:
+    text: "Confirm"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Yes"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: transport_16_completed
+
+- pressKey: back
+- waitForAnimationToEnd

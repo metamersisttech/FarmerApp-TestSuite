@@ -1,0 +1,63 @@
+# Listings 19 - Post New Animal - Media Step
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Post Animal"
+    optional: true
+- tapOn:
+    text: "Sell Animal"
+    optional: true
+- tapOn:
+    id: "fab_post_animal"
+    optional: true
+- tapOn:
+    description: "Post Animal"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Media"
+    optional: true
+- tapOn:
+    id: "media_tab"
+    optional: true
+- tapOn:
+    text: "Next"
+    optional: true
+- tapOn:
+    text: "Next"
+    optional: true
+- tapOn:
+    text: "Next"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: listings_19_media_step
+- tapOn:
+    id: "add_photo_btn"
+    optional: true
+- tapOn:
+    text: "Add Photo"
+    optional: true
+- tapOn:
+    text: "Upload Photo"
+    optional: true
+- tapOn:
+    text: "Upload"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: listings_19_add_photo_tapped
+- tapOn:
+    text: "Cancel"
+    optional: true
+- tapOn:
+    text: "Deny"
+    optional: true
+- pressKey: BACK
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: listings_19_dismissed

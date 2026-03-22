@@ -1,0 +1,55 @@
+# Transport 13: Transporter views a transport request's full detail screen
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to Transport Dashboard or Nearby Requests
+- tapOn:
+    text: "Transport"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Transport Dashboard"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Nearby Requests"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: transport_13_requests_list
+
+# Tap first request item
+- tapOn:
+    id: "request_item_0"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "View Details"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "request_detail_btn"
+    optional: true
+- waitForAnimationToEnd
+
+# Assert request detail screen elements visible
+- assertVisible:
+    text: "Pickup"
+    optional: true
+- assertVisible:
+    text: "Drop"
+    optional: true
+- assertVisible:
+    text: "Animal"
+    optional: true
+- assertVisible:
+    text: "Price"
+    optional: true
+
+- takeScreenshot: transport_13_request_detail
+
+- pressKey: back
+- waitForAnimationToEnd

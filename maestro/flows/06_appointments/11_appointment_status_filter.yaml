@@ -1,0 +1,65 @@
+# Appointments 11: Filter appointments list by different statuses
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to My Appointments
+- tapOn:
+    text: "Appointments"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "appointments_tab"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Appointments"
+    optional: true
+- waitForAnimationToEnd
+
+# Tap Confirmed filter
+- tapOn:
+    text: "Confirmed"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "filter_confirmed"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: appt_11_filter_confirmed
+
+# Tap Cancelled filter
+- tapOn:
+    text: "Cancelled"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "filter_cancelled"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: appt_11_filter_cancelled
+
+# Tap All / Reset filter
+- tapOn:
+    text: "All"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Reset"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: appt_11_filter_all
+
+- pressKey: back
+- waitForAnimationToEnd

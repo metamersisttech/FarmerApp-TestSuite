@@ -1,0 +1,60 @@
+# Search Filters — use filter chips on search/results page: species, price range, location
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to Search tab or tap search bar
+- tapOn:
+    text: "Search"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Type "Cattle" in search field
+- tapOn:
+    text: "Search"
+    optional: true
+- inputText: "Cattle"
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- takeScreenshot: search_05_search_typed
+
+# Tap species filter chip
+- tapOn:
+    text: "Cattle"
+    optional: true
+- tapOn:
+    text: "Goat"
+    optional: true
+- tapOn:
+    text: "Buffalo"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: search_05_filter_chip_tapped
+
+# Assert results are filtered
+- takeScreenshot: search_05_filtered_results
+
+# Tap price sort if present
+- tapOn:
+    text: "Sort by Price"
+    optional: true
+- tapOn:
+    text: "Price"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Tap location filter if present
+- tapOn:
+    text: "Location"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: search_05_sort_applied

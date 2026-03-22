@@ -1,0 +1,73 @@
+# Back Navigation — back button is safe from every bottom nav tab
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Home"
+    optional: true
+- tapOn:
+    id: "home_tab"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: edge_02_nav_home
+- pressKey: back
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Search"
+    optional: true
+- tapOn:
+    id: "search_tab"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: edge_02_nav_search
+- pressKey: back
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Post"
+    optional: true
+- tapOn:
+    text: "Sell"
+    optional: true
+- tapOn:
+    id: "post_tab"
+    optional: true
+- tapOn:
+    id: "sell_tab"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: edge_02_nav_post
+- pressKey: back
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Appointments"
+    optional: true
+- tapOn:
+    text: "Vets"
+    optional: true
+- tapOn:
+    id: "appointments_tab"
+    optional: true
+- tapOn:
+    id: "vets_tab"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: edge_02_nav_appts
+- pressKey: back
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Profile"
+    optional: true
+- tapOn:
+    id: "profile_tab"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: edge_02_nav_profile
+- pressKey: back
+- waitForAnimationToEnd

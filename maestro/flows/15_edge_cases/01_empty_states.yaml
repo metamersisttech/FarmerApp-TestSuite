@@ -1,0 +1,66 @@
+# Empty States — all major empty state screens render without crash
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "My Listings"
+    optional: true
+- tapOn:
+    id: "my_listings_tab"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "No Listings"
+    optional: true
+- tapOn:
+    text: "Post your first animal"
+    optional: true
+- takeScreenshot: edge_01_empty_listings
+
+- tapOn:
+    text: "My Bids"
+    optional: true
+- tapOn:
+    id: "my_bids_tab"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "No Bids"
+    optional: true
+- takeScreenshot: edge_01_empty_bids
+
+- tapOn:
+    text: "My Appointments"
+    optional: true
+- tapOn:
+    text: "Appointments"
+    optional: true
+- tapOn:
+    id: "appointments_tab"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "No Appointments"
+    optional: true
+- takeScreenshot: edge_01_empty_appointments
+
+- tapOn:
+    text: "Conversations"
+    optional: true
+- tapOn:
+    text: "Messages"
+    optional: true
+- tapOn:
+    id: "conversations_tab"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "No Conversations"
+    optional: true
+- tapOn:
+    text: "No Messages"
+    optional: true
+- takeScreenshot: edge_01_empty_conversations

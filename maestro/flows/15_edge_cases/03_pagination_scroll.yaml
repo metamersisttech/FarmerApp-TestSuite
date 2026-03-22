@@ -1,0 +1,55 @@
+# Pagination Scroll — infinite scroll / pagination on listings feed
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- swipe:
+    direction: UP
+    duration: 800
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: edge_03_home_scrolled_1
+
+- swipe:
+    direction: UP
+    duration: 800
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: edge_03_home_scrolled_2
+
+- swipe:
+    direction: UP
+    duration: 800
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: edge_03_home_scrolled_3
+
+- tapOn:
+    text: "View All"
+    optional: true
+- tapOn:
+    text: "View All Listings"
+    optional: true
+- tapOn:
+    id: "view_all_listings_btn"
+    optional: true
+- waitForAnimationToEnd
+
+- swipe:
+    direction: UP
+    duration: 800
+- waitForAnimationToEnd:
+    timeout: 3000
+- swipe:
+    direction: UP
+    duration: 800
+- waitForAnimationToEnd:
+    timeout: 3000
+- swipe:
+    direction: UP
+    duration: 800
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: edge_03_viewall_scrolled

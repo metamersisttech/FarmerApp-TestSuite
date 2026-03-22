@@ -1,0 +1,62 @@
+# Listings 18 - Post New Animal - Health Step
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "Post Animal"
+    optional: true
+- tapOn:
+    text: "Sell Animal"
+    optional: true
+- tapOn:
+    id: "fab_post_animal"
+    optional: true
+- tapOn:
+    description: "Post Animal"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Health"
+    optional: true
+- tapOn:
+    id: "health_tab"
+    optional: true
+- tapOn:
+    text: "Next"
+    optional: true
+- tapOn:
+    text: "Next"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: listings_18_health_step
+- tapOn:
+    text: "Health Status"
+    optional: true
+- tapOn:
+    id: "health_status_dropdown"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    text: "Healthy"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "vaccination_field"
+    optional: true
+- tapOn:
+    text: "Vaccination"
+    optional: true
+- inputText: "FMD, HS"
+- waitForAnimationToEnd
+- takeScreenshot: listings_18_health_filled
+- tapOn:
+    text: "Next"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: listings_18_health_next

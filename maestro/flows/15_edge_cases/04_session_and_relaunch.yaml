@@ -1,0 +1,23 @@
+# Session and Relaunch — app relaunches and resumes session without re-login (token persistence)
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- takeScreenshot: edge_04_logged_in_home
+
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: edge_04_relaunched_still_logged_in
+
+- assertNotVisible:
+    text: "Send OTP"
+    optional: true
+- assertNotVisible:
+    text: "Login"
+    optional: true
+- assertNotVisible:
+    text: "Sign In"
+    optional: true

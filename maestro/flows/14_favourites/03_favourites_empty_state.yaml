@@ -1,0 +1,42 @@
+# Favourites Empty State — page shows empty state when no saved listings
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Favourites"
+    optional: true
+- tapOn:
+    text: "Saved"
+    optional: true
+- tapOn:
+    id: "favourites_tab"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- tapOn:
+    text: "No Favourites"
+    optional: true
+- tapOn:
+    text: "No Saved Listings"
+    optional: true
+- tapOn:
+    text: "Empty"
+    optional: true
+- takeScreenshot: favourites_03_empty_state
+
+- tapOn:
+    text: "Browse Listings"
+    optional: true
+- tapOn:
+    text: "Explore"
+    optional: true
+- tapOn:
+    id: "browse_listings_btn"
+    optional: true
+- takeScreenshot: favourites_03_browse_tapped

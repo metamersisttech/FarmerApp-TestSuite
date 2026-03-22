@@ -1,0 +1,68 @@
+# Appointments 10: Farmer cancels a REQUESTED/CONFIRMED appointment from their side
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to My Appointments
+- tapOn:
+    text: "Appointments"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "appointments_tab"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Appointments"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: appt_10_my_appointments
+
+# Tap first appointment item
+- tapOn:
+    id: "appointment_item_0"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: appt_10_appointment_detail
+
+# Tap Cancel button
+- tapOn:
+    text: "Cancel Appointment"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Cancel"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "cancel_appointment_btn"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: appt_10_cancel_dialog
+
+# Confirm cancellation in dialog
+- tapOn:
+    text: "Yes"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Confirm"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Cancel Appointment"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: appt_10_after_cancel
+
+- pressKey: back
+- waitForAnimationToEnd

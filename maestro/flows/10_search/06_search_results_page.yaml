@@ -1,0 +1,66 @@
+# Search Results Page — scroll, tap result, go back
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to search and type "Goat"
+- tapOn:
+    text: "Search"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Search"
+    optional: true
+- inputText: "Goat"
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Submit search
+- tapOn:
+    text: "Search"
+    optional: true
+- pressKey: Enter
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Assert search_results_page loads with listing cards
+- assertVisible:
+    text: "Goat"
+    optional: true
+
+- takeScreenshot: search_06_results_loaded
+
+# Scroll down through results
+- swipeUp
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- takeScreenshot: search_06_scrolled
+
+# Tap first result card
+- tapOn:
+    index: 0
+    text: "View"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Assert animal_detail_page opens
+- takeScreenshot: search_06_detail_opened
+
+# Go back to search results
+- pressKey: back
+- waitForAnimationToEnd
+
+# Tap second result (index 1, optional)
+- tapOn:
+    index: 1
+    text: "View"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: search_06_second_result

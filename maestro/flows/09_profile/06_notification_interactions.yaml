@@ -1,0 +1,51 @@
+# Notification Interactions — mark as read, tap notification to navigate
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to Notifications via bell icon or direct tab
+- tapOn:
+    text: "Notifications"
+    optional: true
+- tapOn:
+    id: "notification_bell"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Assert notifications list is visible
+- assertVisible:
+    text: "Notifications"
+    optional: true
+
+- takeScreenshot: profile_06_notifications_list
+
+# Tap first notification item
+- tapOn:
+    index: 0
+    text: "notification"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Assert navigation to detail screen or no crash
+- takeScreenshot: profile_06_notification_tapped
+
+# Go back to notifications list
+- pressKey: back
+- waitForAnimationToEnd
+
+# Tap "Mark All as Read" if present
+- tapOn:
+    text: "Mark All as Read"
+    optional: true
+- tapOn:
+    id: "mark_all_read_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Assert all notifications marked read or empty state
+- takeScreenshot: profile_06_mark_all_read

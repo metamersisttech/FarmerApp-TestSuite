@@ -1,0 +1,44 @@
+# Welcome Screen — cold start shows splash, language selector, Get Started and Login buttons
+
+appId: com.example.flutter_app
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 10000
+- takeScreenshot: welcome_01_splash
+
+- tapOn:
+    text: "English"
+    optional: true
+- tapOn:
+    id: "english_option"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: welcome_01_language_selected
+
+- tapOn:
+    text: "welcome_page"
+    optional: true
+- tapOn:
+    id: "get_started_btn"
+    optional: true
+- tapOn:
+    text: "Get Started"
+    optional: true
+- tapOn:
+    text: "Sign Up"
+    optional: true
+- takeScreenshot: welcome_01_get_started_tapped
+
+- pressKey: back
+- tapOn:
+    text: "Login"
+    optional: true
+- tapOn:
+    text: "Sign In"
+    optional: true
+- tapOn:
+    id: "login_btn"
+    optional: true
+- takeScreenshot: welcome_01_login_visible

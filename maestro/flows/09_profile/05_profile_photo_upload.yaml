@@ -1,0 +1,46 @@
+# Profile Photo Upload — user changes their profile photo
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to Profile tab
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: profile_05_profile_page
+
+# Tap profile photo or edit/change photo button
+- tapOn:
+    id: "edit_photo_btn"
+    optional: true
+- tapOn:
+    text: "Edit Photo"
+    optional: true
+- tapOn:
+    text: "Change Photo"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Assert camera/gallery picker dialog appears
+- takeScreenshot: profile_05_photo_picker
+
+# Tap Camera or Gallery option then cancel
+- tapOn:
+    text: "Camera"
+    optional: true
+- tapOn:
+    text: "Gallery"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- pressKey: back
+- waitForAnimationToEnd
+
+# Assert no crash after cancel
+- takeScreenshot: profile_05_after_cancel

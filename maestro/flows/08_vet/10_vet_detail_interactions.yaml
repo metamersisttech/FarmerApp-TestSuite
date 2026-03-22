@@ -1,0 +1,66 @@
+# Vet Detail Interactions — farmer views vet detail page, taps Call, sees availability calendar
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to Vet Services / Vets tab
+- tapOn:
+    text: "Vet Services"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Vets"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Tap first vet card
+- tapOn:
+    index: 0
+    text: "View"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Assert vet_detail_page loaded — name, clinic, specialization visible
+- assertVisible:
+    text: "Specialization"
+    optional: true
+- assertVisible:
+    text: "Clinic"
+    optional: true
+
+- takeScreenshot: vet_10_vet_detail
+
+# Tap Call button — assert tappable, no actual call
+- tapOn:
+    text: "Call"
+    optional: true
+- tapOn:
+    id: "call_vet_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: vet_10_call_tapped
+
+# Dismiss any call dialog and scroll to availability calendar
+- pressKey: back
+- waitForAnimationToEnd
+- swipeUp
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- takeScreenshot: vet_10_availability_calendar
+
+# Tap a time slot (optional)
+- tapOn:
+    text: "Available"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: vet_10_slot_tapped

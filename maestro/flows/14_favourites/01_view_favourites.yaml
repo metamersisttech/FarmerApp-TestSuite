@@ -1,0 +1,39 @@
+# Favourites — user opens the Favourites page and sees saved listings
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Favourites"
+    optional: true
+- tapOn:
+    text: "Saved"
+    optional: true
+- tapOn:
+    id: "favourites_tab"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- tapOn:
+    id: "favourites_list"
+    optional: true
+- tapOn:
+    text: "Favourite"
+    optional: true
+- tapOn:
+    text: "Saved Listings"
+    optional: true
+- takeScreenshot: favourites_01_favourites_page
+
+- tapOn:
+    index: 0
+    id: "favourites_list"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: favourites_01_listing_detail
+
+- pressKey: back
+- waitForAnimationToEnd

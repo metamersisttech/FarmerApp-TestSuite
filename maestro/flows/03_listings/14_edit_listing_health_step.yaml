@@ -1,0 +1,76 @@
+# Listings 14 - Edit Listing - Health Sub-step
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Listings"
+    optional: true
+- tapOn:
+    id: "my_listings_tab"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "listing_card"
+    optional: true
+- tapOn:
+    text: "listing_card"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Edit"
+    optional: true
+- tapOn:
+    id: "edit_listing_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Health"
+    optional: true
+- tapOn:
+    id: "health_tab"
+    optional: true
+- tapOn:
+    text: "Next"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: listings_14_health_step
+- tapOn:
+    text: "Health Status"
+    optional: true
+- tapOn:
+    id: "health_status_dropdown"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    text: "Healthy"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: listings_14_health_selected
+- tapOn:
+    text: "Vaccination Status"
+    optional: true
+- tapOn:
+    id: "vaccination_status"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Vaccinated"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Next"
+    optional: true
+- tapOn:
+    text: "Save"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: listings_14_health_saved

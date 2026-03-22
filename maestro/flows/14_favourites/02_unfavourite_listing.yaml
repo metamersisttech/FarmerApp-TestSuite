@@ -1,0 +1,45 @@
+# Unfavourite — user removes a listing from favourites
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Favourites"
+    optional: true
+- tapOn:
+    text: "Saved"
+    optional: true
+- tapOn:
+    id: "favourites_tab"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: favourites_02_before_unfavourite
+
+- tapOn:
+    id: "unfavourite_btn"
+    optional: true
+- tapOn:
+    text: "♥"
+    optional: true
+- tapOn:
+    text: "Remove from Favourites"
+    optional: true
+- longPressOn:
+    index: 0
+    id: "favourites_list"
+    optional: true
+- tapOn:
+    text: "Remove from Favourites"
+    optional: true
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "No Favourites"
+    optional: true
+- tapOn:
+    id: "empty_favourites"
+    optional: true
+- takeScreenshot: favourites_02_after_unfavourite

@@ -1,0 +1,62 @@
+# Transport 14: Transporter accepts a pending transport request
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to Nearby Requests via bottom nav or text
+- tapOn:
+    text: "Nearby Requests"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "nearby_requests_tab"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: transport_14_pending_request
+
+# Tap first pending request
+- tapOn:
+    id: "request_item_0"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Pending"
+    optional: true
+- waitForAnimationToEnd
+
+# Tap Accept button
+- tapOn:
+    text: "Accept"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "accept_request_btn"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: transport_14_accept_dialog
+
+# Confirm accept dialog
+- tapOn:
+    text: "Yes"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Confirm"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Accept"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: transport_14_after_accept
+
+- pressKey: back
+- waitForAnimationToEnd

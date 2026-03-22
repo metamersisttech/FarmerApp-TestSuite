@@ -1,0 +1,84 @@
+# Form Validation Errors — validation error messages appear on required forms
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Post"
+    optional: true
+- tapOn:
+    text: "Sell"
+    optional: true
+- tapOn:
+    id: "post_tab"
+    optional: true
+- tapOn:
+    id: "sell_fab"
+    optional: true
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Next"
+    optional: true
+- tapOn:
+    text: "Submit"
+    optional: true
+- tapOn:
+    id: "next_btn"
+    optional: true
+- tapOn:
+    id: "submit_btn"
+    optional: true
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Required"
+    optional: true
+- tapOn:
+    text: "Title is required"
+    optional: true
+- tapOn:
+    id: "validation_error"
+    optional: true
+- takeScreenshot: edge_05_post_validation_errors
+
+- pressKey: back
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Appointments"
+    optional: true
+- tapOn:
+    text: "Book Appointment"
+    optional: true
+- tapOn:
+    id: "appointments_tab"
+    optional: true
+- tapOn:
+    id: "book_appointment_btn"
+    optional: true
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Submit"
+    optional: true
+- tapOn:
+    text: "Confirm"
+    optional: true
+- tapOn:
+    id: "submit_appointment_btn"
+    optional: true
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Required"
+    optional: true
+- tapOn:
+    text: "Please select a vet"
+    optional: true
+- tapOn:
+    id: "validation_error"
+    optional: true
+- takeScreenshot: edge_05_appointment_validation_errors
