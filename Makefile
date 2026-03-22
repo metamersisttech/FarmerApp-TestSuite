@@ -2,24 +2,32 @@
 #   FarmerApp Test Suite — Makefile
 #   =================================
 #   Usage:
-#     make setup         — run full environment setup
-#     make smoke         — run 5 smoke tests (< 5 min)
-#     make test          — run all Maestro UI flows
+#     make setup            — run full environment setup
+#     make smoke            — run 5 smoke tests (< 5 min)
+#     make test             — run all Maestro UI flows
 #     make feature f=04_transport — run a specific feature folder
-#     make flutter-test  — run unit + widget tests
-#     make integration   — run Flutter integration tests on device
-#     make report        — open the latest HTML report
-#     make a11y          — run accessibility checks
-#     make visual-diff   — compare screenshots to baselines
-#     make triage        — send latest report to Claude for analysis
-#     make build-apk     — build debug APK
-#     make install-apk   — install latest debug APK on device
-#     make clean-reports — delete old reports (keep last 5)
+#     make regression       — full release regression with video + merged report
+#     make flutter-test     — run unit + widget tests
+#     make integration      — run Flutter integration tests on device
+#     make report           — open the latest HTML report
+#     make a11y             — run accessibility checks (dump + check)
+#     make visual-diff      — compare screenshots to baselines
+#     make approve-baseline — approve latest screenshots as new baseline
+#     make update-baseline  — interactive baseline update (per-screen)
+#     make triage           — send latest report to Claude for analysis
+#     make build-apk        — build debug APK
+#     make install-apk      — install latest debug APK on device
+#     make clean-reports    — delete old reports (keep last 5)
+#     make devices          — list connected ADB devices
+#     make logcat           — stream live Flutter logcat
+#     make check            — verify all required tools are installed
 # =============================================================================
 
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
-.PHONY: help setup smoke test feature flutter-test integration report a11y visual-diff triage build-apk install-apk clean-reports
+.PHONY: help setup smoke test feature regression flutter-test integration report \
+        a11y visual-diff approve-baseline update-baseline triage build-apk \
+        install-apk clean-reports devices logcat check
 
 # ── Config ────────────────────────────────────────────────────────────────────
 APK_PATH := build/app/outputs/flutter-apk/app-debug.apk
@@ -116,13 +124,16 @@ report: ## Open the latest HTML test report
 	fi
 
 # =============================================================================
-a11y: ## Run accessibility checks on latest UI dumps
+regression: ## Full release regression suite with video recording + merged report
+	@echo "▶ Running full regression suite..."
+	@chmod +x $(SCRIPTS_DIR)/run_regression.sh
+	@$(SCRIPTS_DIR)/run_regression.sh
+
+# =============================================================================
+a11y: ## Dump UI XML from device and run accessibility checks
 	@echo "▶ Running accessibility checks..."
-	@mkdir -p docs/testing/a11y
-	@adb shell uiautomator dump /sdcard/ui_current.xml 2>/dev/null && \
-	 adb pull /sdcard/ui_current.xml docs/testing/a11y/ 2>/dev/null || \
-	 echo "⚠️  Could not dump UI — is app running?"
-	@$(VENV) $(SCRIPTS_DIR)/check_accessibility.py docs/testing/a11y/
+	@chmod +x $(SCRIPTS_DIR)/dump_a11y.sh
+	@$(SCRIPTS_DIR)/dump_a11y.sh
 
 # =============================================================================
 visual-diff: ## Compare latest screenshots to approved baselines
@@ -134,7 +145,7 @@ visual-diff: ## Compare latest screenshots to approved baselines
 	@$(VENV) $(SCRIPTS_DIR)/visual_diff.py "$(LATEST_REPORT)screenshots"
 
 # =============================================================================
-approve-baseline: ## Approve current screenshots as new baseline
+approve-baseline: ## Approve current screenshots as new baseline (all screens)
 	@if [ -z "$(LATEST_REPORT)" ]; then \
 	  echo "No reports found. Run: make smoke first"; \
 	  exit 1; \
@@ -143,6 +154,15 @@ approve-baseline: ## Approve current screenshots as new baseline
 	@cp $(LATEST_REPORT)screenshots/*.png docs/testing/baseline-screenshots/ 2>/dev/null && \
 	 echo "✅ Baseline updated from $(LATEST_REPORT)" || \
 	 echo "⚠️  No screenshots to copy"
+
+# =============================================================================
+update-baseline: ## Update baselines interactively: make update-baseline [screen=name]
+	@chmod +x $(SCRIPTS_DIR)/update_baseline.sh
+	@if [ -n "$(screen)" ]; then \
+	  $(SCRIPTS_DIR)/update_baseline.sh --screen "$(screen)"; \
+	else \
+	  $(SCRIPTS_DIR)/update_baseline.sh; \
+	fi
 
 # =============================================================================
 triage: ## Send latest report to Claude AI for root-cause analysis

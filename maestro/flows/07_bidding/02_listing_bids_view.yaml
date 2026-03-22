@@ -1,0 +1,42 @@
+# Bidding 02 — View all bids on a specific listing (seller perspective)
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "My Listings"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# Open first listing
+- tapOn:
+    index: 0
+    id: "listing_item"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: bidding_02_listing_detail
+
+# Open bids panel
+- tapOn:
+    text: "View Bids"
+    optional: true
+- tapOn:
+    text: "Bids"
+    optional: true
+- tapOn:
+    id: "bids_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- takeScreenshot: bidding_02_listing_bids
+
+- assertNotVisible:
+    text: "Unfortunately"
+
+- pressKey: back
+- waitForAnimationToEnd

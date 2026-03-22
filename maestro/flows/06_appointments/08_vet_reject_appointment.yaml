@@ -1,0 +1,68 @@
+# Appointments 08 — Vet rejects a pending appointment
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Vet Home"
+    optional: true
+- tapOn:
+    text: "Vet Dashboard"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- tapOn:
+    text: "Appointments"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+
+# Open first pending appointment
+- tapOn:
+    index: 0
+    id: "appointment_item"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: appt_08_appointment_detail
+
+# Reject it
+- tapOn:
+    text: "Reject"
+    optional: true
+- tapOn:
+    text: "Decline"
+    optional: true
+- tapOn:
+    id: "reject_btn"
+    optional: true
+- waitForAnimationToEnd
+
+# Enter rejection reason if prompted
+- tapOn:
+    text: "Reason"
+    optional: true
+- tapOn:
+    id: "rejection_reason_field"
+    optional: true
+- inputText: "Not available at the requested time"
+
+- takeScreenshot: appt_08_rejection_reason
+
+# Confirm
+- tapOn:
+    text: "Yes"
+    optional: true
+- tapOn:
+    text: "Confirm"
+    optional: true
+- tapOn:
+    text: "Submit"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- takeScreenshot: appt_08_after_reject

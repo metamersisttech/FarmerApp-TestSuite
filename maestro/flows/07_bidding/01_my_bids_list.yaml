@@ -1,0 +1,29 @@
+# Bidding 01 — My Bids page loads and shows bid list
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to My Bids (usually under Profile or a nav shortcut)
+- tapOn:
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Bids"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: bidding_01_my_bids_list
+
+- assertNotVisible:
+    text: "Unfortunately"
+
+# Scroll to check list renders
+- scroll
+- waitForAnimationToEnd
+- takeScreenshot: bidding_01_scrolled
+
+- pressKey: back
+- waitForAnimationToEnd

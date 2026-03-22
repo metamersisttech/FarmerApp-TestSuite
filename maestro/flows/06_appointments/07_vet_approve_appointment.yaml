@@ -1,0 +1,51 @@
+# Appointments 07 — Vet approves a pending appointment
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Vet Home"
+    optional: true
+- tapOn:
+    text: "Vet Dashboard"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- tapOn:
+    text: "Appointments"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+
+# Open first pending appointment
+- tapOn:
+    index: 0
+    id: "appointment_item"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: appt_07_appointment_detail
+
+# Approve it
+- tapOn:
+    text: "Approve"
+    optional: true
+- tapOn:
+    id: "approve_btn"
+    optional: true
+- waitForAnimationToEnd
+
+# Confirm dialog if shown
+- tapOn:
+    text: "Yes"
+    optional: true
+- tapOn:
+    text: "Confirm"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- takeScreenshot: appt_07_after_approve

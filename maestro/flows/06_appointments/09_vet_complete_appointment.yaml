@@ -1,0 +1,71 @@
+# Appointments 09 — Vet marks an appointment as completed
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Vet Home"
+    optional: true
+- tapOn:
+    text: "Vet Dashboard"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- tapOn:
+    text: "Appointments"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+
+# Open first approved/upcoming appointment
+- tapOn:
+    index: 0
+    id: "appointment_item"
+    optional: true
+- waitForAnimationToEnd
+
+- takeScreenshot: appt_09_appointment_detail
+
+# Mark complete
+- tapOn:
+    text: "Mark Complete"
+    optional: true
+- tapOn:
+    text: "Complete"
+    optional: true
+- tapOn:
+    id: "complete_btn"
+    optional: true
+- waitForAnimationToEnd
+
+# Add notes if prompted
+- tapOn:
+    text: "Notes"
+    optional: true
+- tapOn:
+    id: "completion_notes_field"
+    optional: true
+- inputText: "Animal examined, prescribed medication"
+
+- takeScreenshot: appt_09_completion_notes
+
+# Confirm
+- tapOn:
+    text: "Yes"
+    optional: true
+- tapOn:
+    text: "Confirm"
+    optional: true
+- tapOn:
+    text: "Done"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- takeScreenshot: appt_09_after_complete
+
+- assertNotVisible:
+    text: "Unfortunately"

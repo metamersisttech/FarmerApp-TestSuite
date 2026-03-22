@@ -1,0 +1,34 @@
+# Appointments 06 — Vet side: appointments list
+
+appId: com.example.flutter_app
+---
+- runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Navigate to vet dashboard
+- tapOn:
+    text: "Vet Home"
+    optional: true
+- tapOn:
+    text: "Vet Dashboard"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- tapOn:
+    text: "Appointments"
+    optional: true
+- tapOn:
+    text: "My Appointments"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- takeScreenshot: appt_06_vet_appointments_list
+
+- assertNotVisible:
+    text: "Unfortunately"
+
+- scroll
+- waitForAnimationToEnd
+- takeScreenshot: appt_06_scrolled

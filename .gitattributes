@@ -1,0 +1,28 @@
+# Normalize line endings to LF in the repo; checkout as LF on all platforms
+* text=auto eol=lf
+
+# Force LF for scripts even on Windows
+*.sh text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.dart text eol=lf
+*.json text eol=lf
+
+# Keep CRLF for Windows batch files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary — no line-ending conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mp4 binary
+*.mov binary
+*.apk binary
+*.aab binary
+*.keystore binary
+*.jks binary

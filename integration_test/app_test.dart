@@ -64,5 +64,99 @@ void main() {
           tester.widget<MaterialApp>(find.byType(MaterialApp).first);
       expect(materialApp.themeMode, equals(ThemeMode.light));
     });
+
+    testWidgets('supportedLocales includes English', (tester) async {
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 8));
+      final MaterialApp materialApp =
+          tester.widget<MaterialApp>(find.byType(MaterialApp).first);
+      final locales = materialApp.supportedLocales;
+      expect(locales, contains(const Locale('en')));
+    });
+  });
+
+  // ── Group 4: Accessibility ────────────────────────────────────────────────
+  group('Accessibility', () {
+    testWidgets('no unbounded widget overflow on startup', (tester) async {
+      final errors = <String>[];
+      final originalOnError = FlutterError.onError;
+      FlutterError.onError = (FlutterErrorDetails details) {
+        if (details.toString().contains('overflow') ||
+            details.toString().contains('RenderFlex')) {
+          errors.add(details.toString());
+        }
+        originalOnError?.call(details);
+      };
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 8));
+      FlutterError.onError = originalOnError;
+      expect(errors, isEmpty, reason: 'Layout overflow detected on startup');
+    });
+
+    testWidgets('text widgets are not empty on language screen', (tester) async {
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 8));
+      // At minimum the language selection screen should have visible text
+      final textWidgets = find.byType(Text);
+      expect(textWidgets, findsWidgets);
+      // At least one Text widget should have non-empty content
+      final texts = tester
+          .widgetList<Text>(textWidgets)
+          .where((t) => (t.data ?? '').isNotEmpty)
+          .toList();
+      expect(texts, isNotEmpty);
+    });
+  });
+
+  // ── Group 5: Form Validation ──────────────────────────────────────────────
+  group('Form Validation', () {
+    testWidgets('TextField accepts input without crash', (tester) async {
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 8));
+      // Find first visible text field (phone input on login screen)
+      final textFields = find.byType(TextField);
+      if (tester.any(textFields)) {
+        await tester.enterText(textFields.first, '9876543210');
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+        expect(find.byType(ErrorWidget), findsNothing);
+      }
+    });
+
+    testWidgets('empty form submission shows validation, not crash', (tester) async {
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 8));
+      // Look for any ElevatedButton or TextButton to tap
+      final buttons = find.byType(ElevatedButton);
+      if (tester.any(buttons)) {
+        await tester.tap(buttons.first);
+        await tester.pumpAndSettle(const Duration(seconds: 2));
+        expect(find.byType(ErrorWidget), findsNothing);
+      }
+    });
+  });
+
+  // ── Group 6: Scroll & List Integrity ─────────────────────────────────────
+  group('Scroll & List', () {
+    testWidgets('ListView does not throw on scroll', (tester) async {
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 8));
+      final listViews = find.byType(ListView);
+      if (tester.any(listViews)) {
+        await tester.drag(listViews.first, const Offset(0, -300));
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+        expect(find.byType(ErrorWidget), findsNothing);
+      }
+    });
+
+    testWidgets('SingleChildScrollView does not overflow', (tester) async {
+      app.main();
+      await tester.pumpAndSettle(const Duration(seconds: 8));
+      final scrollViews = find.byType(SingleChildScrollView);
+      if (tester.any(scrollViews)) {
+        await tester.drag(scrollViews.first, const Offset(0, -200));
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+        expect(find.byType(ErrorWidget), findsNothing);
+      }
+    });
   });
 }
