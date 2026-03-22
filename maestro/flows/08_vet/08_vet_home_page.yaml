@@ -7,22 +7,20 @@ appId: com.example.flutter_app
 
 # Assert vet home page key elements are visible
 - assertVisible:
-    text: "Appointments"
+    text: "Quick Actions"
     optional: true
 - assertVisible:
-    text: "Upcoming"
+    text: "Recent Appointments"
     optional: true
 
 - takeScreenshot: vet_08_vet_home
 
-# Tap "View Appointments" or first appointment card
+# Tap View All appointments
 - tapOn:
-    text: "View Appointments"
+    id: "view_all_appointments_btn"
     optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
 - tapOn:
-    text: "Appointments"
+    text: "View All"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

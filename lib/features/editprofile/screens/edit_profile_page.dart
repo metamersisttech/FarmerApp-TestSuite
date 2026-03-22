@@ -272,6 +272,7 @@ class _EditProfilePageState extends State<EditProfilePage> with ToastMixin {
         centerTitle: true,
         actions: [
           TextButton(
+            key: const Key('save_profile_btn'),
             onPressed: _isLoading ? null : _handleSave,
             child: _isLoading
                 ? const SizedBox(

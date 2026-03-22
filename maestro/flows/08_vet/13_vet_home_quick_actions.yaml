@@ -1,54 +1,60 @@
-# Test quick action buttons on vet home page: Availability, Pricing, Profile, Notifications, View All appointments
+# Test quick action buttons on vet home page: Availability, Pricing, My Profile, View All appointments
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd:
     timeout: 5000
-- takeScreenshot: vet_13_vet_home
 - tapOn:
-    text: "Availability"
+    text: "Vet Home"
     optional: true
 - tapOn:
-    id: availability_quick_action
+    text: "Vet Dashboard"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_13_vet_home
+# Tap Appointments quick action
+- tapOn:
+    text: "Appointments"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: vet_13_appointments_opened
+- pressKey: back
+- waitForAnimationToEnd
+# Tap Availability quick action
+- tapOn:
+    text: "Availability"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: vet_13_availability_opened
-- pressKey:
-    key: back
-    optional: true
+- pressKey: back
 - waitForAnimationToEnd
+# Tap Pricing quick action
 - tapOn:
     text: "Pricing"
-    optional: true
-- tapOn:
-    id: pricing_quick_action
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: vet_13_pricing_opened
-- pressKey:
-    key: back
-    optional: true
+- pressKey: back
 - waitForAnimationToEnd
+# Tap My Profile quick action
 - tapOn:
-    text: "Profile"
-    optional: true
-- tapOn:
-    id: profile_quick_action
+    text: "My Profile"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: vet_13_profile_opened
-- pressKey:
-    key: back
-    optional: true
+- pressKey: back
 - waitForAnimationToEnd
+# Tap View All appointments
+- tapOn:
+    id: "view_all_appointments_btn"
+    optional: true
 - tapOn:
     text: "View All"
-    optional: true
-- tapOn:
-    id: view_all_appointments_btn
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000

@@ -1,49 +1,48 @@
-# Test Chat icon and Cancel Booking button on farmer transport detail screen
+# Transport 19 — Chat icon and Cancel Booking button on farmer transport detail screen
+
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - tapOn:
-    text: "My Transport Bookings"
+    text: "My Bookings"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: transport_19_bookings_list
+# Tap first booking card
 - tapOn:
-    id: "booking_item"
     index: 0
+    text: "Pending"
+    optional: true
+- tapOn:
+    index: 0
+    text: "Accepted"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: transport_19_booking_detail
+
+# Tap Chat icon button (only visible when accepted/in-progress)
 - tapOn:
-    id: "chat_btn"
-    optional: true
-- tapOn:
-    description: "Chat"
+    id: "detail_chat_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: transport_19_chat_opened
 - pressKey: back
 - waitForAnimationToEnd
-- tapOn:
-    text: "Cancel Booking"
-    optional: true
+
+# Tap Cancel Booking button (only visible for pending)
 - tapOn:
     id: "cancel_booking_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
 - takeScreenshot: transport_19_cancel_dialog
-- tapOn:
-    text: "Cancel"
-    optional: true
+# Dismiss dialog with No
 - tapOn:
     text: "No"
-    optional: true
-- tapOn:
-    text: "Back"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: transport_19_cancel_dismissed

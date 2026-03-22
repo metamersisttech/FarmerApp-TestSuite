@@ -351,6 +351,7 @@ class _AcceptRequestScreenState extends State<AcceptRequestScreen> {
       ),
       child: SafeArea(
         child: ElevatedButton(
+          key: const Key('accept_request_btn'),
           onPressed: controller.hasSelectedVehicle && !controller.isAccepting
               ? _showConfirmationDialog
               : null,

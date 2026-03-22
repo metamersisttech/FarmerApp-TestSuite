@@ -404,6 +404,7 @@ class RequestDetailScreen extends StatelessWidget {
       ),
       child: SafeArea(
         child: ElevatedButton(
+          key: const Key('proceed_to_accept_btn'),
           onPressed: () => TransportNavigationService.navigateToAcceptRequest(
             context,
             request,

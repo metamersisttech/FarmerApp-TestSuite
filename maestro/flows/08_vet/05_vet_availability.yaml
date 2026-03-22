@@ -10,8 +10,14 @@ appId: com.example.flutter_app
 - tapOn:
     text: "Set Availability"
     optional: true
+- tapOn:
+    text: "Manage Availability"
+    optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: vet_05_availability
+- assertVisible:
+    text: "Manage Availability"
+    optional: true
 - pressKey: back
 - waitForAnimationToEnd

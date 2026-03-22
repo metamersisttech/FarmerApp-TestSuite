@@ -1,4 +1,9 @@
 # Smoke 03 — Login / OTP screen is reachable from splash
+#
+# Key facts from source:
+#   ChooseLanguagePage: shows on cold start with language options
+#   WelcomePage: ElevatedButton text "Get Started" (key: get_started_btn)
+#   SendOtpPage: AuthPrimaryButton text "Get OTP" (key: get_otp_btn)
 
 appId: com.example.flutter_app
 ---
@@ -16,9 +21,17 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 4000
 
+# Tap Get Started on Welcome page
+- tapOn:
+    id: "get_started_btn"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
 - takeScreenshot: smoke_03_login_screen
 
-# Verify we can see the phone/OTP login elements
+# Verify we can see the OTP login elements
 - assertVisible:
-    text: "Send OTP"
+    text: "Get OTP"
     optional: true

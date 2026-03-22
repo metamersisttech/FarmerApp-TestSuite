@@ -15,11 +15,9 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 8000
 
+# Tap Appointments quick action or nav
 - tapOn:
     text: "Appointments"
-    optional: true
-- tapOn:
-    text: "My Appointments"
     optional: true
 - waitForAnimationToEnd:
     timeout: 8000

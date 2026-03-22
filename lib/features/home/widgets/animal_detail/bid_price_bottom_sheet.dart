@@ -309,6 +309,7 @@ class _BidPriceBottomSheetState extends State<BidPriceBottomSheet> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
+                key: const Key('submit_bid_btn'),
                 onPressed: _isSubmitting ? null : _handleSubmit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2E7D32),

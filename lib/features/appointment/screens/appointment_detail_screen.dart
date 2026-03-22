@@ -304,6 +304,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen>
       actions.add(
         Expanded(
           child: OutlinedButton.icon(
+            key: const Key('appointment_detail_chat_btn'),
             onPressed: handleChat,
             icon: const Icon(Icons.chat_bubble_outline),
             label: const Text('Chat'),
@@ -325,6 +326,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen>
       actions.add(
         Expanded(
           child: ElevatedButton.icon(
+            key: const Key('appointment_detail_cancel_btn'),
             onPressed: handleCancel,
             icon: const Icon(Icons.cancel_outlined),
             label: const Text('Cancel'),

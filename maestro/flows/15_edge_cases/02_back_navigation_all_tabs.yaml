@@ -1,71 +1,44 @@
 # Back Navigation — back button is safe from every bottom nav tab
+#
+# Key facts from source:
+#   CustomBottomNavBar: icon-only. Keys: nav_home(0), nav_favourite(1), nav_my_listings(2), nav_profile(3)
+#   No text labels in bottom nav bar
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
+# Home tab (key: nav_home)
 - tapOn:
-    text: "Home"
-    optional: true
-- tapOn:
-    id: "home_tab"
+    id: "nav_home"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: edge_02_nav_home
 - pressKey: back
 - waitForAnimationToEnd
 
+# Favourites tab (key: nav_favourite)
 - tapOn:
-    text: "Search"
-    optional: true
-- tapOn:
-    id: "search_tab"
+    id: "nav_favourite"
     optional: true
 - waitForAnimationToEnd
-- takeScreenshot: edge_02_nav_search
+- takeScreenshot: edge_02_nav_favourites
 - pressKey: back
 - waitForAnimationToEnd
 
+# My Listings / My Ads tab (key: nav_my_listings)
 - tapOn:
-    text: "Post"
-    optional: true
-- tapOn:
-    text: "Sell"
-    optional: true
-- tapOn:
-    id: "post_tab"
-    optional: true
-- tapOn:
-    id: "sell_tab"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd
-- takeScreenshot: edge_02_nav_post
+- takeScreenshot: edge_02_nav_myads
 - pressKey: back
 - waitForAnimationToEnd
 
+# Profile tab (key: nav_profile)
 - tapOn:
-    text: "Appointments"
-    optional: true
-- tapOn:
-    text: "Vets"
-    optional: true
-- tapOn:
-    id: "appointments_tab"
-    optional: true
-- tapOn:
-    id: "vets_tab"
-    optional: true
-- waitForAnimationToEnd
-- takeScreenshot: edge_02_nav_appts
-- pressKey: back
-- waitForAnimationToEnd
-
-- tapOn:
-    text: "Profile"
-    optional: true
-- tapOn:
-    id: "profile_tab"
+    id: "nav_profile"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: edge_02_nav_profile

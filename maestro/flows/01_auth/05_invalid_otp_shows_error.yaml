@@ -10,24 +10,32 @@ appId: com.example.flutter_app
     text: "English"
     optional: true
 - waitForAnimationToEnd
+
+# Enter phone and request OTP
 - tapOn:
-    id: "phone_field"
-    optional: true
-- tapOn:
-    text: "Phone Number"
+    text: "Enter 10 digit number"
     optional: true
 - inputText: "${FARMERAPP_TEST_PHONE}"
+
 - tapOn:
-    text: "Send OTP"
+    id: "get_otp_btn"
+    optional: true
+- tapOn:
+    text: "Get OTP"
+    optional: true
+
 - waitForAnimationToEnd:
     timeout: 8000
 - takeScreenshot: auth_05_otp_entry_screen
-# Enter wrong OTP
+
+# Enter wrong OTP (6 digits but incorrect)
 - inputText: "000000"
+
 - waitForAnimationToEnd:
     timeout: 6000
 - takeScreenshot: auth_05_after_wrong_otp
-# Must still show OTP-related UI — not navigated to home
-- assertNotVisible:
-    text: "Home"
+
+# Must still show OTP verification UI — not navigated to home
+- assertVisible:
+    text: "Verify OTP"
     optional: true

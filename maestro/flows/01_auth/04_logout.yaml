@@ -22,9 +22,6 @@ appId: com.example.flutter_app
 - tapOn:
     text: "Log Out"
     optional: true
-- tapOn:
-    text: "Sign Out"
-    optional: true
 
 # Confirm dialog if shown
 - tapOn:
@@ -39,9 +36,9 @@ appId: com.example.flutter_app
 
 - takeScreenshot: auth_04_after_logout
 
-# Should return to login / language screen
+# Should return to login screen showing Get OTP button
 - assertVisible:
-    text: "Send OTP"
+    text: "Get OTP"
     optional: true
 - assertVisible:
     text: "English"

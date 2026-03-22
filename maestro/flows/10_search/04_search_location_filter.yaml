@@ -1,37 +1,55 @@
-# Search 04 — Location filter on search results
+# Search 04 — Location filter on search page
+#
+# Key facts from source:
+#   SearchPage: FarmLocationField label "Location", tap opens LocationPage
+#   SearchPage: SearchAppBar has filter icon, onFilterTap → SearchFiltersSheet
+#   SearchFiltersSheet has "Apply" button
+#   CustomBottomNavBar: Home tab key: "nav_home"
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
 - tapOn:
-    text: "Search"
+    id: "nav_home"
     optional: true
 - waitForAnimationToEnd
+
+# Navigate to SearchPage by tapping disabled search bar
 - tapOn:
-    text: "Filter"
+    text: "Search livestock, breeds..."
     optional: true
-- tapOn:
-    id: "filter_btn"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 4000
-- takeScreenshot: search_04_filter_panel
+- waitForAnimationToEnd
+
+# Tap the location field on the search page (label "Location")
 - tapOn:
     text: "Location"
     optional: true
 - tapOn:
-    text: "State"
+    text: "Select location"
     optional: true
-- tapOn:
-    text: "Bihar"
-    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: search_04_location_opened
+
+- pressKey: back
 - waitForAnimationToEnd
+
+# Tap the filter icon in the SearchAppBar
+- tapOn:
+    text: "Filter"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: search_04_filter_panel
+
 - tapOn:
     text: "Apply"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: search_04_filtered_results
+
 - pressKey: back
 - waitForAnimationToEnd

@@ -16,6 +16,14 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 3000
 
+# Tap Get Started if welcome page is visible
+- tapOn:
+    id: "get_started_btn"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
 - scroll
 
 - waitForAnimationToEnd:

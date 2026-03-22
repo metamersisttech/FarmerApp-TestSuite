@@ -10,9 +10,15 @@ appId: com.example.flutter_app
 - tapOn:
     text: "Upload Documents"
     optional: true
+- tapOn:
+    text: "Vet Registration"
+    optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: vet_02_document_upload
+- assertVisible:
+    text: "Vet Registration"
+    optional: true
 - assertNotVisible:
     text: "Unfortunately"
 - pressKey: back

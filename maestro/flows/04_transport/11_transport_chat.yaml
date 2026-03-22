@@ -7,18 +7,21 @@ appId: com.example.flutter_app
 - tapOn:
     text: "My Bookings"
     optional: true
-- tapOn:
-    text: "My Transport Bookings"
-    optional: true
 - waitForAnimationToEnd:
     timeout: 8000
+# Tap first accepted/in-progress booking
 - tapOn:
+    text: "Accepted"
     index: 0
-    id: "request_"
+    optional: true
+- tapOn:
+    text: "In Transit"
+    index: 0
     optional: true
 - waitForAnimationToEnd
+# Tap the chat icon in appBar
 - tapOn:
-    text: "Chat"
+    id: "detail_chat_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

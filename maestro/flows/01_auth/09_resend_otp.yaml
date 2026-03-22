@@ -10,34 +10,41 @@ appId: com.example.flutter_app
     text: "English"
     optional: true
 - waitForAnimationToEnd
+
+# Enter phone and get OTP
 - tapOn:
-    text: "Phone"
+    text: "Enter 10 digit number"
     optional: true
-- tapOn:
-    id: "phone_field"
-    optional: true
-- waitForAnimationToEnd
 - inputText: "${FARMERAPP_TEST_PHONE}"
+
 - tapOn:
-    text: "Send OTP"
+    id: "get_otp_btn"
     optional: true
+- tapOn:
+    text: "Get OTP"
+    optional: true
+
 - waitForAnimationToEnd:
     timeout: 8000
 - takeScreenshot: auth_09_otp_screen
+
+# Wait for resend timer to expire (30 seconds)
 - waitForAnimationToEnd:
-    timeout: 5000
-- tapOn:
-    text: "Resend OTP"
-    optional: true
+    timeout: 32000
+
+# Tap Resend OTP — button only becomes active after 30s timer
 - tapOn:
     id: "resend_otp_btn"
     optional: true
+- tapOn:
+    text: "Resend OTP"
+    optional: true
+
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: auth_09_resend_tapped
+
+# Verify still on OTP screen
 - assertVisible:
-    text: "OTP"
-    optional: true
-- assertVisible:
-    id: "otp_field"
+    text: "Verify OTP"
     optional: true

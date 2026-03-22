@@ -1,13 +1,17 @@
-# Listings 08 — My Bids page loads
+# Listings 08 — My Bids page loads (accessible from Profile screen)
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to Profile tab
 - tapOn:
-    text: "Profile"
+    id: "nav_profile"
     optional: true
 - waitForAnimationToEnd
+
+# Tap My Bids (text link in profile screen)
 - tapOn:
     text: "My Bids"
     optional: true

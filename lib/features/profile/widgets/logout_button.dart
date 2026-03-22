@@ -18,6 +18,7 @@ class LogoutButton extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          key: const Key('logout_btn'),
           onTap: isLoading ? null : onTap,
           borderRadius: BorderRadius.circular(12),
           child: Container(

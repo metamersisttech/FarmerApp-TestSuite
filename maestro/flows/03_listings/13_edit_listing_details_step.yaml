@@ -1,62 +1,48 @@
-# Listings 13 - Edit Listing - Details Sub-step
+# Listings 13 — Edit Listing — Details Sub-step
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to My Listings tab
 - tapOn:
-    text: "My Listings"
-    optional: true
-- tapOn:
-    id: "my_listings_tab"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
-- tapOn:
-    id: "listing_card"
-    optional: true
-- tapOn:
-    text: "listing_card"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
+
+# Open popup menu on first listing and tap Edit
+- tapOn:
+    id: "listing_more_menu"
+    index: 0
+    optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Edit"
-    optional: true
-- tapOn:
-    id: "edit_listing_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: listings_13_edit_entry
-- tapOn:
-    text: "Details"
-    optional: true
-- tapOn:
-    id: "details_tab"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 3000
+
+# Now on the edit Details step
 - takeScreenshot: listings_13_details_step
+
 - tapOn:
     text: "Title"
     optional: true
-- tapOn:
-    id: "title_field"
-    optional: true
 - clearText
 - inputText: "Updated Animal Title"
-- waitForAnimationToEnd
+
 - tapOn:
     text: "Price"
     optional: true
-- tapOn:
-    id: "price_field"
-    optional: true
 - clearText
 - inputText: "15000"
+
 - waitForAnimationToEnd
 - takeScreenshot: listings_13_details_filled
+
 - tapOn:
     text: "Next"
     optional: true

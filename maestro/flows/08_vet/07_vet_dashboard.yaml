@@ -15,6 +15,9 @@ appId: com.example.flutter_app
 - takeScreenshot: vet_07_dashboard
 - assertNotVisible:
     text: "Unfortunately"
+- assertVisible:
+    text: "Quick Actions"
+    optional: true
 - scroll
 - waitForAnimationToEnd
 - takeScreenshot: vet_07_dashboard_scrolled

@@ -277,6 +277,7 @@ class _MyListingsPageState extends State<MyListingsPage>
       borderRadius: BorderRadius.circular(20),
       elevation: 2,
       child: PopupMenuButton<String>(
+        key: const Key('listing_more_menu'),
         icon: Icon(
           Icons.more_vert,
           size: 20,

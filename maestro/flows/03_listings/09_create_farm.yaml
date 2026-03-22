@@ -4,10 +4,14 @@ appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to My Listings tab
 - tapOn:
-    text: "My Listings"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd
+
+# Tap Create Farm if visible (from empty state or profile)
 - tapOn:
     text: "Create Farm"
     optional: true
@@ -17,14 +21,17 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: listings_09_create_farm
+
 - tapOn:
     text: "Farm Name"
     optional: true
 - inputText: "Test Farm"
+
 - tapOn:
     text: "Location"
     optional: true
 - inputText: "Bihar, India"
+
 - takeScreenshot: listings_09_form_filled
 - pressKey: back
 - waitForAnimationToEnd

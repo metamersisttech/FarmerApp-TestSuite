@@ -1,36 +1,27 @@
 # Favourites — user opens the Favourites page and sees saved listings
+#
+# Key facts from source:
+#   FavouriteListingsPage: SliverAppBar title "Favourite Listings"
+#   CustomBottomNavBar: icon-only. Favourite tab key: "nav_favourite" (index 1)
+#   Profile menu item title: "Saved Items"
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
+# Navigate to Favourites tab via bottom nav (icon-only, key: nav_favourite)
 - tapOn:
-    text: "Favourites"
-    optional: true
-- tapOn:
-    text: "Saved"
-    optional: true
-- tapOn:
-    id: "favourites_tab"
+    id: "nav_favourite"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 
-- tapOn:
-    id: "favourites_list"
-    optional: true
-- tapOn:
-    text: "Favourite"
-    optional: true
-- tapOn:
-    text: "Saved Listings"
-    optional: true
 - takeScreenshot: favourites_01_favourites_page
 
+# Tap first listing card if any exist
 - tapOn:
     index: 0
-    id: "favourites_list"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: favourites_01_listing_detail

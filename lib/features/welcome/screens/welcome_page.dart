@@ -34,6 +34,7 @@ class WelcomePage extends StatelessWidget {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
+                  key: const Key('get_started_btn'),
                   onPressed: () {
                     // Navigate to phone login page
                     Navigator.push(

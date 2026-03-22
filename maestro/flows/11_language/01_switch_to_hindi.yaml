@@ -1,4 +1,9 @@
 # Language 01 — Switch app language to Hindi
+#
+# Key facts from source:
+#   CustomBottomNavBar: icon-only, Profile tab key: "nav_profile"
+#   Language menu item title: "Language" (from profile_model.dart)
+#   LanguageSwitcherWidget also in profile header (compact mode)
 
 appId: com.example.flutter_app
 ---
@@ -6,15 +11,14 @@ appId: com.example.flutter_app
 
 - waitForAnimationToEnd
 
+# Navigate to Profile tab (icon-only bottom nav)
 - tapOn:
-    text: "Profile"
+    id: "nav_profile"
     optional: true
 
 - waitForAnimationToEnd
 
-- tapOn:
-    text: "Settings"
-    optional: true
+# Tap Language menu item (exact title from profile_model.dart)
 - tapOn:
     text: "Language"
     optional: true

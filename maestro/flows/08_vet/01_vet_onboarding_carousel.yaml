@@ -16,11 +16,23 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: vet_01_onboarding_carousel
-# Swipe through carousel
-- swipe:
-    direction: LEFT
+# Tap Next to advance slides
+- tapOn:
+    id: "onboarding_next_btn"
+    optional: true
+- tapOn:
+    text: "Next"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: vet_01_carousel_slide2
+# Tap Skip
+- tapOn:
+    id: "onboarding_skip_btn"
+    optional: true
+- tapOn:
+    text: "Skip"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
 - pressKey: back
 - waitForAnimationToEnd

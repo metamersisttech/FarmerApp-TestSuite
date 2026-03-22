@@ -183,6 +183,7 @@ class _RejectAppointmentScreenState extends State<RejectAppointmentScreen>
           children: [
             Expanded(
               child: OutlinedButton(
+                key: const Key('reject_cancel_btn'),
                 onPressed: isSubmitting ? null : handleBack,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.grey[700],
@@ -204,6 +205,7 @@ class _RejectAppointmentScreenState extends State<RejectAppointmentScreen>
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
+                key: const Key('submit_rejection_btn'),
                 onPressed: isSubmitting ? null : submitRejection,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,

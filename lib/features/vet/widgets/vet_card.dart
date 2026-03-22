@@ -24,6 +24,7 @@ class VetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      key: const Key('vet_card'),
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -256,6 +257,7 @@ class VetCard extends StatelessWidget {
 
   Widget _buildBookButton() {
     return GestureDetector(
+      key: const Key('vet_card_book_btn'),
       onTap: onBookTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

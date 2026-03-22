@@ -1,53 +1,41 @@
-# Test farm edit/delete in listing details, and auction price type chip.
+# Listings 23 — Post Animal: farm dropdown and auction/fixed price type
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Open Post Animal via the FAB (key: main_fab)
 - tapOn:
-    text: "Post Animal"
-    optional: true
-- tapOn:
-    text: "Sell"
-    optional: true
-- tapOn:
-    id: "fab_post_animal"
+    id: "main_fab"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: listings_23_details_step
-- tapOn:
-    id: "price_type_auction"
-    optional: true
+
+# Select Auction price type chip
 - tapOn:
     text: "Auction"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
 - takeScreenshot: listings_23_auction_selected
+
+# Switch back to Fixed
 - tapOn:
     text: "Fixed"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
 - takeScreenshot: listings_23_fixed_selected
-- tapOn:
-    id: "farm_dropdown"
-    optional: true
+
+# Open farm dropdown
 - tapOn:
     text: "Select Farm"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: listings_23_farm_dropdown
-- tapOn:
-    description: "Edit farm"
-    optional: true
-- tapOn:
-    id: "farm_edit_btn"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 3000
-- takeScreenshot: listings_23_farm_edit_opened
+
 - pressKey: back
 - waitForAnimationToEnd

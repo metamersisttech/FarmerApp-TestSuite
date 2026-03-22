@@ -20,47 +20,37 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 6000
 
-# Open first approved/upcoming appointment
-- tapOn:
-    index: 0
-    id: "appointment_item"
-    optional: true
-- waitForAnimationToEnd
+- takeScreenshot: appt_09_vet_appointments
 
-- takeScreenshot: appt_09_appointment_detail
-
-# Mark complete
-- tapOn:
-    text: "Mark Complete"
-    optional: true
+# Tap Complete on a confirmed appointment card
 - tapOn:
     text: "Complete"
     optional: true
-- tapOn:
-    id: "complete_btn"
-    optional: true
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 5000
 
-# Add notes if prompted
-- tapOn:
-    text: "Notes"
-    optional: true
-- tapOn:
-    id: "completion_notes_field"
-    optional: true
-- inputText: "Animal examined, prescribed medication"
+- takeScreenshot: appt_09_complete_screen
 
-- takeScreenshot: appt_09_completion_notes
+# Fill prescription (required field)
+- tapOn:
+    text: "Medication, dosage, instructions..."
+    optional: true
+- inputText: "Administer antibiotic twice daily for 5 days"
 
-# Confirm
+# Fill optional notes
 - tapOn:
-    text: "Yes"
+    text: "Follow-up visit, diet changes, etc..."
+    optional: true
+- inputText: "Patient is recovering well"
+
+- takeScreenshot: appt_09_fields_filled
+
+# Tap Mark as Complete button
+- tapOn:
+    id: "mark_complete_btn"
     optional: true
 - tapOn:
-    text: "Confirm"
-    optional: true
-- tapOn:
-    text: "Done"
+    text: "Mark as Complete"
     optional: true
 - waitForAnimationToEnd:
     timeout: 8000

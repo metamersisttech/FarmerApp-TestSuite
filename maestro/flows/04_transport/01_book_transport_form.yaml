@@ -7,7 +7,6 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd
 
 # Navigate to Book Transport
-# (may be reachable via an animal detail or directly from home)
 - tapOn:
     text: "Book Transport"
     optional: true
@@ -18,42 +17,28 @@ appId: com.example.flutter_app
 
 # Fill Pickup Location
 - tapOn:
-    id: "pickup_field"
-    optional: true
-- tapOn:
     text: "Pickup Location"
     optional: true
 - inputText: "Village A, Bihar"
 
 # Fill Destination
 - tapOn:
-    id: "destination_field"
-    optional: true
-- tapOn:
     text: "Destination"
     optional: true
 - inputText: "Market B, Maharashtra"
 
-# Animal Count
-- clearText:
-    id: "count_field"
-    optional: true
-- tapOn:
-    id: "count_field"
-    optional: true
+# Animal Count (clear default then type)
 - tapOn:
     text: "Animal Count"
     optional: true
+- clearText
 - inputText: "2"
 
 - takeScreenshot: transport_01_form_filled
 
 # Submit
 - tapOn:
-    id: "submit_btn"
-    optional: true
-- tapOn:
-    text: "Request Transport"
+    id: "request_transport_btn"
     optional: true
 
 - waitForAnimationToEnd:

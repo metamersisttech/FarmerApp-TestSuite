@@ -4,14 +4,10 @@ appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Tap notification icon (visible in home header)
 - tapOn:
     text: "Notifications"
-    optional: true
-- tapOn:
-    id: "notification_icon"
-    optional: true
-- tapOn:
-    description: "Notifications"
     optional: true
 - waitForAnimationToEnd:
     timeout: 6000

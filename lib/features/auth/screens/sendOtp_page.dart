@@ -103,11 +103,13 @@ class _SendOtpPageState extends State<SendOtpPage>
                   ),
                   const SizedBox(height: 16),
                   AuthPrimaryButton(
+                    buttonKey: const Key('get_otp_btn'),
                     text: 'Get OTP',
                     isLoading: isLoading,
                     onPressed: isLoading ? null : _handleSendOtp,
                   ),
                   TextButton(
+                    key: const Key('email_login_link'),
                     onPressed: isLoading
                         ? null
                         : () => Navigator.pushNamed(context, AppRoutes.emailLogin),
@@ -124,6 +126,7 @@ class _SendOtpPageState extends State<SendOtpPage>
                   ),
                   const SizedBox(height: 18),
                   TextButton(
+                    key: const Key('signup_link'),
                     onPressed: isLoading
                         ? null
                         : () => Navigator.pushNamed(context, '/register'),

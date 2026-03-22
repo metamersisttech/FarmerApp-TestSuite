@@ -20,6 +20,7 @@ class AppointmentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      key: const Key('appointment_card'),
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),

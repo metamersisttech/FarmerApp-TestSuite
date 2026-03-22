@@ -630,6 +630,7 @@ class _ProfilePageState extends State<ProfilePage>
               ),
               const SizedBox(width: 8),
               GestureDetector(
+                key: const Key('settings_btn'),
                 onTap: _handleSettings,
                 child: Container(
                   padding: const EdgeInsets.all(8),

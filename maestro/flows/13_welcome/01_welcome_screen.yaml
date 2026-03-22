@@ -1,4 +1,8 @@
-# Welcome Screen — cold start shows splash, language selector, Get Started and Login buttons
+# Welcome Screen — cold start shows splash, language selector, then Get Started button
+#
+# Key facts from source:
+#   WelcomePage: title "Welcome to Animal World", ElevatedButton "Get Started" (key: get_started_btn)
+#   After language screen the app navigates to WelcomePage, then SendOtpPage
 
 appId: com.example.flutter_app
 ---
@@ -8,37 +12,28 @@ appId: com.example.flutter_app
     timeout: 10000
 - takeScreenshot: welcome_01_splash
 
+# Language screen — select English
 - tapOn:
     text: "English"
     optional: true
-- tapOn:
-    id: "english_option"
-    optional: true
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 4000
 - takeScreenshot: welcome_01_language_selected
 
-- tapOn:
-    text: "welcome_page"
+# Welcome page should now be visible
+- assertVisible:
+    text: "Welcome to Animal World"
     optional: true
+
+# Tap Get Started button (key added to source)
 - tapOn:
     id: "get_started_btn"
     optional: true
-- tapOn:
-    text: "Get Started"
-    optional: true
-- tapOn:
-    text: "Sign Up"
-    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
 - takeScreenshot: welcome_01_get_started_tapped
 
-- pressKey: back
-- tapOn:
-    text: "Login"
+# Should now be on Send OTP / login screen
+- assertVisible:
+    text: "Send OTP"
     optional: true
-- tapOn:
-    text: "Sign In"
-    optional: true
-- tapOn:
-    id: "login_btn"
-    optional: true
-- takeScreenshot: welcome_01_login_visible

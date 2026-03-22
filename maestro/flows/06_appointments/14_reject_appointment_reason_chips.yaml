@@ -4,53 +4,52 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - tapOn:
-    text: "Vet Appointments"
-    optional: true
-- waitForAnimationToEnd
-- tapOn:
-    text: "REQUESTED"
+    text: "Vet Home"
     optional: true
 - tapOn:
-    index: 0
+    text: "Vet Dashboard"
     optional: true
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn:
+    text: "Appointments"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+# Tap Reject on first appointment card
 - tapOn:
     text: "Reject"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: appt_14_reject_screen
+# Tap a quick reason chip (text matches the chip label)
 - tapOn:
-    id: reason_chip
-    index: 0
+    text: "Not available"
+    optional: true
+- tapOn:
+    text: "Schedule conflict"
+    optional: true
+- tapOn:
+    text: "Outside service area"
     optional: true
 - waitForAnimationToEnd:
     timeout: 1000
 - takeScreenshot: appt_14_chip_selected
+# Type custom reason in text field (using hint text to find field)
 - tapOn:
-    id: reason_chip
-    index: 1
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 1000
-- tapOn:
-    id: rejection_reason_field
-    optional: true
-- tapOn:
-    text: "Reason"
-    optional: true
-- tapOn:
-    text: "rejection"
+    text: "Enter a reason for rejecting this request..."
     optional: true
 - clearText:
     optional: true
 - inputText: "Not available on the requested date"
 - takeScreenshot: appt_14_reason_filled
+# Tap submit rejection button
 - tapOn:
-    text: "Reject"
+    id: "submit_rejection_btn"
     optional: true
 - tapOn:
-    id: reject_btn
+    text: "Reject"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

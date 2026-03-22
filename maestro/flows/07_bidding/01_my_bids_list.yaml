@@ -5,11 +5,13 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
-# Navigate to My Bids (usually under Profile or a nav shortcut)
+# Navigate to Profile tab
 - tapOn:
-    text: "Profile"
+    id: "nav_profile"
     optional: true
 - waitForAnimationToEnd
+
+# Tap My Bids (text link in profile screen)
 - tapOn:
     text: "My Bids"
     optional: true

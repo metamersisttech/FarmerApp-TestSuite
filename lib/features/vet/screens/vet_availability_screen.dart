@@ -568,6 +568,7 @@ class _VetAvailabilityScreenState extends State<VetAvailabilityScreen>
           ],
           const SizedBox(height: 10),
           GestureDetector(
+            key: Key('add_availability_day_$dayOfWeek'),
             onTap: () => _showAddSlotSheet(preselectedDay: dayOfWeek),
             child: Row(
               children: [

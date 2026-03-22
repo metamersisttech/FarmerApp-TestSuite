@@ -274,6 +274,7 @@ class _DirectChatScreenState extends State<DirectChatScreen>
                 borderRadius: BorderRadius.circular(22),
               ),
               child: TextField(
+                key: const Key('message_input'),
                 controller: messageController,
                 maxLines: null,
                 textCapitalization: TextCapitalization.sentences,
@@ -305,6 +306,7 @@ class _DirectChatScreenState extends State<DirectChatScreen>
               color: AppTheme.primaryColor,
               shape: const CircleBorder(),
               child: InkWell(
+                key: const Key('send_btn'),
                 onTap: isSending ? null : sendMessage,
                 customBorder: const CircleBorder(),
                 child: Center(

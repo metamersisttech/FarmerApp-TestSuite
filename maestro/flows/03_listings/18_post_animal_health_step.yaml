@@ -1,43 +1,32 @@
-# Listings 18 - Post New Animal - Health Step
+# Listings 18 — Post New Animal — Health Step
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Open Post Animal via the FAB (key: main_fab)
 - tapOn:
-    text: "Post Animal"
-    optional: true
-- tapOn:
-    text: "Sell Animal"
-    optional: true
-- tapOn:
-    id: "fab_post_animal"
-    optional: true
-- tapOn:
-    description: "Post Animal"
+    id: "main_fab"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
-- tapOn:
-    text: "Health"
-    optional: true
-- tapOn:
-    id: "health_tab"
-    optional: true
+
+# Navigate to Health step — tap Next past Details
 - tapOn:
     text: "Next"
     optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Next"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: listings_18_health_step
+
+# Set health status
 - tapOn:
     text: "Health Status"
-    optional: true
-- tapOn:
-    id: "health_status_dropdown"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
@@ -45,15 +34,15 @@ appId: com.example.flutter_app
     text: "Healthy"
     optional: true
 - waitForAnimationToEnd
-- tapOn:
-    id: "vaccination_field"
-    optional: true
+
+# Add vaccination info
 - tapOn:
     text: "Vaccination"
     optional: true
 - inputText: "FMD, HS"
 - waitForAnimationToEnd
 - takeScreenshot: listings_18_health_filled
+
 - tapOn:
     text: "Next"
     optional: true

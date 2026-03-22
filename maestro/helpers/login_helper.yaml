@@ -26,25 +26,27 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 3000
 
-# Welcome / phone login screen
+# Welcome page — tap Get Started (key: get_started_btn, text: "Get Started")
 - tapOn:
-    text: "Phone"
+    id: "get_started_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
 
-# Enter phone number
+# Enter phone number (hint: "Enter 10 digit number")
 - tapOn:
-    id: "phone_field"
-    optional: true
-- tapOn:
-    text: "Phone Number"
+    text: "Enter 10 digit number"
     optional: true
 - inputText: "${FARMERAPP_TEST_PHONE}"
 
-# Send OTP
+# Tap Get OTP button (key: get_otp_btn, text: "Get OTP")
 - tapOn:
-    text: "Send OTP"
+    id: "get_otp_btn"
+    optional: true
+- tapOn:
+    text: "Get OTP"
+    optional: true
+
 - waitForAnimationToEnd:
     timeout: 8000
 

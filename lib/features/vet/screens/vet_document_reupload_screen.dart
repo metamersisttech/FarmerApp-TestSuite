@@ -240,6 +240,7 @@ class _VetDocumentReuploadScreenState extends State<VetDocumentReuploadScreen>
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
+                    key: const Key('submit_updated_documents_btn'),
                     onPressed: _canSubmit ? _handleSubmit : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.authPrimaryColor,

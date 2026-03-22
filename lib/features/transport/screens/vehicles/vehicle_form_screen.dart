@@ -490,6 +490,7 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
 
                           // Submit button
                           ElevatedButton(
+                            key: const Key('save_vehicle_btn'),
                             onPressed: controller.isLoading || controller.isUploading
                                 ? null
                                 : _handleSubmit,

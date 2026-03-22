@@ -8,33 +8,30 @@ appId: com.example.flutter_app
 
 - takeScreenshot: home_01_home_tab
 
-# Tab: Favourite
+# Tab: Favourite (icon-only nav bar)
 - tapOn:
-    text: "Favourite"
-    optional: true
-- tapOn:
-    text: "Favorites"
+    id: "nav_favourite"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: home_01_favourite_tab
 
 # Tab: My Listings
 - tapOn:
-    text: "My Listings"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: home_01_my_listings_tab
 
 # Tab: Profile
 - tapOn:
-    text: "Profile"
+    id: "nav_profile"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: home_01_profile_tab
 
 # Back to Home
 - tapOn:
-    text: "Home"
+    id: "nav_home"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: home_01_back_to_home

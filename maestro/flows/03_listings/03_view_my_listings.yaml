@@ -4,8 +4,10 @@ appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to My Listings tab (icon-only bottom nav)
 - tapOn:
-    text: "My Listings"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd:
     timeout: 8000

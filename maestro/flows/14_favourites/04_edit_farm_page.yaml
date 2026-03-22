@@ -1,50 +1,43 @@
 # Edit Farm Page — user edits an existing farm's details
+#
+# Key facts from source:
+#   "My Farms" is NOT a profile menu item (profile_model.dart only has My Listings, Saved Items, etc.)
+#   Farms may be accessible via My Listings page or separate navigation
+#   CustomBottomNavBar: icon-only. Profile tab key: "nav_profile"
+#   My Listings menu item title: "My Listings"
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
+# Navigate to Profile tab (icon-only bottom nav)
 - tapOn:
-    text: "Profile"
-    optional: true
-- tapOn:
-    id: "profile_tab"
+    id: "nav_profile"
     optional: true
 - waitForAnimationToEnd
 
+# My Listings menu item (exact title from profile_model.dart)
 - tapOn:
-    text: "My Farms"
-    optional: true
-- tapOn:
-    text: "Farms"
-    optional: true
-- tapOn:
-    id: "my_farms_btn"
+    text: "My Listings"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: favourites_04_farm_list
 
+# Tap first listing item if available
 - tapOn:
     index: 0
-    id: "farm_list_item"
     optional: true
 - waitForAnimationToEnd
 
+# Look for Edit action
 - tapOn:
     text: "Edit"
-    optional: true
-- tapOn:
-    id: "edit_farm_btn"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: favourites_04_edit_farm
 
-- tapOn:
-    id: "farm_name_field"
-    optional: true
-- clearText
-- inputText: "Updated Test Farm"
+# Update a text field if visible
 - tapOn:
     text: "Farm Name"
     optional: true
@@ -54,9 +47,6 @@ appId: com.example.flutter_app
 
 - tapOn:
     text: "Save"
-    optional: true
-- tapOn:
-    id: "save_farm_btn"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: favourites_04_farm_saved

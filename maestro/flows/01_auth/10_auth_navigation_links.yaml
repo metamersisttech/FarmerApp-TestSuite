@@ -1,5 +1,5 @@
 # Test navigation links on auth screens:
-# email login → register link, send OTP → email link, email login → forgot password.
+# send OTP → email login link, email login → register link, email login → forgot password.
 
 appId: com.example.flutter_app
 ---
@@ -12,37 +12,37 @@ appId: com.example.flutter_app
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: auth_10_send_otp_screen
+
+# Tap "OR login via email" link
 - tapOn:
-    text: "login via email"
+    id: "email_login_link"
     optional: true
 - tapOn:
     text: "OR login via email"
     optional: true
-- tapOn:
-    id: "email_login_link"
-    optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: auth_10_email_login_screen
-- tapOn:
-    text: "Register"
-    optional: true
-- tapOn:
-    text: "Sign Up"
-    optional: true
+
+# From email login, tap Register link
 - tapOn:
     id: "register_link"
+    optional: true
+- tapOn:
+    text: "Register"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: auth_10_register_screen
 - pressKey: back
 - waitForAnimationToEnd
+
+# From email login, tap Forgot Password? link
 - tapOn:
-    text: "Forgot Password"
+    id: "forgot_password_link"
     optional: true
 - tapOn:
-    text: "Forgot"
+    text: "Forgot Password?"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000

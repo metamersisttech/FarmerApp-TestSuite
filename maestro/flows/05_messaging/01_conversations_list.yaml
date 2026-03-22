@@ -1,4 +1,10 @@
 # Messaging 01 — Conversations list screen loads
+#
+# Key facts from source:
+#   ConversationsPage: AppBar title "Messages"
+#   Profile menu item title: "Messages" (from profile_model.dart)
+#   CustomBottomNavBar: icon-only, Profile tab key: "nav_profile"
+#   Accessed via Profile tab → Messages menu item
 
 appId: com.example.flutter_app
 ---
@@ -6,17 +12,24 @@ appId: com.example.flutter_app
 
 - waitForAnimationToEnd
 
+# Navigate to Profile tab (icon-only bottom nav)
+- tapOn:
+    id: "nav_profile"
+    optional: true
+
+- waitForAnimationToEnd
+
+# Tap Messages menu item (exact title from profile_model.dart)
 - tapOn:
     text: "Messages"
-    optional: true
-- tapOn:
-    text: "Chat"
-    optional: true
-- tapOn:
-    text: "Conversations"
     optional: true
 
 - waitForAnimationToEnd:
     timeout: 8000
 
 - takeScreenshot: messaging_01_conversations
+
+# Verify conversations screen AppBar title
+- assertVisible:
+    text: "Messages"
+    optional: true

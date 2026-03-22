@@ -1,21 +1,27 @@
-# Listings 07 — View bids on a listing
+# Listings 07 — View bids on a listing (seller opens View Bids)
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to My Listings tab
 - tapOn:
-    text: "My Listings"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd
+
+# Open first listing (navigates to AnimalDetailPage)
 - tapOn:
+    id: "listing_card"
     index: 0
-    id: "listing_item"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: listings_07_listing_detail
+
+# Tap "View Bids" button (shown when isOwner = true)
 - tapOn:
-    text: "Bids"
+    id: "view_bids_btn"
     optional: true
 - tapOn:
     text: "View Bids"

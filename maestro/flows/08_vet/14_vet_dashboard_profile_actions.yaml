@@ -1,52 +1,54 @@
-# Test vet dashboard profile: availability toggle, logout, switch mode
+# Test vet dashboard profile: availability card, switch mode, logout
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - tapOn:
-    text: "Profile"
+    text: "Vet Home"
     optional: true
 - tapOn:
-    text: "Dashboard"
+    text: "Vet Dashboard"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
-- takeScreenshot: vet_14_dashboard
+# Navigate to vet profile page
 - tapOn:
-    id: availability_toggle
+    text: "My Profile"
     optional: true
 - tapOn:
-    text: "Available"
+    text: "Profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: vet_14_dashboard_profile
+# Tap availability status card (shows current availability)
+- tapOn:
+    id: "availability_status_card"
     optional: true
 - tapOn:
-    description: "Toggle availability"
+    text: "Currently Available"
+    optional: true
+- tapOn:
+    text: "Currently Unavailable"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
-- takeScreenshot: vet_14_availability_toggled
+- takeScreenshot: vet_14_availability_tapped
+# Tap Switch to Farmer Mode card
 - tapOn:
-    id: availability_toggle
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 2000
-- tapOn:
-    text: "Switch"
+    id: "switch_mode_card"
     optional: true
 - tapOn:
-    id: switch_mode_card
+    text: "Switch to Farmer Mode"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: vet_14_switch_mode_tapped
-- pressKey:
-    key: back
-    optional: true
+- pressKey: back
 - waitForAnimationToEnd
+# Tap Logout button
 - tapOn:
     text: "Logout"
-    optional: true
-- tapOn:
-    id: logout_btn
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000

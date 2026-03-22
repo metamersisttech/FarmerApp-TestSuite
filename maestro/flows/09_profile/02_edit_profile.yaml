@@ -1,33 +1,42 @@
 # Profile 02 — Edit profile: change name and save
+#
+# Key facts from source:
+#   CustomBottomNavBar: icon-only. Profile tab key: "nav_profile"
+#   ProfileHeaderCard ElevatedButton: text "Edit Profile", key "edit_profile_btn"
+#   EditProfilePage AppBar title: "Edit Profile"
+#   Save TextButton: text "Save", key "save_profile_btn"
+#   Full name field hint: "Enter your full name"
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to Profile tab (icon-only bottom nav)
 - tapOn:
-    text: "Profile"
+    id: "nav_profile"
     optional: true
 - waitForAnimationToEnd
-- tapOn:
-    text: "Edit Profile"
-    optional: true
+
+# Tap Edit Profile button (key added to source)
 - tapOn:
     id: "edit_profile_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: profile_02_edit_screen
+
+# Tap full name field and update it
 - tapOn:
-    text: "Name"
+    text: "Enter your full name"
     optional: true
 - clearText
 - inputText: "Test Farmer Updated"
 - takeScreenshot: profile_02_name_updated
+
+# Tap Save button (key: save_profile_btn)
 - tapOn:
-    text: "Save"
-    optional: true
-- tapOn:
-    text: "Update"
+    id: "save_profile_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 8000

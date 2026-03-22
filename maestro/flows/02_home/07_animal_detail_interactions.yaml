@@ -1,18 +1,20 @@
-# Home 07 - Animal Detail Interactions (gallery, contact seller, bid, share)
+# Home 07 — Animal Detail: gallery swipe, share, favourite
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Open first listing
 - tapOn:
     id: "listing_card"
-    optional: true
-- tapOn:
-    text: "listing_card"
+    index: 0
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: home_07_listing_detail
+
+# Swipe gallery image left
 - swipe:
     direction: LEFT
     from:
@@ -24,43 +26,21 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: home_07_gallery_swiped
-- tapOn:
-    text: "Contact Seller"
-    optional: true
-- tapOn:
-    id: "contact_seller_btn"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
-- takeScreenshot: home_07_contact_seller
-- tapOn:
-    text: "Back"
-    optional: true
-- pressKey: BACK
-- waitForAnimationToEnd
-- tapOn:
-    text: "Place Bid"
-    optional: true
-- tapOn:
-    id: "place_bid_btn"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
-- takeScreenshot: home_07_bid_dialog
-- tapOn:
-    text: "Cancel"
-    optional: true
-- pressKey: BACK
-- waitForAnimationToEnd
+
+# Tap share button
 - tapOn:
     id: "share_btn"
-    optional: true
-- tapOn:
-    description: "Share"
-    optional: true
-- tapOn:
-    text: "Share"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: home_07_share
+- pressKey: back
+- waitForAnimationToEnd
+
+# Tap favourite button
+- tapOn:
+    id: "favourite_btn"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: home_07_favourite_toggled

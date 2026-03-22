@@ -1,27 +1,28 @@
-# Listings 04 — Edit an existing listing
+# Listings 04 — Edit an existing listing via popup menu
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to My Listings tab
 - tapOn:
-    text: "My Listings"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd:
     timeout: 8000
-# Tap first listing
+- takeScreenshot: listings_04_my_listings
+
+# Tap the "more" popup menu on the first listing
 - tapOn:
+    id: "listing_more_menu"
     index: 0
-    id: "listing_item"
     optional: true
 - waitForAnimationToEnd
-- takeScreenshot: listings_04_listing_detail
-# Open edit
+
+# Tap Edit from popup menu
 - tapOn:
     text: "Edit"
-    optional: true
-- tapOn:
-    id: "edit_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

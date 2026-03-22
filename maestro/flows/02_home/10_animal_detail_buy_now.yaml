@@ -1,9 +1,11 @@
-# Test Buy Now button and Book Transport from listing detail.
+# Home 10 — Buy Now button and Book Transport from listing detail.
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Open first listing
 - tapOn:
     id: "listing_card"
     index: 0
@@ -11,26 +13,32 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: home_10_listing_detail
-- tapOn:
-    text: "Buy Now"
-    optional: true
+
+# Tap Buy Now button
 - tapOn:
     id: "buy_now_btn"
+    optional: true
+- tapOn:
+    text: "Buy Now"
     optional: true
 - waitForAnimationToEnd:
     timeout: 4000
 - takeScreenshot: home_10_buy_now_tapped
 - pressKey: back
 - waitForAnimationToEnd
+
+# Scroll down to find Book Transport
 - swipe:
     direction: UP
     duration: 1000
 - waitForAnimationToEnd
-- tapOn:
-    text: "Book Transport"
-    optional: true
+
+# Tap Book Transport (text label "Book" from transport section)
 - tapOn:
     id: "book_transport_btn"
+    optional: true
+- tapOn:
+    text: "Book"
     optional: true
 - waitForAnimationToEnd:
     timeout: 4000

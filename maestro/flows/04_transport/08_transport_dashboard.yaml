@@ -7,9 +7,6 @@ appId: com.example.flutter_app
 - tapOn:
     text: "Transport Dashboard"
     optional: true
-- tapOn:
-    text: "Dashboard"
-    optional: true
 - waitForAnimationToEnd:
     timeout: 8000
 - takeScreenshot: transport_08_dashboard

@@ -1,55 +1,37 @@
-# Listings 12 - Delete a Draft Listing
+# Listings 12 — Delete a Draft Listing via popup menu
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to My Listings tab
 - tapOn:
-    text: "My Listings"
-    optional: true
-- tapOn:
-    id: "my_listings_tab"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: listings_12_my_listings
+
+# Open popup menu on first listing
 - tapOn:
-    id: "listing_card"
-    optional: true
-- tapOn:
-    text: "listing_card"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
-- takeScreenshot: listings_12_detail_before_delete
-- tapOn:
-    text: "Delete"
-    optional: true
-- tapOn:
-    text: "Remove"
-    optional: true
-- tapOn:
-    id: "delete_listing_btn"
-    optional: true
-- longPressOn:
-    id: "listing_card"
+    id: "listing_more_menu"
+    index: 0
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
+
+# Tap Delete from popup menu
 - tapOn:
     text: "Delete"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: listings_12_delete_confirm
+
+# Confirm delete dialog (button text: "Delete")
 - tapOn:
     text: "Delete"
-    optional: true
-- tapOn:
-    text: "Yes"
-    optional: true
-- tapOn:
-    text: "Confirm"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

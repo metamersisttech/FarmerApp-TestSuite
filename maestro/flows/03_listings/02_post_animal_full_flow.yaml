@@ -4,28 +4,18 @@ appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Open Post Animal via the FAB
 - tapOn:
-    text: "My Listings"
-    optional: true
-- waitForAnimationToEnd
-- tapOn:
-    text: "Post Animal"
-    optional: true
-- tapOn:
-    text: "+"
+    id: "main_fab"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
+
 # Step 1 — Details
 - takeScreenshot: listings_02_step1_details
 - tapOn:
-    text: "Species"
-    optional: true
-- tapOn:
     text: "Cattle"
-    optional: true
-- tapOn:
-    text: "Breed"
     optional: true
 - tapOn:
     text: "Gir"
@@ -34,22 +24,25 @@ appId: com.example.flutter_app
     text: "Next"
     optional: true
 - waitForAnimationToEnd
+
 # Step 2 — Health
 - takeScreenshot: listings_02_step2_health
 - tapOn:
     text: "Next"
     optional: true
 - waitForAnimationToEnd
+
 # Step 3 — Media
 - takeScreenshot: listings_02_step3_media
 - tapOn:
     text: "Next"
     optional: true
 - waitForAnimationToEnd
+
 # Step 4 — Preview
 - takeScreenshot: listings_02_step4_preview
 - tapOn:
-    text: "Submit"
+    text: "Publish"
     optional: true
 - tapOn:
     text: "Post"

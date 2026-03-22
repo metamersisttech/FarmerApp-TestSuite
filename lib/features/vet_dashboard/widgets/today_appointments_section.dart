@@ -40,6 +40,7 @@ class TodayAppointmentsSection extends StatelessWidget {
               ),
               if (onViewAllTap != null)
                 GestureDetector(
+                  key: const Key('view_all_appointments_btn'),
                   onTap: onViewAllTap,
                   child: Text(
                     'View All',

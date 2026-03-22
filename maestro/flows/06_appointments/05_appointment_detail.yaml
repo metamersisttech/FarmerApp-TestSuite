@@ -7,14 +7,20 @@ appId: com.example.flutter_app
 - tapOn:
     text: "My Appointments"
     optional: true
+- tapOn:
+    text: "Appointments"
+    optional: true
 - waitForAnimationToEnd:
     timeout: 8000
 - tapOn:
+    id: "appointment_card"
     index: 0
-    id: "appointment_item"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: appt_05_appointment_detail
+- assertVisible:
+    text: "Appointment Details"
+    optional: true
 - pressKey: back
 - waitForAnimationToEnd

@@ -1,18 +1,31 @@
 # Profile 04 — Notifications screen loads
+#
+# Key facts from source:
+#   CustomBottomNavBar: icon-only. Profile tab key: "nav_profile"
+#   Profile menu item title: "Notifications" (from profile_model.dart)
+#   ProfileMenuItemWidget InkWell key: "menu_item_notifications" (dynamic key added)
+#   NotificationScreen AppBar title: "Notifications"
+#   Mark all read button: key "mark_all_read_btn", text "Mark all read"
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to Profile tab (icon-only bottom nav)
 - tapOn:
-    description: "Notifications"
+    id: "nav_profile"
     optional: true
+- waitForAnimationToEnd
+
+# Tap Notifications menu item (exact title from profile_model.dart)
 - tapOn:
     text: "Notifications"
     optional: true
 - waitForAnimationToEnd:
     timeout: 6000
 - takeScreenshot: profile_04_notifications
+
 - assertNotVisible:
     text: "Unfortunately"
 - pressKey: back

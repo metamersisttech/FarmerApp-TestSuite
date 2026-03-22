@@ -4,15 +4,16 @@ appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Tap "View All" next to the recent listings section
 - tapOn:
     text: "View All"
     optional: true
-- tapOn:
-    text: "See All"
-    optional: true
+
 - waitForAnimationToEnd:
     timeout: 6000
 - takeScreenshot: home_05_all_listings
+
 - scroll
 - waitForAnimationToEnd
 - takeScreenshot: home_05_after_scroll

@@ -7,27 +7,23 @@ appId: com.example.flutter_app
 - tapOn:
     text: "My Vehicles"
     optional: true
-- tapOn:
-    text: "Vehicles"
-    optional: true
 - waitForAnimationToEnd
 - tapOn:
-    text: "Add Vehicle"
-    optional: true
-- tapOn:
-    text: "+"
+    id: "add_vehicle_fab"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: transport_07_vehicle_form
+# Fill Registration Number
 - tapOn:
-    text: "Vehicle Number"
+    text: "Registration Number"
     optional: true
 - inputText: "MH12AB1234"
+# Fill Max Weight
 - tapOn:
-    text: "Capacity"
+    text: "Max Weight Capacity (kg)"
     optional: true
-- inputText: "5"
+- inputText: "5000"
 - takeScreenshot: transport_07_form_filled
 - pressKey: back
 - waitForAnimationToEnd

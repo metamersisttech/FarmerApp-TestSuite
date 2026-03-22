@@ -296,6 +296,7 @@ class _TripCompletionScreenState extends State<TripCompletionScreen> {
 
           // Actions
           ElevatedButton(
+            key: const Key('completion_dashboard_btn'),
             onPressed: () =>
                 TransportNavigationService.navigateToDashboard(context),
             style: ElevatedButton.styleFrom(

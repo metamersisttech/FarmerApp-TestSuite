@@ -14,18 +14,19 @@ appId: com.example.flutter_app
 
 - waitForAnimationToEnd
 
+# Enter a too-short phone number
 - tapOn:
-    id: "phone_field"
-    optional: true
-- tapOn:
-    text: "Phone Number"
+    text: "Enter 10 digit number"
     optional: true
 
-# Enter a too-short phone number
 - inputText: "123"
 
 - tapOn:
-    text: "Send OTP"
+    id: "get_otp_btn"
+    optional: true
+- tapOn:
+    text: "Get OTP"
+    optional: true
 
 - waitForAnimationToEnd
 
@@ -33,4 +34,4 @@ appId: com.example.flutter_app
 
 # Should stay on same screen / show error
 - assertVisible:
-    text: "Send OTP"
+    text: "Get OTP"

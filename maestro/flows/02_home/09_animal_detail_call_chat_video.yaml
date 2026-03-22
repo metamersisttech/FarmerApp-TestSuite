@@ -1,9 +1,12 @@
-# Test Call, Chat, and Video buttons on animal detail page.
+# Home 09 — Call, Chat, and Video icon buttons on animal detail page.
+# These are icon-only buttons identified by Key().
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Open first listing
 - tapOn:
     id: "listing_card"
     index: 0
@@ -11,9 +14,8 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: home_09_listing_detail
-- tapOn:
-    text: "Call"
-    optional: true
+
+# Tap Call icon button
 - tapOn:
     id: "call_btn"
     optional: true
@@ -22,9 +24,8 @@ appId: com.example.flutter_app
 - takeScreenshot: home_09_call_tapped
 - pressKey: back
 - waitForAnimationToEnd
-- tapOn:
-    text: "Chat"
-    optional: true
+
+# Tap Chat icon button
 - tapOn:
     id: "chat_btn"
     optional: true
@@ -33,9 +34,8 @@ appId: com.example.flutter_app
 - takeScreenshot: home_09_chat_tapped
 - pressKey: back
 - waitForAnimationToEnd
-- tapOn:
-    text: "Video"
-    optional: true
+
+# Tap Video icon button
 - tapOn:
     id: "video_btn"
     optional: true
@@ -44,12 +44,3 @@ appId: com.example.flutter_app
 - takeScreenshot: home_09_video_tapped
 - pressKey: back
 - waitForAnimationToEnd
-- tapOn:
-    text: "Contact"
-    optional: true
-- tapOn:
-    id: "contact_seller_btn"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 3000
-- takeScreenshot: home_09_contact_seller

@@ -144,6 +144,7 @@ class _FarmerTransportDetailScreenState
                   _request!.statusEnum == TransportRequestStatus.inProgress ||
                   _request!.statusEnum == TransportRequestStatus.inTransit))
             IconButton(
+              key: const Key('detail_chat_btn'),
               icon: const Icon(Icons.chat_bubble_outline_rounded),
               onPressed: _openChat,
               tooltip: 'transport.chat'.tr(),
@@ -369,6 +370,7 @@ class _FarmerTransportDetailScreenState
               width: double.infinity,
               height: 48,
               child: OutlinedButton.icon(
+                key: const Key('cancel_booking_btn'),
                 onPressed: _isCancelling ? null : _cancelRequest,
                 icon: _isCancelling
                     ? const SizedBox(
@@ -520,6 +522,7 @@ class _FareApprovalCard extends StatelessWidget {
             width: double.infinity,
             height: 44,
             child: ElevatedButton(
+              key: const Key('approve_fare_btn'),
               onPressed: isLoading ? null : onApprove,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,

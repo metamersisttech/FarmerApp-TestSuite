@@ -85,6 +85,7 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen>
       actions: [
         if (otherPartyPhone != null && otherPartyPhone!.isNotEmpty)
           IconButton(
+            key: const Key('chat_call_btn'),
             icon: const Icon(Icons.phone_rounded, size: 22),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -261,6 +262,7 @@ class _AppointmentChatScreenState extends State<AppointmentChatScreen>
 
           // Send button
           Container(
+            key: const Key('chat_send_btn'),
             height: 44,
             width: 44,
             margin: const EdgeInsets.only(bottom: 1),

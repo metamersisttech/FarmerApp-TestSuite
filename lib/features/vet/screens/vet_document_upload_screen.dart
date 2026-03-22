@@ -263,6 +263,7 @@ class _VetDocumentUploadScreenState extends State<VetDocumentUploadScreen>
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
+                    key: const Key('submit_for_verification_btn'),
                     onPressed: canSubmit ? _handleSubmit : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.authPrimaryColor,

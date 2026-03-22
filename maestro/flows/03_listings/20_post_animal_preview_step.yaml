@@ -1,52 +1,43 @@
-# Listings 20 - Post New Animal - Preview / Final Step
+# Listings 20 — Post New Animal — Preview / Final Step
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Open Post Animal via the FAB (key: main_fab)
 - tapOn:
-    text: "Post Animal"
-    optional: true
-- tapOn:
-    text: "Sell Animal"
-    optional: true
-- tapOn:
-    id: "fab_post_animal"
-    optional: true
-- tapOn:
-    description: "Post Animal"
+    id: "main_fab"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
-- tapOn:
-    text: "Preview"
-    optional: true
-- tapOn:
-    id: "preview_tab"
-    optional: true
+
+# Navigate to Preview step — tap Next through Details, Health, Media
 - tapOn:
     text: "Next"
     optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Next"
     optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Next"
     optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Next"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: listings_20_preview_step
+
+# Save as draft
 - tapOn:
     text: "Save as Draft"
     optional: true
 - tapOn:
     text: "Save Draft"
-    optional: true
-- tapOn:
-    id: "save_draft_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

@@ -5,41 +5,26 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
-# Navigate to transport section
+# Navigate to application status (shown automatically or via transport section)
 - tapOn:
-    text: "Transport"
+    text: "Application Status"
     optional: true
-- waitForAnimationToEnd
-- tapOn:
-    text: "Transport Dashboard"
-    optional: true
-- waitForAnimationToEnd
-- tapOn:
-    id: "transport_section"
-    optional: true
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 5000
 
 - takeScreenshot: transport_17_pending_approval
 
 # Assert pending approval screen elements visible
 - assertVisible:
-    text: "Pending"
+    text: "Pending Review"
     optional: true
 - assertVisible:
-    text: "Under Review"
-    optional: true
-- assertVisible:
-    text: "Approval"
+    text: "Application Details"
     optional: true
 
-# Tap Refresh if present
+# Tap Refresh button in appBar
 - tapOn:
-    text: "Refresh"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
-- tapOn:
-    id: "refresh_btn"
+    description: "Refresh"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

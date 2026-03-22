@@ -10,11 +10,22 @@ appId: com.example.flutter_app
 - tapOn:
     text: "Set Pricing"
     optional: true
+- tapOn:
+    text: "Manage Pricing"
+    optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: vet_06_pricing
+- assertVisible:
+    text: "Manage Pricing"
+    optional: true
+# Enter a consultation fee value
 - tapOn:
-    text: "Consultation Fee"
+    text: "In-Clinic Consultation"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "e.g., 500"
     optional: true
 - inputText: "500"
 - takeScreenshot: vet_06_pricing_filled

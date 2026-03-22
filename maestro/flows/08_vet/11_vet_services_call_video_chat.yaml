@@ -6,50 +6,32 @@ appId: com.example.flutter_app
 - tapOn:
     text: "Vet Services"
     optional: true
+- tapOn:
+    text: "Vet"
+    optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: vet_11_services_list
+# Tap Book button on first vet card
 - tapOn:
-    id: call_vet_btn
+    id: "vet_card_book_btn"
     index: 0
     optional: true
 - tapOn:
-    description: "Call"
-    index: 0
+    text: "Book"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
-- takeScreenshot: vet_11_call_tapped
-- pressKey:
-    key: back
-    optional: true
+- takeScreenshot: vet_11_book_tapped
+- pressKey: back
 - waitForAnimationToEnd
+# Tap vet card to view detail
 - tapOn:
-    id: video_vet_btn
-    index: 0
-    optional: true
-- tapOn:
-    description: "Video"
+    id: "vet_card"
     index: 0
     optional: true
 - waitForAnimationToEnd:
-    timeout: 2000
-- takeScreenshot: vet_11_video_tapped
-- pressKey:
-    key: back
-    optional: true
+    timeout: 3000
+- takeScreenshot: vet_11_vet_detail
+- pressKey: back
 - waitForAnimationToEnd
-- tapOn:
-    id: chat_vet_btn
-    index: 0
-    optional: true
-- tapOn:
-    description: "Chat"
-    index: 0
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 2000
-- takeScreenshot: vet_11_chat_tapped
-- pressKey:
-    key: back
-    optional: true

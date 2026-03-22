@@ -89,6 +89,7 @@ class _MainShellPageState extends State<MainShellPage> {
               color: Colors.white,
             ),
             child: IconButton(
+              key: const Key('main_fab'),
               onPressed: _handleAddTap,
               icon: Icon(
                 Icons.add,

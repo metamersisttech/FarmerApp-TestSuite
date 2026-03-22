@@ -428,6 +428,7 @@ class _TransportProfileScreenState extends State<TransportProfileScreen> {
 
             // Save button
             ElevatedButton(
+              key: const Key('save_profile_btn'),
               onPressed: controller.isLoading ? null : _handleSave,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),

@@ -57,6 +57,7 @@ class _VetOnboardingCarouselScreenState
                   ),
                   // Skip button
                   TextButton(
+                    key: const Key('onboarding_skip_btn'),
                     onPressed: _handleSkip,
                     child: Text(
                       'Skip',
@@ -127,6 +128,7 @@ class _VetOnboardingCarouselScreenState
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
+                  key: const Key('onboarding_next_btn'),
                   onPressed: isLastPage ? _handleGetStarted : nextPage,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.authPrimaryColor,

@@ -15,6 +15,14 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 4000
 
+# Welcome page — tap Get Started to go to login screen
+- tapOn:
+    id: "get_started_btn"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
 # Press back — should NOT exit app or crash
 - pressKey: back
 

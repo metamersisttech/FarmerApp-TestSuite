@@ -14,33 +14,35 @@ appId: com.example.flutter_app
 
 - waitForAnimationToEnd
 
-# Navigate to email login
+# Navigate to email login via the link on the OTP screen
 - tapOn:
-    text: "Email"
+    id: "email_login_link"
     optional: true
 - tapOn:
-    text: "Login with Email"
+    text: "OR login via email"
     optional: true
 
 - waitForAnimationToEnd
 
 - takeScreenshot: auth_03_email_login_screen
 
+# Enter email/username
 - tapOn:
-    text: "Email"
+    text: "Email or Username"
     optional: true
 - inputText: "${FARMERAPP_TEST_EMAIL}"
 
+# Enter password
 - tapOn:
     text: "Password"
     optional: true
 - inputText: "${FARMERAPP_TEST_PASSWORD}"
 
 - tapOn:
-    text: "Login"
+    id: "login_btn"
     optional: true
 - tapOn:
-    text: "Sign In"
+    text: "Login"
     optional: true
 
 - waitForAnimationToEnd:

@@ -26,6 +26,7 @@ class CustomBottomNavBar extends StatelessWidget {
         children: [
           // 1. Home
           _NavBarItem(
+            key: const Key('nav_home'),
             icon: Icons.home_outlined,
             activeIcon: Icons.home_rounded,
             isActive: currentIndex == 0,
@@ -34,6 +35,7 @@ class CustomBottomNavBar extends StatelessWidget {
 
           // 2. Favorite/Saved
           _NavBarItem(
+            key: const Key('nav_favourite'),
             icon: Icons.favorite_border,
             activeIcon: Icons.favorite,
             isActive: currentIndex == 1,
@@ -45,6 +47,7 @@ class CustomBottomNavBar extends StatelessWidget {
 
           // 3. My Ads/My Listings
           _NavBarItem(
+            key: const Key('nav_my_listings'),
             icon: Icons.list_alt_outlined,
             activeIcon: Icons.list_alt,
             isActive: currentIndex == 2,
@@ -53,6 +56,7 @@ class CustomBottomNavBar extends StatelessWidget {
 
           // 4. Profile
           _NavBarItem(
+            key: const Key('nav_profile'),
             icon: Icons.person_outline,
             activeIcon: Icons.person,
             isActive: currentIndex == 3,
@@ -72,6 +76,7 @@ class _NavBarItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const _NavBarItem({
+    super.key,
     required this.icon,
     required this.activeIcon,
     required this.isActive,

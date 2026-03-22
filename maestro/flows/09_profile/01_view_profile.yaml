@@ -1,4 +1,9 @@
 # Profile 01 — View profile screen and settings
+#
+# Key facts from source:
+#   CustomBottomNavBar: icon-only, no text. Keys: nav_home(0), nav_favourite(1), nav_my_listings(2), nav_profile(3)
+#   Profile header text: "profile.title".tr() — likely "Profile" in English
+#   Settings GestureDetector: key "settings_btn"
 
 appId: com.example.flutter_app
 ---
@@ -6,16 +11,18 @@ appId: com.example.flutter_app
 
 - waitForAnimationToEnd
 
+# Navigate to Profile tab via bottom nav key
 - tapOn:
-    text: "Profile"
+    id: "nav_profile"
     optional: true
 
 - waitForAnimationToEnd
 
 - takeScreenshot: profile_01_view
 
+# Tap settings icon (key: settings_btn)
 - tapOn:
-    text: "Settings"
+    id: "settings_btn"
     optional: true
 
 - waitForAnimationToEnd

@@ -7,16 +7,21 @@ appId: com.example.flutter_app
 - tapOn:
     text: "My Bookings"
     optional: true
-- tapOn:
-    text: "My Transport Bookings"
-    optional: true
 - waitForAnimationToEnd:
     timeout: 8000
 - takeScreenshot: transport_03_bookings_list
-# Tap first booking if any
+# Tap first booking card in the list
 - tapOn:
     index: 0
-    id: "request_"
+    text: "Pending"
+    optional: true
+- tapOn:
+    index: 0
+    text: "Accepted"
+    optional: true
+- tapOn:
+    index: 0
+    text: "Completed"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

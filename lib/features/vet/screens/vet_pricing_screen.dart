@@ -245,6 +245,7 @@ class _VetPricingScreenState extends State<VetPricingScreen>
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
+              key: const Key('save_pricing_btn'),
               onPressed: isSaving ? null : _handleSave,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.authPrimaryColor,

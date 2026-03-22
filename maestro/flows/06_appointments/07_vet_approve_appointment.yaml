@@ -20,30 +20,37 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 6000
 
-# Open first pending appointment
-- tapOn:
-    index: 0
-    id: "appointment_item"
-    optional: true
-- waitForAnimationToEnd
+- takeScreenshot: appt_07_vet_appointments
 
-- takeScreenshot: appt_07_appointment_detail
-
-# Approve it
+# Tap Approve on first pending appointment card
 - tapOn:
     text: "Approve"
     optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: appt_07_approve_screen
+
+# Select a date — tap a date number in the calendar
 - tapOn:
-    id: "approve_btn"
+    text: "20"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: appt_07_date_selected
+
+# Select first available time slot
+- tapOn:
+    text: "Select Time Slot"
     optional: true
 - waitForAnimationToEnd
 
-# Confirm dialog if shown
+# Tap Confirm Appointment button
 - tapOn:
-    text: "Yes"
+    id: "confirm_appointment_btn"
     optional: true
 - tapOn:
-    text: "Confirm"
+    text: "Confirm Appointment"
     optional: true
 - waitForAnimationToEnd:
     timeout: 8000

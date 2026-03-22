@@ -5,56 +5,31 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
-# Navigate to My Bookings or Transport Dashboard
-- tapOn:
-    text: "My Bookings"
-    optional: true
-- waitForAnimationToEnd
+# Navigate to Transport Dashboard (provider flow)
 - tapOn:
     text: "Transport Dashboard"
     optional: true
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 8000
 
-- takeScreenshot: transport_15_booking_list
+- takeScreenshot: transport_15_dashboard
 
-# Tap an In Progress / Active booking
+# Tap an active job from the Active Jobs list
 - tapOn:
-    text: "In Progress"
-    optional: true
-- waitForAnimationToEnd
-- tapOn:
-    text: "Active"
-    optional: true
-- waitForAnimationToEnd
-- tapOn:
-    id: "active_booking_item"
-    optional: true
-- waitForAnimationToEnd
-
-# Look for trip progress screen
-- tapOn:
-    id: "trip_progress_screen"
-    optional: true
-- waitForAnimationToEnd
-- tapOn:
-    text: "Trip in Progress"
-    optional: true
-- waitForAnimationToEnd
-- tapOn:
-    text: "En Route"
+    text: "Active Jobs"
     optional: true
 - waitForAnimationToEnd
 
 - takeScreenshot: transport_15_trip_progress
 
-# Tap optional action buttons
+# Optional: Confirm Pickup if in accepted state
 - tapOn:
-    text: "Update Location"
+    id: "confirm_pickup_btn"
     optional: true
 - waitForAnimationToEnd:
-    timeout: 5000
+    timeout: 3000
 - tapOn:
-    text: "Mark Arrived"
+    text: "Confirm Pickup"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

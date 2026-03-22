@@ -1,24 +1,24 @@
 # Test the center FAB in main shell navigates directly to PostAnimalPage
+#
+# Key facts from source:
+#   MainShellPage FAB: IconButton with key "main_fab", icon Icons.add, onPressed: _handleAddTap
+#   _handleAddTap navigates to PostAnimalPage
+
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: edge_06_home_with_fab
+
+# Tap the center FAB (key added to source)
 - tapOn:
-    id: main_fab
-    optional: true
-- tapOn:
-    description: "Post animal"
-    optional: true
-- tapOn:
-    description: "Add listing"
+    id: "main_fab"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: edge_06_post_animal_opened
-- pressKey:
-    key: back
-    optional: true
+
+- pressKey: back
 - waitForAnimationToEnd
 - takeScreenshot: edge_06_back_to_home

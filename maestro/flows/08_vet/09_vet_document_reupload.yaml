@@ -5,57 +5,47 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
-# Navigate to vet profile or verification status
+# Navigate to verification status
+- tapOn:
+    text: "Verification Status"
+    optional: true
 - tapOn:
     text: "Profile"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
-- tapOn:
-    text: "Verification"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 
 - takeScreenshot: vet_09_verification_status
 
-# Tap re-upload if rejection message is visible
+# Tap Resubmit Documents (only shown in rejected state)
 - tapOn:
-    text: "Re-upload"
+    id: "resubmit_documents_btn"
     optional: true
 - tapOn:
-    text: "Update Documents"
-    optional: true
-- tapOn:
-    id: "reupload_btn"
+    text: "Resubmit Documents"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 
 - takeScreenshot: vet_09_reupload_screen
 
-# Tap Upload Certificate
+# Verify resubmit screen title
+- assertVisible:
+    text: "Resubmit Documents"
+    optional: true
+
+# Tap upload area for rejected vet certificate
 - tapOn:
-    text: "Upload Certificate"
+    text: "Tap to upload new Vet Certificate"
     optional: true
 - tapOn:
-    id: "upload_certificate_btn"
+    text: "Upload new document:"
     optional: true
 - waitForAnimationToEnd:
-    timeout: 5000
-
+    timeout: 3000
 - takeScreenshot: vet_09_upload_tapped
 
-# Cancel out of picker/permission dialog
-- pressKey: back
-- waitForAnimationToEnd
-
-# Tap Upload ID if present
-- tapOn:
-    text: "Upload ID"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
+# Cancel out of file picker
 - pressKey: back
 - waitForAnimationToEnd
 

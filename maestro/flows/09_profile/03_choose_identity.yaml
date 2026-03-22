@@ -1,24 +1,31 @@
 # Profile 03 — Choose identity screen (Farmer / Vet / Transport)
+#
+# Key facts from source:
+#   ChooseIdentityPage: PageHeader title "Who are you?", subtitle "Select your role to get started"
+#   This page is shown automatically after login for new users (not from a profile menu item)
+#   CustomBottomNavBar: icon-only. Profile tab key: "nav_profile"
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
-- tapOn:
-    text: "Profile"
+
+# The choose identity page may appear automatically after fresh login
+- assertVisible:
+    text: "Who are you?"
     optional: true
-- waitForAnimationToEnd
+- takeScreenshot: profile_03_choose_identity
+
+# Select Farmer if visible
 - tapOn:
-    text: "Choose Identity"
-    optional: true
-- tapOn:
-    text: "Switch Role"
+    text: "Farmer"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
-- takeScreenshot: profile_03_choose_identity
-- assertVisible:
-    text: "Farmer"
+- takeScreenshot: profile_03_farmer_selected
+
+# If already on home, navigate to profile tab
+- tapOn:
+    id: "nav_profile"
     optional: true
-- pressKey: back
 - waitForAnimationToEnd

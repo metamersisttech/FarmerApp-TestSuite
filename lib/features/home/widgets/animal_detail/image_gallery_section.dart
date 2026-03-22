@@ -84,11 +84,13 @@ class ImageGallerySection extends StatelessWidget {
                 Row(
                   children: [
                     _CircleButton(
+                      key: const Key('share_btn'),
                       icon: Icons.share_outlined,
                       onTap: onShareTap,
                     ),
                     const SizedBox(width: 8),
                     _CircleButton(
+                      key: const Key('favourite_btn'),
                       icon: isFavorite ? Icons.favorite : Icons.favorite_border,
                       iconColor: isFavorite ? Colors.red : null,
                       onTap: onFavoriteTap,
@@ -171,6 +173,7 @@ class _CircleButton extends StatelessWidget {
   final Color? iconColor;
 
   const _CircleButton({
+    super.key,
     required this.icon,
     this.onTap,
     this.iconColor,

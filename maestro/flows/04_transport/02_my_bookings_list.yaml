@@ -6,12 +6,9 @@ appId: com.example.flutter_app
 
 - waitForAnimationToEnd
 
-# Navigate to My Bookings
+# Navigate to My Bookings (exact screen title)
 - tapOn:
     text: "My Bookings"
-    optional: true
-- tapOn:
-    text: "My Transport Bookings"
     optional: true
 
 - waitForAnimationToEnd:

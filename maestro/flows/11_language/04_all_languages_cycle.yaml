@@ -1,20 +1,24 @@
 # Language 04 — Cycle through all 4 languages, end on English
+#
+# Key facts from source:
+#   CustomBottomNavBar: icon-only, Profile tab key: "nav_profile"
+#   Language menu item title: "Language" (from profile_model.dart)
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
 - tapOn:
-    text: "Profile"
+    id: "nav_profile"
     optional: true
 - waitForAnimationToEnd
-- tapOn:
-    text: "Settings"
-    optional: true
+
 - tapOn:
     text: "Language"
     optional: true
 - waitForAnimationToEnd
+
 # Hindi
 - tapOn:
     text: "Hindi"
@@ -22,6 +26,7 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: language_04_hindi
+
 # Marathi
 - tapOn:
     text: "Marathi"
@@ -32,6 +37,7 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: language_04_marathi
+
 # Punjabi
 - tapOn:
     text: "Punjabi"
@@ -42,6 +48,7 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: language_04_punjabi
+
 # Back to English
 - tapOn:
     text: "English"
@@ -52,5 +59,6 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: language_04_english_final
+
 - assertNotVisible:
     text: "Unfortunately"

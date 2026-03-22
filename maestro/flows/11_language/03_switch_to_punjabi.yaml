@@ -1,20 +1,24 @@
 # Language 03 — Switch to Punjabi
+#
+# Key facts from source:
+#   CustomBottomNavBar: icon-only, Profile tab key: "nav_profile"
+#   Language menu item title: "Language" (from profile_model.dart)
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
 - tapOn:
-    text: "Profile"
+    id: "nav_profile"
     optional: true
 - waitForAnimationToEnd
-- tapOn:
-    text: "Settings"
-    optional: true
+
 - tapOn:
     text: "Language"
     optional: true
 - waitForAnimationToEnd
+
 - tapOn:
     text: "Punjabi"
     optional: true
@@ -24,6 +28,7 @@ appId: com.example.flutter_app
 - waitForAnimationToEnd:
     timeout: 4000
 - takeScreenshot: language_03_punjabi_active
+
 # Restore English
 - tapOn:
     text: "English"

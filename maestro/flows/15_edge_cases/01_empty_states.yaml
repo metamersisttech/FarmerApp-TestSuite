@@ -1,66 +1,55 @@
 # Empty States — all major empty state screens render without crash
+#
+# Key facts from source:
+#   CustomBottomNavBar: icon-only keys: nav_home, nav_favourite, nav_my_listings, nav_profile
+#   Profile menu items exact titles: "My Listings", "My Bids", "Messages"
+#   ConversationsPage empty state: "No conversations yet" (line 99)
+#   Start the conversation hint: "Start chatting from a listing!" (line 108)
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
+# Navigate to Profile tab
+- tapOn:
+    id: "nav_profile"
+    optional: true
+- waitForAnimationToEnd
+
+# --- My Listings empty state ---
 - tapOn:
     text: "My Listings"
     optional: true
-- tapOn:
-    id: "my_listings_tab"
-    optional: true
 - waitForAnimationToEnd
-- tapOn:
-    text: "No Listings"
-    optional: true
-- tapOn:
-    text: "Post your first animal"
-    optional: true
 - takeScreenshot: edge_01_empty_listings
 
+# --- My Bids empty state ---
+- pressKey: back
+- waitForAnimationToEnd
+- tapOn:
+    id: "nav_profile"
+    optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "My Bids"
     optional: true
-- tapOn:
-    id: "my_bids_tab"
-    optional: true
 - waitForAnimationToEnd
-- tapOn:
-    text: "No Bids"
-    optional: true
 - takeScreenshot: edge_01_empty_bids
 
-- tapOn:
-    text: "My Appointments"
-    optional: true
-- tapOn:
-    text: "Appointments"
-    optional: true
-- tapOn:
-    id: "appointments_tab"
-    optional: true
+# --- Messages (Conversations) empty state ---
+- pressKey: back
 - waitForAnimationToEnd
 - tapOn:
-    text: "No Appointments"
+    id: "nav_profile"
     optional: true
-- takeScreenshot: edge_01_empty_appointments
-
-- tapOn:
-    text: "Conversations"
-    optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Messages"
     optional: true
-- tapOn:
-    id: "conversations_tab"
-    optional: true
 - waitForAnimationToEnd
-- tapOn:
-    text: "No Conversations"
-    optional: true
-- tapOn:
-    text: "No Messages"
+# Exact empty state text from conversations_page.dart line 99
+- assertVisible:
+    text: "No conversations yet"
     optional: true
 - takeScreenshot: edge_01_empty_conversations

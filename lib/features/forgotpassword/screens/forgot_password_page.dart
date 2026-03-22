@@ -196,6 +196,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
                 _buildEmailField(),
                 const SizedBox(height: 24),
                 AuthPrimaryButton(
+                  buttonKey: const Key('send_reset_email_btn'),
                   text: 'Send Reset Email',
                   isLoading: _isLoading,
                   onPressed: _isLoading ? null : _handleSendResetEmail,

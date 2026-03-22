@@ -11,10 +11,7 @@ appId: com.example.flutter_app
 - takeScreenshot: transport_12_empty_form
 # Submit with empty fields
 - tapOn:
-    id: "submit_btn"
-    optional: true
-- tapOn:
-    text: "Request Transport"
+    id: "request_transport_btn"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: transport_12_validation_errors

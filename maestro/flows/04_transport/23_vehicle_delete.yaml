@@ -1,34 +1,26 @@
-# Test delete vehicle with confirmation dialog from vehicle list
+# Transport 23 — Delete vehicle with confirmation dialog from vehicle list
+
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - tapOn:
-    text: "Transport Dashboard"
-    optional: true
-- tapOn:
     text: "My Vehicles"
-    optional: true
-- tapOn:
-    id: "my_vehicles_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: transport_23_vehicle_list
+
+# Tap Delete on first vehicle card (VehicleCard widget exposes delete action)
 - tapOn:
-    description: "Delete"
-    index: 0
-    optional: true
-- tapOn:
-    id: "delete_vehicle_btn"
+    text: "Delete"
     index: 0
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
 - takeScreenshot: transport_23_delete_dialog
-- tapOn:
-    text: "No"
-    optional: true
+
+# Dismiss dialog — tap Cancel
 - tapOn:
     text: "Cancel"
     optional: true

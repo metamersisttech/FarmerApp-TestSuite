@@ -1,63 +1,46 @@
 # Form Validation Errors — validation error messages appear on required forms
+#
+# Key facts from source:
+#   MainShellPage FAB: key "main_fab", navigates to PostAnimalPage
+#   CustomBottomNavBar: icon-only, keys: nav_home, nav_favourite, nav_my_listings, nav_profile
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
+# Tap the center FAB to open PostAnimalPage (key: main_fab)
 - tapOn:
-    text: "Post"
-    optional: true
-- tapOn:
-    text: "Sell"
-    optional: true
-- tapOn:
-    id: "post_tab"
-    optional: true
-- tapOn:
-    id: "sell_fab"
+    id: "main_fab"
     optional: true
 - waitForAnimationToEnd
 
+# Try to advance without filling in required fields
 - tapOn:
     text: "Next"
     optional: true
 - tapOn:
     text: "Submit"
     optional: true
-- tapOn:
-    id: "next_btn"
-    optional: true
-- tapOn:
-    id: "submit_btn"
-    optional: true
 - waitForAnimationToEnd
 
-- tapOn:
-    text: "Required"
-    optional: true
-- tapOn:
-    text: "Title is required"
-    optional: true
-- tapOn:
-    id: "validation_error"
-    optional: true
 - takeScreenshot: edge_05_post_validation_errors
 
 - pressKey: back
 - waitForAnimationToEnd
 
+# Navigate to Profile → My Bookings for appointment form validation
 - tapOn:
-    text: "Appointments"
+    id: "nav_profile"
     optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "My Bookings"
+    optional: true
+- waitForAnimationToEnd
+
 - tapOn:
     text: "Book Appointment"
-    optional: true
-- tapOn:
-    id: "appointments_tab"
-    optional: true
-- tapOn:
-    id: "book_appointment_btn"
     optional: true
 - waitForAnimationToEnd
 
@@ -67,18 +50,6 @@ appId: com.example.flutter_app
 - tapOn:
     text: "Confirm"
     optional: true
-- tapOn:
-    id: "submit_appointment_btn"
-    optional: true
 - waitForAnimationToEnd
 
-- tapOn:
-    text: "Required"
-    optional: true
-- tapOn:
-    text: "Please select a vet"
-    optional: true
-- tapOn:
-    id: "validation_error"
-    optional: true
 - takeScreenshot: edge_05_appointment_validation_errors

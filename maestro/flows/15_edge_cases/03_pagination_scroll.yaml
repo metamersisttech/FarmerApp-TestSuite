@@ -1,8 +1,19 @@
 # Pagination Scroll — infinite scroll / pagination on listings feed
+#
+# Key facts from source:
+#   ViewAllListingsPage: AppBar title "Browse Livestock"
+#   Home page has "View All" link to ViewAllListingsPage
+#   CustomBottomNavBar: Home tab key: "nav_home"
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
+- waitForAnimationToEnd
+
+# Make sure we're on home tab
+- tapOn:
+    id: "nav_home"
+    optional: true
 - waitForAnimationToEnd
 
 - swipe:
@@ -26,14 +37,9 @@ appId: com.example.flutter_app
     timeout: 3000
 - takeScreenshot: edge_03_home_scrolled_3
 
+# Navigate to Browse Livestock (ViewAllListingsPage) via "View All" link
 - tapOn:
     text: "View All"
-    optional: true
-- tapOn:
-    text: "View All Listings"
-    optional: true
-- tapOn:
-    id: "view_all_listings_btn"
     optional: true
 - waitForAnimationToEnd
 

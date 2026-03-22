@@ -11,42 +11,63 @@ appId: com.example.flutter_app
     text: "English"
     optional: true
 - waitForAnimationToEnd
-# Tap register / sign up
+
+# Tap "Or Sign up instead" from the OTP login screen
 - tapOn:
-    text: "Register"
+    id: "signup_link"
     optional: true
 - tapOn:
-    text: "Sign Up"
+    text: "Or Sign up instead"
     optional: true
-- tapOn:
-    text: "Create Account"
-    optional: true
+
 - waitForAnimationToEnd
 - takeScreenshot: auth_07_register_screen
+
 # Fill registration form
 - tapOn:
-    text: "Name"
+    text: "Username"
     optional: true
-- inputText: "Test Farmer"
+- inputText: "testfarmer"
+
 - tapOn:
-    text: "Phone"
+    text: "First Name"
     optional: true
-- inputText: "${FARMERAPP_TEST_PHONE}"
+- inputText: "Test"
+
 - tapOn:
-    text: "Email"
+    text: "Last Name"
+    optional: true
+- inputText: "Farmer"
+
+- tapOn:
+    text: "Email Address"
     optional: true
 - inputText: "${FARMERAPP_TEST_EMAIL}"
+
+- tapOn:
+    text: "Enter 10 digit number"
+    optional: true
+- inputText: "${FARMERAPP_TEST_PHONE}"
+
 - tapOn:
     text: "Password"
     optional: true
 - inputText: "${FARMERAPP_TEST_PASSWORD}"
+
+- tapOn:
+    text: "Confirm Password"
+    optional: true
+- inputText: "${FARMERAPP_TEST_PASSWORD}"
+
 - takeScreenshot: auth_07_form_filled
+
+- tapOn:
+    id: "register_btn"
+    optional: true
 - tapOn:
     text: "Register"
     optional: true
-- tapOn:
-    text: "Sign Up"
-    optional: true
+
 - waitForAnimationToEnd:
     timeout: 10000
 - takeScreenshot: auth_07_after_register

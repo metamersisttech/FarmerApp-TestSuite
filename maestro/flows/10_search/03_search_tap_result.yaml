@@ -1,28 +1,40 @@
 # Search 03 — Tap search result opens animal detail
+#
+# Key facts from source:
+#   SearchResultsPage uses ListingCard widgets in a GridView
+#   Tapping ListingCard calls HomeNavigationService.toAnimalDetail()
+#   No static key on ListingCard — tap first item by index
+#   CustomBottomNavBar: Home tab key: "nav_home"
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
 - tapOn:
-    text: "Search"
-    optional: true
-- tapOn:
-    id: "search_field"
+    id: "nav_home"
     optional: true
 - waitForAnimationToEnd
+
+- tapOn:
+    text: "Search livestock, breeds..."
+    optional: true
+- waitForAnimationToEnd
+
 - inputText: "Cattle"
+- pressKey: enter
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: search_03_results
-# Tap first result
+
+# Tap first result card in grid
 - tapOn:
     index: 0
-    id: "search_result_item"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: search_03_detail_opened
+
 - pressKey: back
 - waitForAnimationToEnd
 - pressKey: back

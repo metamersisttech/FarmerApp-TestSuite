@@ -4,47 +4,45 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - tapOn:
-    text: "Availability"
+    text: "Vet Home"
     optional: true
 - tapOn:
-    id: availability_quick_action
+    text: "Vet Dashboard"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Availability"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: vet_15_availability_screen
+# Tap Add Availability for first day (Monday = day 0)
 - tapOn:
-    description: "Add availability"
-    optional: true
-- tapOn:
-    id: add_slot_btn
-    optional: true
-- tapOn:
-    text: "Add"
+    text: "Add Availability"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: vet_15_add_slot_sheet
-- tapOn:
-    id: day_dropdown
+# Sheet shows: Add Availability title, day dropdown, Start Time, End Time, Save button
+- assertVisible:
+    text: "Add Availability"
     optional: true
+# Select day from dropdown
 - tapOn:
-    text: "Day"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 2000
-- tapOn:
-    index: 1
+    text: "Day of Week"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
+# Pick Monday
 - tapOn:
-    id: start_time_picker
+    text: "Monday"
     optional: true
+- waitForAnimationToEnd:
+    timeout: 1000
+# Tap Start Time picker tile
 - tapOn:
     text: "Start Time"
-    optional: true
-- tapOn:
-    description: "Start time"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
@@ -53,49 +51,38 @@ appId: com.example.flutter_app
     text: "OK"
     optional: true
 - tapOn:
-    text: "Confirm"
+    text: "Cancel"
     optional: true
 - waitForAnimationToEnd:
-    timeout: 2000
+    timeout: 1000
+# Tap Save button in sheet
 - tapOn:
     text: "Save"
-    optional: true
-- tapOn:
-    id: save_slot_btn
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: vet_15_slot_saved
+# Edit an existing slot using edit icon button
 - tapOn:
-    id: edit_slot_btn
-    index: 0
-    optional: true
-- tapOn:
-    description: "Edit slot"
-    index: 0
+    text: "Edit"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: vet_15_edit_slot
-- pressKey:
-    key: back
-    optional: true
+- pressKey: back
 - waitForAnimationToEnd
+# Delete slot using delete icon button
 - tapOn:
-    id: delete_slot_btn
-    index: 0
-    optional: true
-- tapOn:
-    description: "Delete slot"
-    index: 0
+    text: "Delete"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
 - takeScreenshot: vet_15_delete_dialog
-- tapOn:
-    text: "No"
-    optional: true
+# Dismiss delete dialog
 - tapOn:
     text: "Cancel"
+    optional: true
+- tapOn:
+    text: "No"
     optional: true
 - waitForAnimationToEnd

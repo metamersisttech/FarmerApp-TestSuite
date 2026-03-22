@@ -1,70 +1,63 @@
-# Listings 15 - Edit Listing - Media Sub-step
+# Listings 15 — Edit Listing — Media Sub-step
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to My Listings tab
 - tapOn:
-    text: "My Listings"
-    optional: true
-- tapOn:
-    id: "my_listings_tab"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
-- tapOn:
-    id: "listing_card"
-    optional: true
-- tapOn:
-    text: "listing_card"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
+
+# Open popup menu and tap Edit
+- tapOn:
+    id: "listing_more_menu"
+    index: 0
+    optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Edit"
     optional: true
-- tapOn:
-    id: "edit_listing_btn"
-    optional: true
 - waitForAnimationToEnd:
     timeout: 5000
-- tapOn:
-    text: "Media"
-    optional: true
-- tapOn:
-    id: "media_tab"
-    optional: true
+
+# Navigate to Media step (tap Next twice to advance past Details, Health)
 - tapOn:
     text: "Next"
     optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Next"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: listings_15_media_step
-- tapOn:
-    id: "add_photo_btn"
-    optional: true
+
+# Try to add a photo
 - tapOn:
     text: "Add Photo"
     optional: true
 - tapOn:
-    text: "Upload"
+    text: "Upload Photo"
     optional: true
 - tapOn:
-    text: "Upload Photo"
+    text: "Upload"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: listings_15_upload_tapped
+
+# Dismiss any permission dialog or photo picker
 - tapOn:
     text: "Cancel"
     optional: true
 - tapOn:
     text: "Deny"
     optional: true
-- pressKey: BACK
+- pressKey: back
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: listings_15_after_cancel

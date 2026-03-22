@@ -5,30 +5,28 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
+# Navigate to My Listings tab
 - tapOn:
-    text: "My Listings"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd:
     timeout: 8000
 
 # Open first listing
 - tapOn:
+    id: "listing_card"
     index: 0
-    id: "listing_item"
     optional: true
 - waitForAnimationToEnd
 
 - takeScreenshot: bidding_02_listing_detail
 
-# Open bids panel
+# Open bids panel (View Bids shown for owner; key: view_bids_btn)
+- tapOn:
+    id: "view_bids_btn"
+    optional: true
 - tapOn:
     text: "View Bids"
-    optional: true
-- tapOn:
-    text: "Bids"
-    optional: true
-- tapOn:
-    id: "bids_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 6000

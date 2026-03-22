@@ -15,5 +15,22 @@ appId: com.example.flutter_app
 - takeScreenshot: vet_03_verification_status
 - assertNotVisible:
     text: "Unfortunately"
+# If pending state: check banner text visible
+- assertVisible:
+    text: "Documents Under Review"
+    optional: true
+# If approved: check congratulations
+- assertVisible:
+    text: "Congratulations!"
+    optional: true
+# Back to profile button
+- tapOn:
+    id: "verification_back_to_profile_btn"
+    optional: true
+- tapOn:
+    text: "Back to Profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
 - pressKey: back
 - waitForAnimationToEnd

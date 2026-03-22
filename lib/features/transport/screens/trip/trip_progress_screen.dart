@@ -327,6 +327,7 @@ class _TripProgressScreenState extends State<TripProgressScreen>
                 children: [
                   Expanded(
                     child: OutlinedButton(
+                      key: const Key('fare_minus_btn'),
                       onPressed: () => decreaseFare(500),
                       child: const Text('-500'),
                     ),
@@ -334,6 +335,7 @@ class _TripProgressScreenState extends State<TripProgressScreen>
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton(
+                      key: const Key('fare_suggested_btn'),
                       onPressed: setToSuggestedFare,
                       child: const Text('Suggested'),
                     ),
@@ -341,6 +343,7 @@ class _TripProgressScreenState extends State<TripProgressScreen>
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton(
+                      key: const Key('fare_plus_btn'),
                       onPressed: () => increaseFare(500),
                       child: const Text('+500'),
                     ),
@@ -353,6 +356,7 @@ class _TripProgressScreenState extends State<TripProgressScreen>
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  key: const Key('propose_fare_btn'),
                   onPressed: controller.isProposingFare
                       ? null
                       : () async {
@@ -458,6 +462,7 @@ class _TripProgressScreenState extends State<TripProgressScreen>
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
+                key: const Key('confirm_pickup_btn'),
                 onPressed: controller.isConfirmingPickup
                     ? null
                     : () => _showPickupConfirmation(controller),
@@ -590,6 +595,7 @@ class _TripProgressScreenState extends State<TripProgressScreen>
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
+                key: const Key('back_to_dashboard_btn'),
                 onPressed: () => TransportNavigationService.navigateToDashboard(context),
                 child: const Text('Back to Dashboard'),
               ),

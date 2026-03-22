@@ -1,40 +1,50 @@
 # Messaging 03 — Send a message in direct chat
+#
+# Key facts from source:
+#   DirectChatScreen: TextField key "message_input", hint "Type a message..."
+#   Send button InkWell key: "send_btn"
+#   CustomBottomNavBar: icon-only, Profile tab key: "nav_profile"
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to Profile tab (icon-only bottom nav)
+- tapOn:
+    id: "nav_profile"
+    optional: true
+- waitForAnimationToEnd
+
+# Tap Messages menu item
 - tapOn:
     text: "Messages"
     optional: true
-- tapOn:
-    text: "Conversations"
-    optional: true
 - waitForAnimationToEnd:
     timeout: 8000
+
+# Tap first conversation if any exist
 - tapOn:
     index: 0
-    id: "conversation_item"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: messaging_03_before_send
+
+# Tap message input field (key: message_input)
 - tapOn:
     id: "message_input"
     optional: true
-- tapOn:
-    text: "Type a message"
-    optional: true
 - inputText: "Hello, this is a test message"
 - takeScreenshot: messaging_03_typed
+
+# Tap send button (key: send_btn)
 - tapOn:
     id: "send_btn"
-    optional: true
-- tapOn:
-    description: "Send"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: messaging_03_after_send
+
 - pressKey: back
 - waitForAnimationToEnd

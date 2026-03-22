@@ -1,57 +1,38 @@
-# Test home page header buttons:
-# location tap, notifications tap, marketplace tap, vet services tap.
+# Home 08 — Home page header buttons: location tap, notifications,
+# quick actions (Browse Livestock, Vet Services).
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - takeScreenshot: home_08_home_loaded
+
+# Tap Browse Livestock quick action
 - tapOn:
-    id: "location_tap"
-    optional: true
-- tapOn:
-    id: "home_location_btn"
-    optional: true
-- tapOn:
-    description: "Location"
+    text: "Browse Livestock"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
-- takeScreenshot: home_08_location_tapped
+- takeScreenshot: home_08_browse_livestock_tapped
 - pressKey: back
 - waitForAnimationToEnd
-- tapOn:
-    id: "notification_btn"
-    optional: true
-- tapOn:
-    description: "Notifications"
-    optional: true
-- tapOn:
-    text: "🔔"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 3000
-- takeScreenshot: home_08_notifications_tapped
-- pressKey: back
-- waitForAnimationToEnd
-- tapOn:
-    text: "Marketplace"
-    optional: true
-- tapOn:
-    id: "marketplace_btn"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 3000
-- takeScreenshot: home_08_marketplace_tapped
-- pressKey: back
-- waitForAnimationToEnd
+
+# Tap Vet Services quick action
 - tapOn:
     text: "Vet Services"
-    optional: true
-- tapOn:
-    id: "vet_services_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: home_08_vet_services_tapped
 - pressKey: back
+- waitForAnimationToEnd
+
+# Tap FAB (add listing)
+- tapOn:
+    id: "main_fab"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: home_08_fab_tapped
+- pressKey: back
+- waitForAnimationToEnd

@@ -4,30 +4,28 @@ appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
 # Tap a listing from home
 - tapOn:
-    index: 0
     id: "listing_card"
+    index: 0
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: listings_05_detail_before_fav
+
+# Tap favourite button (key: favourite_btn in ImageGallerySection)
 - tapOn:
     id: "favourite_btn"
-    optional: true
-- tapOn:
-    text: "♡"
-    optional: true
-- tapOn:
-    description: "Add to favourites"
     optional: true
 - waitForAnimationToEnd
 - takeScreenshot: listings_05_after_fav
 - pressKey: back
 - waitForAnimationToEnd
+
 # Verify in favourites tab
 - tapOn:
-    text: "Favourite"
+    id: "nav_favourite"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

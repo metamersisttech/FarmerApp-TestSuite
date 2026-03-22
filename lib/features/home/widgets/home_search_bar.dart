@@ -21,6 +21,7 @@ class HomeSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      key: const Key('search_bar'),
       onTap: () {
         // Navigate to full search page
         Navigator.push(

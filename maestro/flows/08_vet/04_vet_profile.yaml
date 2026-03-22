@@ -7,6 +7,9 @@ appId: com.example.flutter_app
 - tapOn:
     text: "Vet Profile"
     optional: true
+- tapOn:
+    text: "Profile"
+    optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: vet_04_vet_profile

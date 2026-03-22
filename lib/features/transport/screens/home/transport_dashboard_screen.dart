@@ -43,6 +43,7 @@ class _TransportDashboardScreenState extends State<TransportDashboardScreen> {
               title: const Text('Transport Dashboard'),
               actions: [
                 IconButton(
+                  key: const Key('dashboard_profile_btn'),
                   icon: const Icon(Icons.person),
                   onPressed: () => TransportNavigationService.navigateToProfile(context),
                   tooltip: 'Profile',
@@ -130,6 +131,7 @@ class _TransportDashboardScreenState extends State<TransportDashboardScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
+              key: const Key('enable_location_btn'),
               onPressed: () async {
                 final messenger = ScaffoldMessenger.of(context);
                 final success = await controller.setupInitialLocation();
@@ -275,6 +277,7 @@ class _TransportDashboardScreenState extends State<TransportDashboardScreen> {
           children: [
             Expanded(
               child: _QuickActionButton(
+                key: const Key('view_requests_btn'),
                 icon: Icons.search,
                 label: 'View Requests',
                 onTap: () => TransportNavigationService.navigateToNearbyRequests(context),
@@ -283,6 +286,7 @@ class _TransportDashboardScreenState extends State<TransportDashboardScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _QuickActionButton(
+                key: const Key('my_vehicles_btn'),
                 icon: Icons.local_shipping,
                 label: 'My Vehicles',
                 onTap: () => TransportNavigationService.navigateToVehicleList(context),
@@ -418,6 +422,7 @@ class _QuickActionButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const _QuickActionButton({
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,

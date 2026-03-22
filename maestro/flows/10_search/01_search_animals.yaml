@@ -1,4 +1,10 @@
 # Search 01 — Search for animals by name
+#
+# Key facts from source:
+#   SearchPage: full-screen search, auto-focuses input on open
+#   ViewAllListingsPage: disabled ListingSearchBar hint "Search livestock, breeds..." — tap navigates to SearchPage
+#   SearchResultsPage: AppBar title "Search Results"
+#   CustomBottomNavBar: Home tab key: "nav_home"
 
 appId: com.example.flutter_app
 ---
@@ -6,16 +12,27 @@ appId: com.example.flutter_app
 
 - waitForAnimationToEnd
 
+# Make sure we're on home tab
 - tapOn:
-    text: "Search"
+    id: "nav_home"
     optional: true
+- waitForAnimationToEnd
+
+# Tap the search bar (hint text triggers navigation to SearchPage)
 - tapOn:
-    id: "search_field"
+    text: "Search livestock, breeds..."
     optional: true
 
 - waitForAnimationToEnd
 
+# Type search query (SearchPage auto-focuses input)
 - inputText: "Cow"
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Submit via keyboard
+- pressKey: enter
 
 - waitForAnimationToEnd:
     timeout: 5000

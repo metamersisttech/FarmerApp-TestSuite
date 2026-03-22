@@ -5,26 +5,20 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - tapOn:
-    text: "Become Transport Provider"
+    text: "Become a Transport Provider"
     optional: true
 - waitForAnimationToEnd
 - tapOn:
-    text: "Apply"
-    optional: true
-- tapOn:
-    text: "Get Started"
+    id: "apply_now_btn"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: transport_05_onboarding_form
+# Fill Business Name
 - tapOn:
     text: "Business Name"
     optional: true
 - inputText: "Test Transport Co"
-- tapOn:
-    text: "Phone"
-    optional: true
-- inputText: "${FARMERAPP_TEST_PHONE}"
 - takeScreenshot: transport_05_form_filled
 - pressKey: back
 - waitForAnimationToEnd

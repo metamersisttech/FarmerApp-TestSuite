@@ -19,6 +19,7 @@ class ProfileMenuItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      key: Key('menu_item_${title.toLowerCase().replaceAll(' ', '_')}'),
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(

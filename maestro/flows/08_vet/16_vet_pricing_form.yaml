@@ -4,56 +4,57 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - tapOn:
-    text: "Pricing"
+    text: "Vet Home"
     optional: true
 - tapOn:
-    id: pricing_quick_action
+    text: "Vet Dashboard"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "Pricing"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: vet_16_pricing_screen
-- tapOn:
-    id: consultation_fee_field
+- assertVisible:
+    text: "Manage Pricing"
     optional: true
+# Fill In-Clinic Consultation fee field (using hint text)
 - tapOn:
-    text: "Consultation"
+    text: "e.g., 500"
     optional: true
 - clearText:
     optional: true
 - inputText: "500"
+# Fill Video Consultation fee
 - tapOn:
-    id: video_fee_field
-    optional: true
-- tapOn:
-    text: "Video"
+    text: "e.g., 400"
     optional: true
 - clearText:
     optional: true
 - inputText: "400"
+# Fill Home Visit fee
 - tapOn:
-    id: home_visit_fee_field
-    optional: true
-- tapOn:
-    text: "Home Visit"
+    text: "e.g., 1000"
     optional: true
 - clearText:
     optional: true
 - inputText: "800"
+# Fill Emergency Multiplier
 - tapOn:
-    id: emergency_multiplier_field
-    optional: true
-- tapOn:
-    text: "Emergency"
+    text: "e.g., 1.5"
     optional: true
 - clearText:
     optional: true
 - inputText: "1.5"
 - takeScreenshot: vet_16_fields_filled
+# Tap Save Pricing button
 - tapOn:
-    text: "Save Pricing"
+    id: "save_pricing_btn"
     optional: true
 - tapOn:
-    id: save_pricing_btn
+    text: "Save Pricing"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

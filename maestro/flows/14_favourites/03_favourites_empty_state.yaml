@@ -1,42 +1,28 @@
 # Favourites Empty State — page shows empty state when no saved listings
+#
+# Key facts from source:
+#   FavouriteListingsPage empty state text: "No Favourite Listings Yet" (line 151)
+#   Sub-text: "Start saving your favourite listings" (line 160)
+#   CustomBottomNavBar: Favourite tab key: "nav_favourite" (icon-only)
 
 appId: com.example.flutter_app
 ---
-- launchApp:
-    clearState: true
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
+# Navigate to Favourites tab (icon-only bottom nav, key: nav_favourite)
 - tapOn:
-    text: "Favourites"
-    optional: true
-- tapOn:
-    text: "Saved"
-    optional: true
-- tapOn:
-    id: "favourites_tab"
+    id: "nav_favourite"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 
-- tapOn:
-    text: "No Favourites"
-    optional: true
-- tapOn:
-    text: "No Saved Listings"
-    optional: true
-- tapOn:
-    text: "Empty"
-    optional: true
 - takeScreenshot: favourites_03_empty_state
 
-- tapOn:
-    text: "Browse Listings"
+# Assert exact empty state texts from source
+- assertVisible:
+    text: "No Favourite Listings Yet"
     optional: true
-- tapOn:
-    text: "Explore"
+- assertVisible:
+    text: "Start saving your favourite listings"
     optional: true
-- tapOn:
-    id: "browse_listings_btn"
-    optional: true
-- takeScreenshot: favourites_03_browse_tapped

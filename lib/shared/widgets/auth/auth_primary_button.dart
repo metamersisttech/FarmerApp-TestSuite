@@ -6,12 +6,14 @@ class AuthPrimaryButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
   final bool isLoading;
+  final Key? buttonKey;
 
   const AuthPrimaryButton({
     super.key,
     required this.text,
     required this.onPressed,
     this.isLoading = false,
+    this.buttonKey,
   });
 
   @override
@@ -20,6 +22,7 @@ class AuthPrimaryButton extends StatelessWidget {
       height: 58,
       width: double.infinity,
       child: ElevatedButton(
+        key: buttonKey,
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.authPrimaryColor,

@@ -5,53 +5,44 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 
-# Navigate to Nearby Requests via bottom nav or text
+# Navigate to Nearby Requests
 - tapOn:
     text: "Nearby Requests"
     optional: true
-- waitForAnimationToEnd
-- tapOn:
-    id: "nearby_requests_tab"
-    optional: true
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 8000
 
 - takeScreenshot: transport_14_pending_request
 
-# Tap first pending request
+# Tap first request to open detail
 - tapOn:
-    id: "request_item_0"
+    index: 0
+    text: "Pickup Location"
     optional: true
-- waitForAnimationToEnd
-- tapOn:
-    text: "Pending"
-    optional: true
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 5000
 
-# Tap Accept button
+# Tap Accept Request in bottom bar of RequestDetailScreen
 - tapOn:
-    text: "Accept"
+    id: "proceed_to_accept_btn"
     optional: true
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- takeScreenshot: transport_14_accept_screen
+
+# Tap the bottom Accept Request button on AcceptRequestScreen
 - tapOn:
     id: "accept_request_btn"
     optional: true
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 3000
 
 - takeScreenshot: transport_14_accept_dialog
 
-# Confirm accept dialog
+# Confirm in dialog
 - tapOn:
-    text: "Yes"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
-- tapOn:
-    text: "Confirm"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
-- tapOn:
-    text: "Accept"
+    text: "Accept Request"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

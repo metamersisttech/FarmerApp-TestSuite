@@ -28,6 +28,7 @@ class BidCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      key: const Key('bid_card'),
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -194,6 +195,7 @@ class BidCard extends StatelessWidget {
                   children: [
                     if (onRejectTap != null)
                       _ActionButton(
+                        key: const Key('reject_bid_btn'),
                         label: 'Reject',
                         color: Colors.red,
                         icon: Icons.close,
@@ -203,6 +205,7 @@ class BidCard extends StatelessWidget {
                       const SizedBox(width: 10),
                     if (onApproveTap != null)
                       _ActionButton(
+                        key: const Key('approve_bid_btn'),
                         label: 'Approve',
                         color: AppTheme.authPrimaryColor,
                         icon: Icons.check,
@@ -211,6 +214,7 @@ class BidCard extends StatelessWidget {
                       ),
                     if (onCancelTap != null)
                       _ActionButton(
+                        key: const Key('cancel_bid_btn'),
                         label: 'Cancel Bid',
                         color: Colors.red,
                         icon: Icons.cancel_outlined,
@@ -283,6 +287,7 @@ class _ActionButton extends StatelessWidget {
   final bool filled;
 
   const _ActionButton({
+    super.key,
     required this.label,
     required this.color,
     required this.icon,

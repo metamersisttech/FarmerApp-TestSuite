@@ -1,51 +1,46 @@
-# Listings 16 - Edit Listing - Preview Step & Publish
+# Listings 16 — Edit Listing — Preview Step & Publish
 
 appId: com.example.flutter_app
 ---
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
+
+# Navigate to My Listings tab
 - tapOn:
-    text: "My Listings"
-    optional: true
-- tapOn:
-    id: "my_listings_tab"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 5000
-- tapOn:
-    id: "listing_card"
-    optional: true
-- tapOn:
-    text: "listing_card"
+    id: "nav_my_listings"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
+
+# Open popup menu and tap Edit
+- tapOn:
+    id: "listing_more_menu"
+    index: 0
+    optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Edit"
     optional: true
-- tapOn:
-    id: "edit_listing_btn"
-    optional: true
 - waitForAnimationToEnd:
     timeout: 5000
-- tapOn:
-    text: "Preview"
-    optional: true
-- tapOn:
-    id: "preview_tab"
-    optional: true
+
+# Navigate to Preview step (tap Next three times)
 - tapOn:
     text: "Next"
     optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Next"
     optional: true
+- waitForAnimationToEnd
 - tapOn:
     text: "Next"
     optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: listings_16_preview_step
+
+# Publish or save draft
 - tapOn:
     text: "Publish"
     optional: true

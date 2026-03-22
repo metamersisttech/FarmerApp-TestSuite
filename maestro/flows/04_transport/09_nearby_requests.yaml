@@ -7,9 +7,6 @@ appId: com.example.flutter_app
 - tapOn:
     text: "Nearby Requests"
     optional: true
-- tapOn:
-    text: "Find Requests"
-    optional: true
 - waitForAnimationToEnd:
     timeout: 10000
 - takeScreenshot: transport_09_nearby_requests

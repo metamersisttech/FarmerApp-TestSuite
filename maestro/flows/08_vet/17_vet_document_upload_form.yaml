@@ -4,81 +4,76 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - tapOn:
+    text: "Become a Vet"
+    optional: true
+- tapOn:
+    text: "Register as Vet"
+    optional: true
+- tapOn:
     text: "Document Upload"
     optional: true
 - tapOn:
-    id: document_upload_btn
+    text: "Vet Registration"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: vet_17_upload_form
+# Fill Registration Number
 - tapOn:
-    id: registration_number_field
-    optional: true
-- tapOn:
-    text: "Registration"
+    text: "e.g., VET-MH-2024-12345"
     optional: true
 - inputText: "VET123456"
+# Fill Qualifications
 - tapOn:
-    id: qualifications_field
-    optional: true
-- tapOn:
-    text: "Qualifications"
+    text: "e.g., BVSc, MVSc (Surgery)"
     optional: true
 - inputText: "BVSc, MVSc"
+# Fill Clinic Name
 - tapOn:
-    id: clinic_name_field
-    optional: true
-- tapOn:
-    text: "Clinic Name"
+    text: "e.g., Green Valley Veterinary Clinic"
     optional: true
 - inputText: "Test Animal Clinic"
+# Fill College Name
 - tapOn:
-    id: college_field
-    optional: true
-- tapOn:
-    text: "College"
+    text: "e.g., Mumbai Veterinary College"
     optional: true
 - inputText: "Mumbai Vet College"
+# Fill Specialization (optional)
 - tapOn:
-    id: specialization_field
-    optional: true
-- tapOn:
-    text: "Specialization"
+    text: "e.g., Large Animals, Surgery"
     optional: true
 - inputText: "General Practice"
 - takeScreenshot: vet_17_fields_filled
+# Tap vet certificate upload area
 - tapOn:
-    description: "Upload certificate"
+    text: "Upload Vet Certificate"
     optional: true
 - tapOn:
-    id: certificate_upload_btn
+    text: "Tap to upload certificate image"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
 - takeScreenshot: vet_17_cert_picker
-- pressKey:
-    key: back
-    optional: true
+- pressKey: back
 - waitForAnimationToEnd
+# Tap degree certificate upload area
 - tapOn:
-    description: "Upload ID"
+    text: "Upload Degree Certificate"
     optional: true
 - tapOn:
-    id: id_upload_btn
+    text: "Tap to upload degree image"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
-- takeScreenshot: vet_17_id_picker
-- pressKey:
-    key: back
-    optional: true
+- takeScreenshot: vet_17_degree_picker
+- pressKey: back
 - waitForAnimationToEnd
+# Tap Submit for Verification button
+- tapOn:
+    id: "submit_for_verification_btn"
+    optional: true
 - tapOn:
     text: "Submit for Verification"
-    optional: true
-- tapOn:
-    id: submit_btn
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000

@@ -154,6 +154,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage>
                 _buildFormFields(),
                 const SizedBox(height: 24),
                 AuthPrimaryButton(
+                  buttonKey: const Key('reset_password_btn'),
                   text: 'Reset Password',
                   isLoading: _isLoading,
                   onPressed: _isLoading ? null : _handleResetPassword,

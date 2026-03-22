@@ -5,10 +5,7 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - tapOn:
-    text: "Transport Profile"
-    optional: true
-- tapOn:
-    text: "Provider Profile"
+    text: "Profile"
     optional: true
 - waitForAnimationToEnd:
     timeout: 6000

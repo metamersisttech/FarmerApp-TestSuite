@@ -4,51 +4,48 @@ appId: com.example.flutter_app
 - runFlow: ../../helpers/login_helper.yaml
 - waitForAnimationToEnd
 - tapOn:
-    text: "Vet Appointments"
-    optional: true
-- waitForAnimationToEnd
-- tapOn:
-    text: "REQUESTED"
+    text: "Vet Home"
     optional: true
 - tapOn:
-    index: 0
+    text: "Vet Dashboard"
     optional: true
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn:
+    text: "Appointments"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+# Tap Approve on first appointment in the list
 - tapOn:
     text: "Approve"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: appt_13_approve_screen
-- tapOn:
-    id: calendar_date_picker
-    optional: true
-- tapOn:
-    description: "Select date"
-    optional: true
-- waitForAnimationToEnd:
-    timeout: 2000
-- tapOn:
-    text: "15"
-    optional: true
+# Select a date from the calendar
 - tapOn:
     text: "20"
+    optional: true
+- tapOn:
+    text: "15"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
 - takeScreenshot: appt_13_date_selected
+# Select the first available time slot
 - tapOn:
-    id: time_slot
-    index: 0
+    text: "Select Time Slot"
     optional: true
 - waitForAnimationToEnd:
     timeout: 2000
 - takeScreenshot: appt_13_time_selected
+# Confirm appointment
 - tapOn:
-    text: "Confirm Appointment"
+    id: "confirm_appointment_btn"
     optional: true
 - tapOn:
-    id: confirm_btn
+    text: "Confirm Appointment"
     optional: true
 - waitForAnimationToEnd:
     timeout: 5000
