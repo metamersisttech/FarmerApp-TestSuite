@@ -29,23 +29,46 @@ jobs:
 
       - name: Generate mocks (build_runner)
         run: dart run build_runner build --delete-conflicting-outputs
-        continue-on-error: true   # mocks may not be needed for all tests
+        continue-on-error: true   # mocks may not exist for all tests
 
-      - name: Run all tests
-        run: flutter test --reporter json > test-results.json
+      - name: Run unit tests
+        run: flutter test test/unit/ --reporter compact
         continue-on-error: true
 
-      - name: Pretty print results
-        if: always()
+      - name: Run widget tests
+        run: flutter test test/widget/ --reporter compact
+        continue-on-error: true
+
+      - name: Run smoke widget test
+        run: flutter test test/widget_test.dart --reporter compact
+        continue-on-error: true
+
+      - name: Run all tests with coverage
+        run: flutter test --coverage --reporter json > test-results.json
+        continue-on-error: true
+
+      - name: Generate coverage summary
         run: |
-          flutter test --reporter compact || true
+          if [ -f coverage/lcov.info ]; then
+            echo "=== Coverage Summary ==="
+            awk '/^SF:/{file=$0} /^DA:/{lines++; if($0~/,0$/){missed++}} END{
+              covered=lines-missed;
+              if(lines>0) printf "Lines: %d/%d (%.1f%%)\n", covered, lines, covered/lines*100
+            }' coverage/lcov.info || true
+          fi
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: unit-test-results-${{ github.run_number }}
-          path: test-results.json
+          path: |
+            test-results.json
+            coverage/lcov.info
+
+      - name: Pretty print results summary
+        if: always()
+        run: flutter test test/all_tests.dart --reporter compact || true
 
       - name: Post PR comment on failure
         if: failure() && github.event_name == 'pull_request'

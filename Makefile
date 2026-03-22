@@ -7,7 +7,10 @@
 #     make test             — run all Maestro UI flows
 #     make feature f=04_transport — run a specific feature folder
 #     make regression       — full release regression with video + merged report
-#     make flutter-test     — run unit + widget tests
+#     make flutter-test         — run all Flutter unit + widget tests
+#     make flutter-test-unit    — run only unit tests
+#     make flutter-test-widget  — run only widget tests
+#     make flutter-test-coverage— run tests + coverage report
 #     make integration      — run Flutter integration tests on device
 #     make report           — open the latest HTML report
 #     make a11y             — run accessibility checks (dump + check)
@@ -25,9 +28,10 @@
 
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
-.PHONY: help setup smoke test feature regression flutter-test integration report \
-        a11y visual-diff approve-baseline update-baseline triage build-apk \
-        install-apk clean-reports devices logcat check
+.PHONY: help setup smoke test feature regression flutter-test flutter-test-unit \
+        flutter-test-widget flutter-test-coverage flutter-test-verbose \
+        integration report a11y visual-diff approve-baseline update-baseline \
+        triage build-apk install-apk clean-reports devices logcat check
 
 # ── Config ────────────────────────────────────────────────────────────────────
 APK_PATH := build/app/outputs/flutter-apk/app-debug.apk
@@ -88,9 +92,32 @@ feature: ## Run a specific feature folder: make feature f=04_transport
 	@$(SCRIPTS_DIR)/run_feature.sh "$(f)"
 
 # =============================================================================
-flutter-test: ## Run all Flutter unit + widget tests
-	@echo "▶ Running Flutter unit/widget tests..."
-	@flutter test --reporter compact
+flutter-test: ## Run all Flutter tests (unit + widget + smoke)
+	@echo "▶ Running all Flutter tests..."
+	@flutter test test/all_tests.dart --reporter compact
+
+# =============================================================================
+flutter-test-unit: ## Run only unit tests (test/unit/)
+	@echo "▶ Running unit tests..."
+	@flutter test test/unit/ --reporter compact
+
+# =============================================================================
+flutter-test-widget: ## Run only widget tests (test/widget/)
+	@echo "▶ Running widget tests..."
+	@flutter test test/widget/ --reporter compact
+
+# =============================================================================
+flutter-test-coverage: ## Run all tests with coverage report
+	@echo "▶ Running tests with coverage..."
+	@flutter test --coverage --reporter compact
+	@if command -v genhtml &>/dev/null; then \
+	  genhtml coverage/lcov.info --output-directory coverage/html && \
+	  echo "HTML report: coverage/html/index.html"; \
+	elif command -v lcov &>/dev/null; then \
+	  lcov --summary coverage/lcov.info; \
+	else \
+	  echo "Install lcov for HTML coverage: sudo apt install lcov"; \
+	fi
 
 # =============================================================================
 flutter-test-verbose: ## Run Flutter tests with verbose output
