@@ -20,6 +20,7 @@
 #     make triage           — send latest report to Claude for analysis
 #     make build-apk        — build debug APK
 #     make install-apk      — install latest debug APK on device
+#     make unified-report   — generate unified HTML report from all JUnit XMLs
 #     make clean-reports    — delete old reports (keep last 5)
 #     make devices          — list connected ADB devices
 #     make logcat           — stream live Flutter logcat
@@ -30,8 +31,9 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := help
 .PHONY: help setup smoke test feature regression flutter-test flutter-test-unit \
         flutter-test-widget flutter-test-coverage flutter-test-verbose \
-        integration report a11y visual-diff approve-baseline update-baseline \
-        triage build-apk install-apk clean-reports devices logcat check
+        integration report unified-report a11y visual-diff approve-baseline \
+        update-baseline triage build-apk install-apk clean-reports devices \
+        logcat check
 
 # ── Config ────────────────────────────────────────────────────────────────────
 APK_PATH := build/app/outputs/flutter-apk/app-debug.apk
@@ -203,6 +205,21 @@ triage: ## Send latest report to Claude AI for root-cause analysis
 	fi
 	@echo "🤖 Sending report to Claude for triage..."
 	@$(VENV) $(SCRIPTS_DIR)/claude_triage.py "$(LATEST_REPORT)"
+
+# =============================================================================
+# =============================================================================
+unified-report: ## Generate unified HTML report from all JUnit XMLs
+	@echo "▶ Generating unified test report..."
+	@python3 $(SCRIPTS_DIR)/generate_unified_report.py \
+	  --maestro   results.xml \
+	  --flutter   flutter-results.xml \
+	  --backend   backend-results.xml \
+	  --coverage  coverage.xml \
+	  --output    unified_report.html \
+	  --summary   unified_summary.json
+	@echo "✅ Report: unified_report.html"
+	@if command -v xdg-open &>/dev/null; then xdg-open unified_report.html; \
+	elif command -v open &>/dev/null; then open unified_report.html; fi
 
 # =============================================================================
 clean-reports: ## Delete old reports, keep last 5

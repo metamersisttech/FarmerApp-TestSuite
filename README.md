@@ -2,6 +2,10 @@
 
 End-to-end automated testing for FarmerApp — a Flutter-based agricultural marketplace for Indian farmers.
 
+[![Unit & Widget Tests](https://github.com/metamersisttech/FarmerApp-TestSuite/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/metamersisttech/FarmerApp-TestSuite/actions/workflows/unit_tests.yml)
+[![Maestro UI Tests](https://github.com/metamersisttech/FarmerApp-TestSuite/actions/workflows/ui_tests.yml/badge.svg)](https://github.com/metamersisttech/FarmerApp-TestSuite/actions/workflows/ui_tests.yml)
+[![Nightly Full Suite](https://github.com/metamersisttech/FarmerApp-TestSuite/actions/workflows/nightly_full_suite.yml/badge.svg)](https://github.com/metamersisttech/FarmerApp-TestSuite/actions/workflows/nightly_full_suite.yml)
+
 ---
 
 ## What's Inside

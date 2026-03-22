@@ -29,55 +29,126 @@ jobs:
 
       - name: Generate mocks (build_runner)
         run: dart run build_runner build --delete-conflicting-outputs
-        continue-on-error: true   # mocks may not exist for all tests
+        continue-on-error: true
 
       - name: Run unit tests
-        run: flutter test test/unit/ --reporter compact
+        id: unit
+        run: |
+          flutter test test/unit/ --reporter compact 2>&1 | tee unit-output.log
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
         continue-on-error: true
 
       - name: Run widget tests
-        run: flutter test test/widget/ --reporter compact
+        id: widget
+        run: |
+          flutter test test/widget/ --reporter compact 2>&1 | tee widget-output.log
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
         continue-on-error: true
 
       - name: Run smoke widget test
-        run: flutter test test/widget_test.dart --reporter compact
+        run: flutter test test/widget_test.dart --reporter compact 2>&1 | tee smoke-output.log
         continue-on-error: true
 
       - name: Run all tests with coverage
-        run: flutter test --coverage --reporter json > test-results.json
+        id: coverage
+        run: |
+          flutter test --coverage \
+            --reporter json \
+            --file-reporter json:flutter-results.json \
+            2>&1 | tee coverage-output.log || true
+
+          # Extract pass/fail from JSON reporter
+          TOTAL=$(python3 -c "
+          import json, pathlib
+          lines=[l for l in pathlib.Path('flutter-results.json').read_text().splitlines() if l.strip()]
+          events=[json.loads(l) for l in lines if l.startswith('{')]
+          done=[e for e in events if e.get('type')=='testDone']
+          print(len(done))
+          " 2>/dev/null || echo 0)
+          FAILED=$(python3 -c "
+          import json, pathlib
+          lines=[l for l in pathlib.Path('flutter-results.json').read_text().splitlines() if l.strip()]
+          events=[json.loads(l) for l in lines if l.startswith('{')]
+          done=[e for e in events if e.get('type')=='testDone' and e.get('result')=='error']
+          print(len(done))
+          " 2>/dev/null || echo 0)
+
+          echo "total=$TOTAL"   >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+
+          # Coverage percentage
+          COV_PCT="?"
+          if [ -f coverage/lcov.info ]; then
+            COV_PCT=$(awk '
+              /^DA:/{split($0,a,","); total++; if(a[2]>0) hit++}
+              END{if(total>0) printf "%.1f%%", hit/total*100}
+            ' coverage/lcov.info)
+          fi
+          echo "coverage=$COV_PCT" >> $GITHUB_OUTPUT
         continue-on-error: true
 
-      - name: Generate coverage summary
+      - name: Write GitHub Job Summary
+        if: always()
         run: |
-          if [ -f coverage/lcov.info ]; then
-            echo "=== Coverage Summary ==="
-            awk '/^SF:/{file=$0} /^DA:/{lines++; if($0~/,0$/){missed++}} END{
-              covered=lines-missed;
-              if(lines>0) printf "Lines: %d/%d (%.1f%%)\n", covered, lines, covered/lines*100
-            }' coverage/lcov.info || true
-          fi
+          TOTAL="${{ steps.coverage.outputs.total }}"
+          FAILED="${{ steps.coverage.outputs.failed }}"
+          COV="${{ steps.coverage.outputs.coverage }}"
+          PASSED=$((TOTAL - FAILED))
+          ICON="✅"
+          [ "$FAILED" -gt 0 ] 2>/dev/null && ICON="❌"
 
-      - name: Upload test results
+          cat >> $GITHUB_STEP_SUMMARY <<EOF
+          # ${ICON} Flutter Unit & Widget Tests
+
+          | Metric | Value |
+          |--------|-------|
+          | Total Tests | ${TOTAL} |
+          | ✅ Passed | ${PASSED} |
+          | ❌ Failed | ${FAILED} |
+          | 📊 Coverage | ${COV} |
+          EOF
+
+      - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: unit-test-results-${{ github.run_number }}
           path: |
-            test-results.json
+            flutter-results.json
+            unit-output.log
+            widget-output.log
+            smoke-output.log
+            coverage-output.log
             coverage/lcov.info
 
-      - name: Pretty print results summary
-        if: always()
-        run: flutter test test/all_tests.dart --reporter compact || true
-
-      - name: Post PR comment on failure
-        if: failure() && github.event_name == 'pull_request'
+      - name: Post PR comment with results
+        if: github.event_name == 'pull_request' && always()
         uses: actions/github-script@v7
         with:
           script: |
+            const total   = parseInt('${{ steps.coverage.outputs.total }}'  || '0');
+            const failed  = parseInt('${{ steps.coverage.outputs.failed }}' || '0');
+            const cov     = '${{ steps.coverage.outputs.coverage }}';
+            const passed  = total - failed;
+            const icon    = failed === 0 ? '✅' : '❌';
+            const result  = failed === 0 ? 'PASS' : 'FAIL';
+
+            const body = [
+              `## ${icon} Flutter Unit & Widget Tests — ${result}`,
+              '',
+              '| Metric | Value |',
+              '|--------|-------|',
+              `| Total Tests | ${total} |`,
+              `| ✅ Passed | ${passed} |`,
+              `| ❌ Failed | ${failed} |`,
+              `| 📊 Coverage | ${cov} |`,
+              '',
+              `[View full log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`,
+            ].join('\n');
+
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '❌ **Unit/Widget tests failed** on this PR.\n\nCheck the [Actions log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.'
+              body,
             });
