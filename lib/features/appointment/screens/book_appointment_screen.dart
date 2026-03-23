@@ -48,7 +48,6 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen>
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          key: const Key('book_appointment_back_btn'),
           icon: const Icon(Icons.arrow_back),
           onPressed: handleBackTap,
         ),
@@ -317,7 +316,6 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen>
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        key: const Key('request_appointment_btn'),
         onPressed: isSubmitting ? null : submitAppointment,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,

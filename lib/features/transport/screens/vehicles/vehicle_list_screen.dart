@@ -94,7 +94,6 @@ class _VehicleListScreenState extends State<VehicleListScreen> {
                         ? _buildVehiclesList(context, controller)
                         : _buildEmptyState(context),
             floatingActionButton: FloatingActionButton.extended(
-              key: const Key('add_vehicle_fab'),
               onPressed: () async {
                 await Navigator.pushNamed(
                   context,

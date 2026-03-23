@@ -121,7 +121,6 @@ class _RegisterPageState extends State<RegisterPage>
                 _buildFormFields(),
                 const SizedBox(height: 24),
                 AuthPrimaryButton(
-                  buttonKey: const Key('register_btn'),
                   text: 'Register',
                   isLoading: isLoading,
                   onPressed: isLoading ? null : _handleRegister,

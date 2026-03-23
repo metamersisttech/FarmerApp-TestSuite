@@ -153,7 +153,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
               ),
               const SizedBox(height: 16),
               AuthPrimaryButton(
-                buttonKey: const Key('verify_otp_btn'),
                 text: 'Verify & Continue',
                 isLoading: isLoading,
                 onPressed: isLoading || _otp.length != 6 ? null : _handleVerifyOtp,
@@ -205,7 +204,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
           style: TextStyle(color: AppTheme.authTextSecondary, fontSize: 14),
         ),
         TextButton(
-          key: const Key('resend_otp_btn'),
           onPressed: _canResend ? _handleResendOtp : null,
           style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 8),

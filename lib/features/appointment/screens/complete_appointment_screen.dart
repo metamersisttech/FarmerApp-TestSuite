@@ -189,7 +189,6 @@ class _CompleteAppointmentScreenState extends State<CompleteAppointmentScreen>
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          key: const Key('mark_complete_btn'),
           onPressed: isSubmitting ? null : submitCompletion,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue,

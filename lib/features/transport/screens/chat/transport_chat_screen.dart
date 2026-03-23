@@ -312,7 +312,6 @@ class _TransportChatScreenState extends State<TransportChatScreen> {
             // Message input
             Expanded(
               child: TextField(
-                key: const Key('message_input'),
                 controller: _messageController,
                 decoration: InputDecoration(
                   hintText: 'Type a message...',
@@ -337,7 +336,6 @@ class _TransportChatScreenState extends State<TransportChatScreen> {
 
             // Send button
             IconButton.filled(
-              key: const Key('send_message_btn'),
               onPressed: controller.isSending ? null : _handleSend,
               icon: controller.isSending
                   ? const SizedBox(

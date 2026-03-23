@@ -99,7 +99,6 @@ class ProfileHeaderCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              key: const Key('edit_profile_btn'),
               onPressed: onEditProfile,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.authPrimaryColor,

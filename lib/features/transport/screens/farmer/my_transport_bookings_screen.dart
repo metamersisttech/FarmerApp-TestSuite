@@ -87,7 +87,6 @@ class _MyTransportBookingsScreenState extends State<MyTransportBookingsScreen>
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        key: const Key('new_booking_fab'),
         onPressed: () async {
           final result = await Navigator.push<bool>(
             context,
@@ -204,7 +203,6 @@ class _MyTransportBookingsScreenState extends State<MyTransportBookingsScreen>
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              key: const Key('book_now_btn'),
               onPressed: () async {
                 final result = await Navigator.push<bool>(
                   context,

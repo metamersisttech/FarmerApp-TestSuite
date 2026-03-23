@@ -170,15 +170,24 @@ class ApiEndpoints {
   /// Get provider dashboard stats
   static const String transportDashboardStats = 'transport/provider/stats/';
 
-  // ============ Transport Request Endpoints (Farmer/Requestor) ============
-  /// List farmer's own requests / Create a new transport request
+  // ============ Transport Requester Endpoints ============
+  /// Get fare estimate for transport request
+  static const String transportEstimate = 'transport/estimate/';
+  /// Create/list transport requests (requester)
+  static const String transportRequests = 'transport/requests/';
+  /// Alias kept for backward compatibility
   static const String farmerTransportRequests = 'transport/requests/';
-  /// Get / cancel a specific transport request (farmer side)
+  /// Get single transport request by ID (requester)
+  static String transportRequestsById(int id) => 'transport/requests/$id/';
   static String farmerTransportRequestById(int id) => 'transport/requests/$id/';
-  /// Farmer cancels their own request
+  /// Cancel a transport request (requester)
+  static String transportRequestsCancel(int id) => 'transport/requests/$id/cancel/';
   static String farmerTransportRequestCancel(int id) => 'transport/requests/$id/cancel/';
-  /// Farmer approves fare proposed by transport provider
+  /// Approve provider's proposed fare (requester)
+  static String transportRequestsApproveFare(int id) => 'transport/requests/$id/approve-fare/';
   static String farmerTransportApproveFare(int id) => 'transport/requests/$id/approve-fare/';
+  /// Confirm delivery and rate provider (requester)
+  static String transportRequestsConfirmDelivery(int id) => 'transport/requests/$id/confirm-delivery/';
 
   // ============ Example CRUD Endpoints ============
   // Add your Django model endpoints here

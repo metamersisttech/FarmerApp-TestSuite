@@ -4,6 +4,7 @@
 /// These provide explicit success/error handling without exceptions at UI layer.
 library;
 
+import 'package:flutter_app/features/transport/models/fare_estimate_model.dart';
 import 'package:flutter_app/features/transport/models/onboarding_request_model.dart';
 import 'package:flutter_app/features/transport/models/transport_message_model.dart';
 import 'package:flutter_app/features/transport/models/transport_provider_model.dart';
@@ -615,6 +616,108 @@ class DashboardStatsResult extends TransportResult {
 
   factory DashboardStatsResult.failed(String errorMessage) {
     return DashboardStatsResult(
+      success: false,
+      errorMessage: errorMessage,
+    );
+  }
+}
+
+// ============ Requester-Specific Results ============
+
+/// Result for fare estimate operation
+class FareEstimateResult extends TransportResult {
+  final FareEstimateModel? estimate;
+
+  const FareEstimateResult({
+    required super.success,
+    super.errorMessage,
+    this.estimate,
+  });
+
+  factory FareEstimateResult.successful(FareEstimateModel estimate) {
+    return FareEstimateResult(
+      success: true,
+      estimate: estimate,
+    );
+  }
+
+  factory FareEstimateResult.failed(String errorMessage) {
+    return FareEstimateResult(
+      success: false,
+      errorMessage: errorMessage,
+    );
+  }
+}
+
+/// Result for create request operation
+class CreateRequestResult extends TransportResult {
+  final TransportRequestModel? request;
+
+  const CreateRequestResult({
+    required super.success,
+    super.errorMessage,
+    this.request,
+  });
+
+  factory CreateRequestResult.successful(TransportRequestModel request) {
+    return CreateRequestResult(
+      success: true,
+      request: request,
+    );
+  }
+
+  factory CreateRequestResult.failed(String errorMessage) {
+    return CreateRequestResult(
+      success: false,
+      errorMessage: errorMessage,
+    );
+  }
+}
+
+/// Result for approve fare operation
+class ApproveFareResult extends TransportResult {
+  final TransportRequestModel? request;
+
+  const ApproveFareResult({
+    required super.success,
+    super.errorMessage,
+    this.request,
+  });
+
+  factory ApproveFareResult.successful(TransportRequestModel request) {
+    return ApproveFareResult(
+      success: true,
+      request: request,
+    );
+  }
+
+  factory ApproveFareResult.failed(String errorMessage) {
+    return ApproveFareResult(
+      success: false,
+      errorMessage: errorMessage,
+    );
+  }
+}
+
+/// Result for confirm delivery operation
+class ConfirmDeliveryResult extends TransportResult {
+  final TransportRequestModel? request;
+
+  const ConfirmDeliveryResult({
+    required super.success,
+    super.errorMessage,
+    this.request,
+  });
+
+  factory ConfirmDeliveryResult.successful(TransportRequestModel request) {
+    return ConfirmDeliveryResult(
+      success: true,
+      request: request,
+    );
+  }
+
+  factory ConfirmDeliveryResult.failed(String errorMessage) {
+    return ConfirmDeliveryResult(
       success: false,
       errorMessage: errorMessage,
     );

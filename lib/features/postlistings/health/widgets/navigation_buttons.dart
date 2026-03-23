@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 
+/// Navigation buttons for health page (Previous/Next)
 class HealthNavigationButtons extends StatelessWidget {
   final bool isSubmitting;
-  final VoidCallback onPrevious;
-  final VoidCallback onNext;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
 
   const HealthNavigationButtons({
     super.key,
     required this.isSubmitting,
-    required this.onPrevious,
-    required this.onNext,
+    this.onPrevious,
+    this.onNext,
   });
 
   @override
@@ -35,7 +37,7 @@ class HealthNavigationButtons extends StatelessWidget {
         children: [
           Expanded(
             child: OutlinedButton(
-              onPressed: onPrevious,
+              onPressed: isSubmitting ? null : onPrevious,
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.grey[300]!),
                 shape: RoundedRectangleBorder(
@@ -54,7 +56,10 @@ class HealthNavigationButtons extends StatelessWidget {
             child: ElevatedButton(
               onPressed: isSubmitting ? null : onNext,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: AppTheme.authPrimaryColor,
+                disabledBackgroundColor: AppTheme.authPrimaryColor.withOpacity(
+                  0.6,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -71,7 +76,10 @@ class HealthNavigationButtons extends StatelessWidget {
                     )
                   : const Text(
                       'Next',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
             ),
           ),

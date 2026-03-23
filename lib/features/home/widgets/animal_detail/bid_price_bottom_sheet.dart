@@ -94,222 +94,266 @@ class _BidPriceBottomSheetState extends State<BidPriceBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    // Get device-specific measurements using MediaQuery
+    final mediaQuery = MediaQuery.of(context);
+    final screenHeight = mediaQuery.size.height;
+    final screenWidth = mediaQuery.size.width;
+    final bottomPadding = mediaQuery.padding.bottom; // System navigation bar height
+    final topPadding = mediaQuery.padding.top; // Status bar height
+    final keyboardHeight = mediaQuery.viewInsets.bottom; // Keyboard height when visible
+    
+    // Calculate dynamic spacing based on screen size
+    final horizontalPadding = screenWidth * 0.06; // 6% of screen width
+    final maxSheetHeight = screenHeight * 0.85; // Max 85% of screen height
+    
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle bar
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+      constraints: BoxConstraints(
+        maxHeight: maxSheetHeight,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Scrollable content
+          Flexible(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                horizontalPadding,
+                12,
+                horizontalPadding,
+                16,
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Place Your Bid',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: _isSubmitting ? null : () => Navigator.pop(context),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.close, size: 20),
-                  ),
-                ),
-              ],
-            ),
-
-            const Divider(height: 24),
-
-            // Subtitle
-            Text(
-              'Set a price that works for you',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Bid price display
-            Text(
-              '\u20B9${_bidPrice.toStringAsFixed(0)}',
-              style: const TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2E7D32),
-              ),
-            ),
-            const SizedBox(height: 4),
-
-            // Listed price reference
-            Text(
-              'Listed at \u20B9${widget.listedPrice.toStringAsFixed(0)}',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[500],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Quick-adjust buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _QuickAdjustChip(
-                  label: '-5K',
-                  isNegative: true,
-                  onTap: _isSubmitting ? null : () => _adjustPrice(-5000),
-                ),
-                const SizedBox(width: 8),
-                _QuickAdjustChip(
-                  label: '-1K',
-                  isNegative: true,
-                  onTap: _isSubmitting ? null : () => _adjustPrice(-1000),
-                ),
-                const SizedBox(width: 8),
-                _QuickAdjustChip(
-                  label: '+1K',
-                  isNegative: false,
-                  onTap: _isSubmitting ? null : () => _adjustPrice(1000),
-                ),
-                const SizedBox(width: 8),
-                _QuickAdjustChip(
-                  label: '+5K',
-                  isNegative: false,
-                  onTap: _isSubmitting ? null : () => _adjustPrice(5000),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Slider
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: const Color(0xFF2E7D32),
-                inactiveTrackColor: Colors.grey[200],
-                thumbColor: const Color(0xFF2E7D32),
-                overlayColor: const Color(0xFF2E7D32).withValues(alpha: 0.12),
-                trackHeight: 4,
-              ),
-              child: Slider(
-                value: _bidPrice.clamp(_minPrice, _maxPrice),
-                min: _minPrice,
-                max: _maxPrice,
-                onChanged: _isSubmitting
-                    ? null
-                    : (value) {
-                        setState(() {
-                          _bidPrice = (value / 100).round() * 100.0;
-                        });
-                      },
-              ),
-            ),
-
-            // Min/max labels
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    '\u20B9${_formatPrice(_minPrice)}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  // Handle bar
+                  Container(
+                    width: screenWidth * 0.1, // 10% of screen width
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                  Text(
-                    '\u20B9${_formatPrice(_maxPrice)}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  const SizedBox(height: 16),
+
+                  // Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Place Your Bid',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: _isSubmitting ? null : () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.close, size: 20),
+                        ),
+                      ),
+                    ],
                   ),
+
+                  const Divider(height: 24),
+
+                  // Subtitle
+                  Text(
+                    'Set a price that works for you',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Bid price display
+                  Text(
+                    '\u20B9${_bidPrice.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2E7D32),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Listed price reference
+                  Text(
+                    'Listed at \u20B9${widget.listedPrice.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Quick-adjust buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _QuickAdjustChip(
+                        label: '-5K',
+                        isNegative: true,
+                        onTap: _isSubmitting ? null : () => _adjustPrice(-5000),
+                      ),
+                      const SizedBox(width: 8),
+                      _QuickAdjustChip(
+                        label: '-1K',
+                        isNegative: true,
+                        onTap: _isSubmitting ? null : () => _adjustPrice(-1000),
+                      ),
+                      const SizedBox(width: 8),
+                      _QuickAdjustChip(
+                        label: '+1K',
+                        isNegative: false,
+                        onTap: _isSubmitting ? null : () => _adjustPrice(1000),
+                      ),
+                      const SizedBox(width: 8),
+                      _QuickAdjustChip(
+                        label: '+5K',
+                        isNegative: false,
+                        onTap: _isSubmitting ? null : () => _adjustPrice(5000),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Slider
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      activeTrackColor: const Color(0xFF2E7D32),
+                      inactiveTrackColor: Colors.grey[200],
+                      thumbColor: const Color(0xFF2E7D32),
+                      overlayColor: const Color(0xFF2E7D32).withValues(alpha: 0.12),
+                      trackHeight: 4,
+                    ),
+                    child: Slider(
+                      value: _bidPrice.clamp(_minPrice, _maxPrice),
+                      min: _minPrice,
+                      max: _maxPrice,
+                      onChanged: _isSubmitting
+                          ? null
+                          : (value) {
+                              setState(() {
+                                _bidPrice = (value / 100).round() * 100.0;
+                              });
+                            },
+                    ),
+                  ),
+
+                  // Min/max labels
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '\u20B9${_formatPrice(_minPrice)}',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        ),
+                        Text(
+                          '\u20B9${_formatPrice(_maxPrice)}',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Hint text
+                  Text(
+                    'Higher bids have a better chance of being accepted by the seller',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Optional message field
+                  TextField(
+                    controller: _messageController,
+                    enabled: !_isSubmitting,
+                    maxLines: 2,
+                    maxLength: 200,
+                    decoration: InputDecoration(
+                      hintText: 'Add a message to the seller (optional)',
+                      hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF2E7D32)),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      counterText: '',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Error message
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.red,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+          ),
 
-            // Hint text
-            Text(
-              'Higher bids have a better chance of being accepted by the seller',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontStyle: FontStyle.italic,
-                color: Colors.grey[500],
-              ),
+          // Fixed bottom button with dynamic padding for device navigation
+          Container(
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              16,
+              horizontalPadding,
+              // Use device bottom padding (for navigation bar) or minimum 16px
+              bottomPadding > 0 ? bottomPadding + 8 : 16,
             ),
-            const SizedBox(height: 16),
-
-            // Optional message field
-            TextField(
-              controller: _messageController,
-              enabled: !_isSubmitting,
-              maxLines: 2,
-              maxLength: 200,
-              decoration: InputDecoration(
-                hintText: 'Add a message to the seller (optional)',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFF2E7D32)),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                counterText: '',
-              ),
+              ],
             ),
-            const SizedBox(height: 8),
-
-            // Error message
-            if (_errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  _errorMessage!,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.red,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-
-            const SizedBox(height: 8),
-
-            // Book a Bid Now button
-            SizedBox(
+            child: SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                key: const Key('submit_bid_btn'),
                 onPressed: _isSubmitting ? null : _handleSubmit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2E7D32),
@@ -338,8 +382,8 @@ class _BidPriceBottomSheetState extends State<BidPriceBottomSheet> {
                       ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

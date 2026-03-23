@@ -54,16 +54,29 @@ class _VetPricingScreenState extends State<VetPricingScreen>
 
     if (result.success && result.pricing != null) {
       final p = result.pricing!;
-      _consultationFeeController.text = p.consultationFee ?? '';
-      _videoFeeController.text = p.videoConsultationFee ?? '';
-      _homeVisitFeeController.text = p.homeVisitFee ?? '';
-      _emergencyMultiplierController.text = p.emergencyFeeMultiplier ?? '';
+      _consultationFeeController.text = _formatPricingValue(p.consultationFee);
+      _videoFeeController.text = _formatPricingValue(p.videoConsultationFee);
+      _homeVisitFeeController.text = _formatPricingValue(p.homeVisitFee);
+      _emergencyMultiplierController.text = _formatPricingValue(p.emergencyFeeMultiplier);
     } else if (result.message != null) {
       setPricingError(result.message);
       showErrorToast(result.message!);
     }
 
     setPricingLoading(false);
+  }
+
+  /// Format pricing value from backend, treating "0" or "0.00" as empty
+  String _formatPricingValue(String? value) {
+    if (value == null || value.trim().isEmpty) return '';
+    
+    // Try to parse as double to check if it's zero
+    final numValue = double.tryParse(value.trim());
+    if (numValue != null && numValue == 0) {
+      return ''; // Treat zero as empty
+    }
+    
+    return value;
   }
 
   Future<void> _handleSave() async {
@@ -245,7 +258,6 @@ class _VetPricingScreenState extends State<VetPricingScreen>
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              key: const Key('save_pricing_btn'),
               onPressed: isSaving ? null : _handleSave,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.authPrimaryColor,

@@ -1571,6 +1571,127 @@ class BackendHelper {
     }
   }
 
+  // ============ Transport Requester Endpoints ============
+
+  /// Get fare estimate for transport request
+  /// POST /api/transport/estimate/
+  /// Request: { "source_latitude": ..., "source_longitude": ..., "destination_latitude": ..., "destination_longitude": ..., "cargo_animals": [...] }
+  /// Response: { "distance_km": ..., "estimated_fare_min": ..., "estimated_fare_max": ..., "estimated_weight_kg": ... }
+  Future<Map<String, dynamic>> postTransportEstimate(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportEstimate,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Create a new transport request (requester)
+  /// POST /api/transport/requests/
+  Future<Map<String, dynamic>> postTransportRequest(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportRequests,
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get requester's transport requests (paginated)
+  /// GET /api/transport/requests/?status=PENDING
+  Future<dynamic> getMyTransportRequests({
+    String? status,
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{...?params};
+      if (status != null) {
+        queryParams['status'] = status;
+      }
+      final response = await _client.get(
+        ApiEndpoints.transportRequests,
+        params: queryParams.isNotEmpty ? queryParams : null,
+      );
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Get single transport request by ID (requester)
+  /// GET /api/transport/requests/{id}/
+  Future<Map<String, dynamic>> getTransportRequestByIdRequester(int id) async {
+    try {
+      final response = await _client.get(ApiEndpoints.transportRequestsById(id));
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Cancel a transport request (requester)
+  /// POST /api/transport/requests/{id}/cancel/
+  Future<Map<String, dynamic>> postTransportRequestCancelRequester(
+    int id,
+    String? reason,
+  ) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportRequestsCancel(id),
+        data: reason != null ? {'reason': reason} : null,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Approve provider's proposed fare (requester)
+  /// POST /api/transport/requests/{id}/approve-fare/
+  Future<Map<String, dynamic>> postTransportApproveFare(int id) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.transportRequestsApproveFare(id),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Confirm delivery and rate provider (requester)
+  /// POST /api/transport/requests/{id}/confirm-delivery/
+  /// Request: { "rating": 5, "review": "Great service!" }
+  Future<Map<String, dynamic>> postTransportConfirmDelivery(
+    int id, {
+    required int rating,
+    String? review,
+  }) async {
+    try {
+      final data = <String, dynamic>{'rating': rating};
+      if (review != null && review.isNotEmpty) {
+        data['review'] = review;
+      }
+      final response = await _client.post(
+        ApiEndpoints.transportRequestsConfirmDelivery(id),
+        data: data,
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============ Error Handling ============
 
   /// Handle Dio errors and extract message

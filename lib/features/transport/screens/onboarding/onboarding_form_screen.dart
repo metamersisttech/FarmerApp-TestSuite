@@ -235,7 +235,6 @@ class _OnboardingFormScreenState extends State<OnboardingFormScreen> {
 
                     // License expiry
                     InkWell(
-                      key: const Key('license_expiry_field'),
                       onTap: () => _selectDate(),
                       child: InputDecorator(
                         decoration: const InputDecoration(
@@ -302,7 +301,6 @@ class _OnboardingFormScreenState extends State<OnboardingFormScreen> {
 
                     // Submit button
                     ElevatedButton(
-                      key: const Key('submit_application_btn'),
                       onPressed: controller.isLoading || controller.isUploading
                           ? null
                           : _handleSubmit,

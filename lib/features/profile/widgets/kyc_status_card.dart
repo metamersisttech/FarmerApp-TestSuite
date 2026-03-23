@@ -20,7 +20,6 @@ class KycStatusCard extends StatelessWidget {
     final isPending = status == 'pending';
 
     return GestureDetector(
-      key: const Key('kyc_status_card'),
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16),

@@ -46,21 +46,18 @@ class BottomActionBar extends StatelessWidget {
             if (!isOwner) ...[
               // Call Button
               _ActionIconButton(
-                key: const Key('call_btn'),
                 icon: Icons.call_outlined,
                 onTap: onCallTap,
               ),
               const SizedBox(width: 12),
               // Chat Button
               _ActionIconButton(
-                key: const Key('chat_btn'),
                 icon: Icons.chat_bubble_outline,
                 onTap: onChatTap,
               ),
               const SizedBox(width: 12),
               // Video Button
               _ActionIconButton(
-                key: const Key('video_btn'),
                 icon: Icons.videocam_outlined,
                 onTap: onVideoTap,
               ),
@@ -70,7 +67,6 @@ class BottomActionBar extends StatelessWidget {
             Expanded(
               child: isOwner
                   ? ElevatedButton.icon(
-                      key: const Key('view_bids_btn'),
                       onPressed: onViewBidsTap,
                       icon: const Icon(Icons.gavel, size: 20),
                       label: Text(
@@ -91,7 +87,6 @@ class BottomActionBar extends StatelessWidget {
                       ),
                     )
                   : ElevatedButton(
-                      key: const Key('buy_now_btn'),
                       onPressed: onBuyNowTap,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.authPrimaryColor,
@@ -124,7 +119,6 @@ class _ActionIconButton extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _ActionIconButton({
-    super.key,
     required this.icon,
     this.onTap,
   });

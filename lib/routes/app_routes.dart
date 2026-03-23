@@ -64,6 +64,11 @@ import 'package:flutter_app/features/transport/screens/trip/trip_completion_scre
 import 'package:flutter_app/features/transport/screens/trip/trip_progress_screen.dart';
 import 'package:flutter_app/features/transport/screens/vehicles/vehicle_form_screen.dart';
 import 'package:flutter_app/features/transport/screens/vehicles/vehicle_list_screen.dart';
+// Transport requester screens
+import 'package:flutter_app/features/transport/screens/requester/create_request_screen.dart';
+import 'package:flutter_app/features/transport/screens/requester/my_requests_screen.dart';
+import 'package:flutter_app/features/transport/screens/requester/requester_request_detail_screen.dart';
+import 'package:flutter_app/features/transport/screens/requester/delivery_confirmation_screen.dart';
 
 /// App Routes
 ///
@@ -140,6 +145,12 @@ class AppRoutes {
   static const String transportTripProgress = '/transport/trip/progress';
   static const String transportTripCompletion = '/transport/trip/completion';
   static const String transportChat = '/transport/chat';
+
+  // ============ Transport Requester Routes ============
+  static const String transportCreateRequest = '/transport/requester/create';
+  static const String transportMyRequests = '/transport/requester/my-requests';
+  static const String transportRequesterRequestDetail = '/transport/requester/request-detail';
+  static const String transportDeliveryConfirmation = '/transport/requester/delivery-confirmation';
 
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -624,6 +635,43 @@ class AppRoutes {
               requestId: args['requestId'] as int,
               otherUserName: args['otherUserName'] as String?,
             ),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Request ID required')),
+          ),
+          settings,
+        );
+
+      // ============ Transport Requester Routes ============
+      case transportCreateRequest:
+        return _buildRoute(const CreateRequestScreen(), settings);
+
+      case transportMyRequests:
+        return _buildRoute(const MyRequestsScreen(), settings);
+
+      case transportRequesterRequestDetail:
+        final requestId = settings.arguments as int?;
+        if (requestId != null) {
+          return _buildRoute(
+            RequesterRequestDetailScreen(requestId: requestId),
+            settings,
+          );
+        }
+        return _buildRoute(
+          const Scaffold(
+            body: Center(child: Text('Request ID required')),
+          ),
+          settings,
+        );
+
+      case transportDeliveryConfirmation:
+        final requestId = settings.arguments as int?;
+        if (requestId != null) {
+          return _buildRoute(
+            DeliveryConfirmationScreen(requestId: requestId),
             settings,
           );
         }

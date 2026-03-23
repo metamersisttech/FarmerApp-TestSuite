@@ -214,7 +214,6 @@ class _ApproveAppointmentScreenState extends State<ApproveAppointmentScreen>
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            key: const Key('confirm_appointment_btn'),
             onPressed: canConfirm ? submitApproval : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,

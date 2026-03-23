@@ -22,7 +22,6 @@ class ConversationTile extends StatelessWidget {
     final hasUnread = conversation.unreadCount > 0;
 
     return InkWell(
-      key: Key('conversation_tile_${conversation.id}'),
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

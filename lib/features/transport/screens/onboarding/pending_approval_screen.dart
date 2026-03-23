@@ -160,7 +160,6 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen> {
           // Actions
           if (request.isPending)
             OutlinedButton(
-              key: const Key('cancel_application_btn'),
               onPressed: _handleCancel,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -172,7 +171,6 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen> {
 
           if (request.isRejected)
             ElevatedButton(
-              key: const Key('reupload_documents_btn'),
               onPressed: () => TransportNavigationService.navigateToLicenseUpload(
                 context,
                 widget.requestId,
@@ -185,7 +183,6 @@ class _PendingApprovalScreenState extends State<PendingApprovalScreen> {
 
           if (request.isApproved)
             ElevatedButton(
-              key: const Key('go_to_dashboard_btn'),
               onPressed: () => TransportNavigationService.navigateToDashboard(context),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),

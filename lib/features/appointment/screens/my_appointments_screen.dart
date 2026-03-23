@@ -171,7 +171,6 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen>
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              key: const Key('my_appointments_retry_btn'),
               onPressed: handleRefresh,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,

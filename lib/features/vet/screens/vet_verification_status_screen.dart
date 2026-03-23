@@ -214,7 +214,6 @@ class _VetVerificationStatusScreenState
             width: double.infinity,
             height: 48,
             child: OutlinedButton(
-              key: const Key('verification_back_to_profile_btn'),
               onPressed: _handleBackToProfile,
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.authPrimaryColor,
@@ -328,7 +327,6 @@ class _VetVerificationStatusScreenState
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              key: const Key('set_up_availability_btn'),
               onPressed: () {
                 Navigator.pushNamed(context, AppRoutes.vetProfile);
               },
@@ -516,7 +514,6 @@ class _VetVerificationStatusScreenState
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              key: const Key('resubmit_documents_btn'),
               onPressed: _handleResubmit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.authPrimaryColor,

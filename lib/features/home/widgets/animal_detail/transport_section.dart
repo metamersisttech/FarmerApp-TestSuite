@@ -75,7 +75,6 @@ class TransportSection extends StatelessWidget {
 
             // Book Button
             GestureDetector(
-              key: const Key('book_transport_btn'),
               onTap: onBookTap,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

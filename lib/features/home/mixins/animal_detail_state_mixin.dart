@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
+import 'package:flutter_app/features/bidding/services/bid_service.dart';
 import 'package:flutter_app/features/home/controllers/animal_detail_controller.dart';
+import 'package:flutter_app/features/home/widgets/animal_detail/bid_price_bottom_sheet.dart';
+import 'package:flutter_app/features/messaging/services/messaging_service.dart';
+import 'package:flutter_app/routes/app_routes.dart';
 
 /// Mixin for reusable Animal Detail state coordination
 /// 
@@ -14,6 +19,10 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
   late AnimalDetailController controller;
   int currentImageIndex = 0;
   late PageController imagePageController;
+  bool _isOwner = false;
+
+  /// Whether the current user is the owner of this listing
+  bool get isOwner => _isOwner;
 
   /// Get the listing ID (must be implemented by the screen)
   int get listingId;
@@ -49,6 +58,140 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
     controller.removeListener(_onControllerChanged);
     controller.dispose();
     imagePageController.dispose();
+  }
+
+  /// Fetch animal details from API
+  /// Fetch animal details from API
+  Future<void> fetchDetails() async {
+    await controller.fetchAnimalDetail(listingId);
+
+    if (!mounted) return;
+
+    // Check ownership
+    try {
+      final user = await CommonHelper().getLoggedInUser();
+      if (user != null && controller.animalDetail?.seller != null) {
+        _isOwner = controller.animalDetail!.seller!.id == user.id;
+      }
+    } catch (_) {
+      // Silently fail ownership check
+    }
+
+    if (!mounted) return;
+
+    setState(() {});
+
+    if (controller.errorMessage != null) {
+      showErrorToast(controller.errorMessage!);
+    }
+  }
+
+  /// Handle back button tap
+  void handleBackTap() {
+    Navigator.of(context).pop();
+  }
+
+  /// Handle share button tap
+  void handleShareTap() {
+    controller.handleShare();
+    showComingSoonAction('Share');
+  }
+
+  /// Handle favorite button tap
+  Future<void> handleFavoriteTap() async {
+    await controller.toggleFavorite();
+
+    if (!mounted) return;
+
+    setState(() {});
+
+    if (controller.errorMessage != null) {
+      showErrorToast(controller.errorMessage!);
+    } else {
+      showSuccessToast(
+        controller.isFavorite ? 'Added to favorites' : 'Removed from favorites',
+      );
+    }
+  }
+
+  /// Handle call button tap
+  void handleCallTap() {
+    showComingSoonAction('Call');
+  }
+
+  /// Handle chat button tap - start or open conversation with seller
+  Future<void> handleChatTap() async {
+    if (!mounted) return;
+
+    // Show a brief loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Opening chat...'),
+        duration: Duration(seconds: 1),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    final messagingService = MessagingService();
+    final result = await messagingService.startConversation(listingId);
+
+    if (!mounted) return;
+
+    // Dismiss the loading snackbar
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    if (result.success && result.conversation != null) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.directChat,
+        arguments: result.conversation,
+      );
+    } else {
+      showErrorToast(result.message ?? 'Failed to start conversation');
+    }
+  }
+
+  /// Handle video button tap
+  void handleVideoTap() {
+    showComingSoonAction('Video call');
+  }
+
+  /// Handle buy now button tap
+  void handleBuyNowTap() {
+    final animal = controller.animalDetail;
+    if (animal == null) return;
+
+    final bidService = BidService();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => BidPriceBottomSheet(
+        listedPrice: animal.price,
+        animalTitle: animal.title,
+        listingId: listingId,
+        onSubmit: (bidPrice, message) => bidService.placeBid(
+          listingId: listingId,
+          bidPrice: bidPrice,
+          message: message,
+        ),
+      ),
+    ).then((result) {
+      if (result == true && mounted) {
+        showSuccessToast('Bid placed successfully!');
+      }
+    });
+  }
+
+  /// Handle book transport tap
+  void handleBookTransportTap() {
+    showComingSoonAction('Book Transport');
+  }
+
+  /// Handle seller contact tap
+  void handleSellerContactTap() {
+    showComingSoonAction('Contact Seller');
   }
 
   /// Set the current image index
@@ -126,4 +269,15 @@ mixin AnimalDetailStateMixin<T extends StatefulWidget> on State<T> {
       );
     }
   }
+
+  // ========== Public Wrapper Methods ==========
+
+  /// Show error toast (public wrapper)
+  void showErrorToast(String message) => _defaultShowError(message);
+
+  /// Show success toast (public wrapper)
+  void showSuccessToast(String message) => _defaultShowSuccess(message);
+
+  /// Show coming soon action (public wrapper)
+  void showComingSoonAction(String actionName) => _defaultShowComingSoon(actionName);
 }

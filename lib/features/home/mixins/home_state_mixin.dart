@@ -117,12 +117,23 @@ mixin HomeStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// Show coming soon message
+  /// Show coming soon message (private)
   void _showComingSoonMessage(String feature) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$feature feature coming soon!')),
       );
+    }
+  }
+
+  /// Show coming soon message (public wrapper)
+  void showComingSoonMessage(String feature) => _showComingSoonMessage(feature);
+
+  /// Handle listing tap - navigate to detail and sync recently viewed
+  void handleListingTap(dynamic listing) {
+    if (listing is ListingModel) {
+      homeController.navigateToListingDetail(context, listing);
+      syncRecentlyViewedListings();
     }
   }
 

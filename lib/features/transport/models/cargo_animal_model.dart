@@ -4,6 +4,8 @@
 /// Maps to Django CargoAnimalSerializer.
 library;
 
+import 'package:flutter_app/features/profile/models/listing_model.dart';
+
 class CargoAnimalModel {
   final int? animalId;
   final int count;
@@ -31,9 +33,20 @@ class CargoAnimalModel {
     );
   }
 
+  /// Create from a ListingModel (for selecting listed animals)
+  factory CargoAnimalModel.fromListing(ListingModel listing, {int count = 1}) {
+    return CargoAnimalModel(
+      animalId: listing.id, // Links to the listing
+      count: count,
+      species: listing.species,
+      breed: listing.breed,
+      estimatedWeightKg: null, // Listings don't have weight field
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
-      if (animalId != null) 'animal_id': animalId,
+      'animal_id': animalId, // Always send (null for manual entries)
       'count': count,
       if (species != null) 'species': species,
       if (breed != null) 'breed': breed,

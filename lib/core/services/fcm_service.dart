@@ -161,8 +161,12 @@ class FCMService {
     final notification = message.notification;
     if (notification == null) return;
 
+    // Generate consistent notification ID based on type and context
+    // This ensures messages from the same conversation update the same notification
+    final notificationId = _generateNotificationId(message.data);
+
     _localNotifications.show(
-      notification.hashCode,
+      notificationId,
       notification.title,
       notification.body,
       NotificationDetails(
@@ -179,6 +183,55 @@ class FCMService {
       // Store the entire data as JSON string instead of just notification_type
       payload: _encodePayload(message.data),
     );
+  }
+
+  /// Generate consistent notification ID based on notification type and context
+  /// Messages from the same conversation will have the same ID, causing updates instead of duplicates
+  int _generateNotificationId(Map<String, dynamic> data) {
+    final type = data['notification_type'];
+    
+    // For direct messages, use conversation_id to group by conversation
+    if (type == 'direct_message') {
+      final conversationId = data['conversation_id'];
+      if (conversationId != null) {
+        // Use conversation_id as the notification ID
+        // This makes all messages from the same conversation update the same notification
+        return int.tryParse(conversationId.toString()) ?? 1000;
+      }
+    }
+    
+    // For appointment messages, use appointment_id
+    if (type == 'appointment_message') {
+      final appointmentId = data['appointment_id'];
+      if (appointmentId != null) {
+        // Offset by 100000 to avoid collision with conversation IDs
+        return (int.tryParse(appointmentId.toString()) ?? 1) + 100000;
+      }
+    }
+    
+    // For appointment status updates, use appointment_id with different offset
+    if (type == 'appointment_created' || 
+        type == 'appointment_approved' || 
+        type == 'appointment_rejected' || 
+        type == 'appointment_completed') {
+      final appointmentId = data['appointment_id'];
+      if (appointmentId != null) {
+        // Offset by 200000 to avoid collision with messages
+        return (int.tryParse(appointmentId.toString()) ?? 1) + 200000;
+      }
+    }
+    
+    // For bid notifications, use listing_id
+    if (type == 'new_bid' || type == 'bid_approved' || type == 'bid_rejected') {
+      final listingId = data['listing_id'];
+      if (listingId != null) {
+        // Offset by 300000 to avoid collision with appointments
+        return (int.tryParse(listingId.toString()) ?? 1) + 300000;
+      }
+    }
+    
+    // Fallback to hash code for unknown types
+    return data.hashCode;
   }
 
   /// Encode notification data as payload string

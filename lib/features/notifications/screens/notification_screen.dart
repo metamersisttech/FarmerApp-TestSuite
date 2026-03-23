@@ -51,7 +51,6 @@ class _NotificationScreenState extends State<NotificationScreen>
         actions: [
           if (hasUnread)
             TextButton(
-              key: const Key('mark_all_read_btn'),
               onPressed: handleMarkAllAsRead,
               child: const Text(
                 'Mark all read',

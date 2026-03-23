@@ -46,7 +46,6 @@ class SwitchModeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      key: const Key('switch_mode_card'),
       onTap: isLoading ? null : onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16),

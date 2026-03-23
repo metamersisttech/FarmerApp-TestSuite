@@ -139,4 +139,45 @@ class TransportNavigationService {
   static void navigateAndReplace(BuildContext context, String routeName, {Object? arguments}) {
     AppRoutes.navigateAndReplace(context, routeName, arguments: arguments);
   }
+
+  // ============ Requester Navigation ============
+
+  /// Navigate to create transport request wizard
+  static void navigateToCreateRequest(BuildContext context) {
+    AppRoutes.navigateTo(context, AppRoutes.transportCreateRequest);
+  }
+
+  /// Navigate to my requests (requester's requests list)
+  static void navigateToMyRequests(BuildContext context) {
+    AppRoutes.navigateTo(context, AppRoutes.transportMyRequests);
+  }
+
+  /// Navigate to my requests and clear stack
+  static void navigateToMyRequestsAndClear(BuildContext context) {
+    AppRoutes.navigateAndRemoveAll(context, AppRoutes.transportMyRequests);
+  }
+
+  /// Navigate to requester request detail
+  static void navigateToRequesterRequestDetail(
+    BuildContext context,
+    int requestId,
+  ) {
+    AppRoutes.navigateTo(
+      context,
+      AppRoutes.transportRequesterRequestDetail,
+      arguments: requestId,
+    );
+  }
+
+  /// Navigate to delivery confirmation screen
+  static void navigateToDeliveryConfirmation(
+    BuildContext context,
+    int requestId,
+  ) {
+    AppRoutes.navigateTo(
+      context,
+      AppRoutes.transportDeliveryConfirmation,
+      arguments: requestId,
+    );
+  }
 }

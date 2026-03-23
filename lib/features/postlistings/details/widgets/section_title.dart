@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Section title with optional required indicator
 class SectionTitle extends StatelessWidget {
   final String title;
   final bool isRequired;
@@ -17,7 +18,7 @@ class SectionTitle extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
           ),
@@ -25,7 +26,11 @@ class SectionTitle extends StatelessWidget {
         if (isRequired)
           const Text(
             ' *',
-            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.red,
+            ),
           ),
       ],
     );

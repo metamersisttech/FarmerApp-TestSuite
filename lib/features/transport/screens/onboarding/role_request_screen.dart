@@ -105,7 +105,6 @@ class RoleRequestScreen extends StatelessWidget {
 
             // Apply button
             ElevatedButton(
-              key: const Key('apply_now_btn'),
               onPressed: () => TransportNavigationService.navigateToOnboardingForm(context),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),

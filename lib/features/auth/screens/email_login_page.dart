@@ -146,7 +146,6 @@ class _EmailLoginPageState extends State<EmailLoginPage>
                 _buildFormFields(),
                 const SizedBox(height: 24),
                 AuthPrimaryButton(
-                  buttonKey: const Key('login_btn'),
                   text: 'Login',
                   isLoading: isLoading,
                   onPressed: isLoading ? null : _handleLogin,
@@ -229,7 +228,6 @@ class _EmailLoginPageState extends State<EmailLoginPage>
     return Column(
       children: [
         TextButton(
-          key: const Key('forgot_password_link'),
           onPressed: isLoading
               ? null
               : () => Navigator.pushNamed(context, AppRoutes.forgotPassword),
@@ -250,7 +248,6 @@ class _EmailLoginPageState extends State<EmailLoginPage>
               style: TextStyle(color: AppTheme.authTextSecondary, fontSize: 14),
             ),
             TextButton(
-              key: const Key('register_link'),
               onPressed: isLoading
                   ? null
                   : () => AuthNavigationService.toRegister(context),

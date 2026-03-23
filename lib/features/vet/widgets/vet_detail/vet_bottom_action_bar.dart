@@ -99,7 +99,6 @@ class VetBottomActionBar extends StatelessWidget {
 
   Widget _buildBookButton() {
     return GestureDetector(
-      key: const Key('vet_detail_book_btn'),
       onTap: isAvailable ? onBookTap : null,
       child: Container(
         height: 48,

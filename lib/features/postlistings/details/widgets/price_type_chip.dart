@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 
+/// Price type selection chip (Fixed/Auction)
 class PriceTypeChip extends StatelessWidget {
   final String label;
   final String icon;
   final bool isSelected;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
   const PriceTypeChip({
     super.key,
     required this.label,
     required this.icon,
     required this.isSelected,
-    this.onTap,
+    required this.onTap,
   });
 
   @override
@@ -19,25 +21,39 @@ class PriceTypeChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.green.shade50 : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(8),
+          color: isSelected 
+              ? AppTheme.authPrimaryColor.withOpacity(0.1) 
+              : Colors.white,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.green : Colors.grey.shade300,
-            width: isSelected ? 2 : 1,
+            color: isSelected 
+                ? AppTheme.authPrimaryColor 
+                : AppTheme.authPrimaryColor.withOpacity(0.5),
+            width: isSelected ? 2 : 1.5,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? AppTheme.authPrimaryColor.withOpacity(0.2)
+                  : AppTheme.authPrimaryColor.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 16)),
+            Text(icon, style: const TextStyle(fontSize: 20)),
             const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected ? Colors.green.shade700 : Colors.black87,
+                fontSize: 15,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? AppTheme.authPrimaryColor : Colors.black87,
               ),
             ),
           ],

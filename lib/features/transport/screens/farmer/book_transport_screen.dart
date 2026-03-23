@@ -397,7 +397,6 @@ class _BookTransportScreenState extends State<BookTransportScreen>
           // Date
           Expanded(
             child: _tapTile(
-              key: const Key('pickup_date_tile'),
               icon: Icons.calendar_today_rounded,
               label: 'transport.pickup_date'.tr(),
               value: dateStr,
@@ -408,7 +407,6 @@ class _BookTransportScreenState extends State<BookTransportScreen>
           // Time
           Expanded(
             child: _tapTile(
-              key: const Key('pickup_time_tile'),
               icon: Icons.access_time_rounded,
               label: 'transport.pickup_time'.tr(),
               value: timeStr,
@@ -495,7 +493,6 @@ class _BookTransportScreenState extends State<BookTransportScreen>
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        key: const Key('request_transport_btn'),
         onPressed: _isSubmitting ? null : _submit,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
@@ -559,14 +556,12 @@ class _BookTransportScreenState extends State<BookTransportScreen>
   }
 
   Widget _tapTile({
-    Key? key,
     required IconData icon,
     required String label,
     required String value,
     required VoidCallback onTap,
   }) {
     return InkWell(
-      key: key,
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Padding(

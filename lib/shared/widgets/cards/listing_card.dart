@@ -30,7 +30,6 @@ class ListingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      key: const Key('listing_card'),
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(

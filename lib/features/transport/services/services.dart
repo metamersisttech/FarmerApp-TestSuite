@@ -3,6 +3,7 @@
 /// Export all transport services for easy importing.
 library;
 
+export 'requester_transport_service.dart';
 export 'transport_chat_service.dart';
 export 'transport_dashboard_service.dart';
 export 'transport_navigation_service.dart';
