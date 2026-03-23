@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/core/utils/validators.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
-import 'package:flutter_app/features/resetPassword/controllers/reset_password_controller.dart';
+import 'package:flutter_app/features/resetpassword/controllers/reset_password_controller.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
 import 'package:flutter_app/shared/widgets/auth/auth_header_icon.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter_app/core/base/base_controller.dart';
 import 'package:flutter_app/data/services/auth_service.dart';
-import 'package:flutter_app/features/resetPassword/services/reset_password_service.dart';
+import 'package:flutter_app/features/resetpassword/services/reset_password_service.dart';
 
 /// Controller for password reset operations
 class ResetPasswordController extends BaseController {
