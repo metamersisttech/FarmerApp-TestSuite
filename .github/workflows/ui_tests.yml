@@ -24,7 +24,7 @@ on:
 jobs:
   maestro-ui-tests:
     name: Maestro UI Tests
-    runs-on: macos-13           # Intel runner for x86_64 Android emulator
+    runs-on: macos-latest
     timeout-minutes: 90
 
     steps:
@@ -38,11 +38,12 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.41.5'
-          channel: 'stable'
-          cache: true
+        run: |
+          git clone https://github.com/flutter/flutter.git -b stable --depth 1 "$HOME/flutter"
+          echo "$HOME/flutter/bin" >> $GITHUB_PATH
+          export PATH="$HOME/flutter/bin:$PATH"
+          flutter precache --android
+          flutter --version
 
       - name: Setup Python
         uses: actions/setup-python@v5
