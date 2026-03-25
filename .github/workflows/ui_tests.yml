@@ -99,6 +99,10 @@ jobs:
           disable-animations: true
           script: |
             adb install build/app/outputs/flutter-apk/app-debug.apk
+            adb shell pm list packages | grep flutter_app
+            adb shell am start -n com.example.flutter_app/.MainActivity
+            sleep 10
+            adb shell am force-stop com.example.flutter_app
             adb logcat -v threadtime > logcat.txt &
             maestro test "${{ steps.flows.outputs.path }}" --format junit --output results.xml --env FARMERAPP_TEST_PHONE="${{ secrets.FARMERAPP_TEST_PHONE }}" --env FARMERAPP_TEST_OTP="${{ secrets.FARMERAPP_TEST_OTP }}" --env FARMERAPP_TEST_EMAIL="${{ secrets.FARMERAPP_TEST_EMAIL }}" --env FARMERAPP_TEST_PASSWORD="${{ secrets.FARMERAPP_TEST_PASSWORD }}" 2>&1 | tee maestro.log; MAESTRO_EXIT=${PIPESTATUS[0]}
             kill %1 2>/dev/null || true

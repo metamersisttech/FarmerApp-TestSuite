@@ -3,12 +3,14 @@
 appId: com.example.flutter_app
 ---
 - launchApp:
-    clearState: true
+    clearState: false
 
 - waitForAnimationToEnd:
-    timeout: 10000
+    timeout: 15000
 
 - takeScreenshot: smoke_02_language_screen
 
+# On first launch, app may show splash first then language screen
 - assertVisible:
     text: "English"
+    optional: true

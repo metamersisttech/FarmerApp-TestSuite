@@ -4,7 +4,7 @@
 appId: com.example.flutter_app
 ---
 - launchApp:
-    clearState: true
+    clearState: false
 
 - waitForAnimationToEnd:
     timeout: 10000
