@@ -100,20 +100,56 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -memory 4096
           disable-animations: true
           script: |
+            set +e
+
+            echo "=== Waiting for emulator boot ==="
             adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
-            adb install build/app/outputs/flutter-apk/app-debug.apk
-            adb shell pm list packages | grep flutter_app
-            adb shell am start -n com.example.flutter_app/.MainActivity
+            echo "Boot completed, waiting for launcher to settle..."
+            sleep 10
+
+            echo "=== Emulator diagnostics ==="
+            adb shell df -h /data 2>/dev/null || true
+            adb shell cat /proc/meminfo | head -5 || true
+            adb shell getprop ro.build.version.sdk || true
+
+            echo "=== Installing APK ==="
+            APK_PATH="build/app/outputs/flutter-apk/app-debug.apk"
+            INSTALL_OUTPUT=$(adb install -g "$APK_PATH" 2>&1)
+            INSTALL_RC=$?
+            echo "$INSTALL_OUTPUT"
+            if [ $INSTALL_RC -ne 0 ]; then
+              echo "::error::APK install failed (exit code $INSTALL_RC): $INSTALL_OUTPUT"
+              echo "Retrying install with -r (replace) flag..."
+              INSTALL_OUTPUT=$(adb install -g -r "$APK_PATH" 2>&1)
+              INSTALL_RC=$?
+              echo "$INSTALL_OUTPUT"
+              if [ $INSTALL_RC -ne 0 ]; then
+                echo "::error::APK install retry also failed (exit code $INSTALL_RC)"
+                exit 1
+              fi
+            fi
+
+            echo "=== Verifying installation ==="
+            adb shell pm list packages | grep flutter_app || echo "::warning::Package not found in pm list — install may have failed silently"
+
+            echo "=== Launching app ==="
+            adb shell am start -n com.example.flutter_app/.MainActivity || echo "::warning::am start returned non-zero"
             sleep 15
-            adb shell am force-stop com.example.flutter_app
+
+            echo "=== Stopping app before test run ==="
+            adb shell am force-stop com.example.flutter_app || echo "::warning::am force-stop returned non-zero (app may not be running)"
             sleep 2
+
+            echo "=== Starting logcat capture ==="
             adb logcat -v threadtime > logcat.txt &
+
             FLOW_PATH="${{ steps.flows.outputs.path }}"
             for flow in $(find "$FLOW_PATH" -name "*.yaml" -not -name "config.yaml" | sort); do
               echo "--- Running: $flow ---"
               maestro test "$flow" --env FARMERAPP_TEST_PHONE="${{ secrets.FARMERAPP_TEST_PHONE }}" --env FARMERAPP_TEST_OTP="${{ secrets.FARMERAPP_TEST_OTP }}" --env FARMERAPP_TEST_EMAIL="${{ secrets.FARMERAPP_TEST_EMAIL }}" --env FARMERAPP_TEST_PASSWORD="${{ secrets.FARMERAPP_TEST_PASSWORD }}" 2>&1 | tee -a maestro.log || true
               sleep 3
             done
+
             kill %1 2>/dev/null || true
             grep -E "FATAL EXCEPTION|AndroidRuntime|ANR in|FlutterError" logcat.txt > crashes.txt 2>/dev/null || true
 
