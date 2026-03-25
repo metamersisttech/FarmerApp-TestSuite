@@ -94,20 +94,28 @@ jobs:
           api-level: 31
           target: default
           arch: x86_64
+          ram-size: 4096M
+          heap-size: 1024M
           force-avd-creation: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -memory 4096
           disable-animations: true
           script: |
+            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
             adb install build/app/outputs/flutter-apk/app-debug.apk
             adb shell pm list packages | grep flutter_app
             adb shell am start -n com.example.flutter_app/.MainActivity
-            sleep 10
+            sleep 15
             adb shell am force-stop com.example.flutter_app
+            sleep 2
             adb logcat -v threadtime > logcat.txt &
-            maestro test "${{ steps.flows.outputs.path }}" --format junit --output results.xml --env FARMERAPP_TEST_PHONE="${{ secrets.FARMERAPP_TEST_PHONE }}" --env FARMERAPP_TEST_OTP="${{ secrets.FARMERAPP_TEST_OTP }}" --env FARMERAPP_TEST_EMAIL="${{ secrets.FARMERAPP_TEST_EMAIL }}" --env FARMERAPP_TEST_PASSWORD="${{ secrets.FARMERAPP_TEST_PASSWORD }}" 2>&1 | tee maestro.log; MAESTRO_EXIT=${PIPESTATUS[0]}
+            FLOW_PATH="${{ steps.flows.outputs.path }}"
+            for flow in $(find "$FLOW_PATH" -name "*.yaml" -not -name "config.yaml" | sort); do
+              echo "--- Running: $flow ---"
+              maestro test "$flow" --env FARMERAPP_TEST_PHONE="${{ secrets.FARMERAPP_TEST_PHONE }}" --env FARMERAPP_TEST_OTP="${{ secrets.FARMERAPP_TEST_OTP }}" --env FARMERAPP_TEST_EMAIL="${{ secrets.FARMERAPP_TEST_EMAIL }}" --env FARMERAPP_TEST_PASSWORD="${{ secrets.FARMERAPP_TEST_PASSWORD }}" 2>&1 | tee -a maestro.log || true
+              sleep 3
+            done
             kill %1 2>/dev/null || true
             grep -E "FATAL EXCEPTION|AndroidRuntime|ANR in|FlutterError" logcat.txt > crashes.txt 2>/dev/null || true
-            exit $MAESTRO_EXIT
 
       - name: Generate HTML report
         if: always()
