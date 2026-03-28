@@ -5,12 +5,15 @@ library;
 
 import 'dart:async';
 import 'package:flutter_app/core/base/base_controller.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/features/transport/models/transport_message_model.dart';
 import 'package:flutter_app/features/transport/services/transport_chat_service.dart';
 
 class TransportChatController extends BaseController {
   final TransportChatService _chatService;
+  final CommonHelper _commonHelper;
 
+  int? _currentUserId;
   int? _requestId;
   List<TransportMessageModel> _messages = [];
   int _unreadCount = 0;
@@ -36,7 +39,17 @@ class TransportChatController extends BaseController {
 
   TransportChatController({
     TransportChatService? chatService,
-  }) : _chatService = chatService ?? TransportChatService();
+    CommonHelper? commonHelper,
+  })  : _chatService = chatService ?? TransportChatService(),
+        _commonHelper = commonHelper ?? CommonHelper() {
+    _loadCurrentUserId();
+  }
+
+  /// Load the current user ID from secure storage
+  Future<void> _loadCurrentUserId() async {
+    final user = await _commonHelper.getLoggedInUser();
+    _currentUserId = user?.id;
+  }
 
   /// Initialize with request ID
   Future<void> initialize(int requestId) async {
@@ -191,9 +204,8 @@ class TransportChatController extends BaseController {
 
   /// Check if the user is the current user
   bool isCurrentUser(int? userId) {
-    // TODO: Get current user ID from auth service
-    // For now, return false - messages from others will be on the left
-    return false;
+    if (userId == null || _currentUserId == null) return false;
+    return userId == _currentUserId;
   }
 
   /// Upload attachment

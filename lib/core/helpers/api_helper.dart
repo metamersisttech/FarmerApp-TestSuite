@@ -7,6 +7,7 @@ library;
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/config/api_config.dart';
+import 'package:flutter_app/core/constants/api_endpoints.dart';
 import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/main.dart';
 import 'package:flutter_app/routes/app_routes.dart';
@@ -69,7 +70,10 @@ class APIClient {
 
           // Handle 401 Unauthorized errors (token expired)
           if (error.response?.statusCode == 401) {
-            await _handle401Error();
+            final retryResponse = await _handle401Error(error);
+            if (retryResponse != null) {
+              return handler.resolve(retryResponse);
+            }
           }
 
           return handler.next(error);
@@ -79,21 +83,53 @@ class APIClient {
   }
 
   /// Handle 401 Unauthorized errors
-  /// Clears user data and redirects to login page
-  Future<void> _handle401Error() async {
-    // Prevent multiple redirects
-    if (_isRedirecting) return;
+  /// Attempts token refresh first; if that fails, clears user data and
+  /// redirects to login page. Returns a [Response] if the retry succeeded.
+  Future<Response?> _handle401Error(DioException error) async {
+    // Prevent multiple concurrent refresh/redirect attempts
+    if (_isRedirecting) return null;
     _isRedirecting = true;
 
     try {
-      // Clear stored user and tokens
       final commonHelper = CommonHelper();
-      await commonHelper.clearUser();
 
-      // Clear in-memory token
+      // --- Step 1: Try refreshing the access token ---
+      final storedRefresh = await commonHelper.getRefreshToken();
+      if (storedRefresh != null && storedRefresh.isNotEmpty) {
+        try {
+          // Use a bare Dio instance to avoid interceptor loops
+          final refreshDio = Dio(BaseOptions(
+            baseUrl: ApiConfig.baseUrl,
+            headers: {'Content-Type': 'application/json'},
+          ));
+          final refreshResponse = await refreshDio.post(
+            ApiEndpoints.refreshToken,
+            data: {'refresh': storedRefresh},
+          );
+
+          final newAccessToken = refreshResponse.data['access'] as String?;
+          if (newAccessToken != null) {
+            // Persist the new token
+            await commonHelper.setTokens(accessToken: newAccessToken);
+            setAuthorization(newAccessToken);
+
+            // Retry the original request with the new token
+            final opts = error.requestOptions;
+            opts.headers['Authorization'] = 'Bearer $newAccessToken';
+            final retryResponse = await _dio.fetch(opts);
+            return retryResponse;
+          }
+        } catch (refreshError) {
+          if (kDebugMode) {
+            print('Token refresh failed: $refreshError');
+          }
+        }
+      }
+
+      // --- Step 2: Refresh failed or no refresh token — clear & redirect ---
+      await commonHelper.clearUser();
       clearAuthorization();
 
-      // Navigate to login page
       final context = navigatorKey.currentContext;
       if (context != null && context.mounted) {
         AppRoutes.navigateAndRemoveAll(context, AppRoutes.login);
@@ -103,11 +139,12 @@ class APIClient {
         print('Error handling 401: $e');
       }
     } finally {
-      // Reset flag after a delay to allow future redirects if needed
       Future.delayed(const Duration(seconds: 2), () {
         _isRedirecting = false;
       });
     }
+
+    return null;
   }
 
   /// Set authorization token for authenticated requests

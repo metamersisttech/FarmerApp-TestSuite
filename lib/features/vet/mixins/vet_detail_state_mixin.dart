@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_app/features/vet/models/vet_model.dart';
 import 'package:flutter_app/features/vet/models/vet_review_model.dart';
 import 'package:flutter_app/features/vet/models/vet_availability_slot_model.dart';
 import 'package:flutter_app/features/vet/services/vet_service.dart';
 import 'package:flutter_app/routes/app_routes.dart';
+import 'package:flutter_app/shared/themes/app_theme.dart';
 
 /// Mixin for Vet Detail page state management
 mixin VetDetailStateMixin<T extends StatefulWidget> on State<T> {
@@ -69,40 +71,89 @@ mixin VetDetailStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// Handle call button tap
-  void handleCallTap() {
-    if (mounted && vet != null) {
+  /// Handle call button tap — launch phone dialer or show unavailable
+  void handleCallTap() async {
+    if (!mounted || vet == null) return;
+
+    final phone = vet!.phoneNumber;
+    if (phone == null || phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Calling ${vet!.name}...'),
-          backgroundColor: const Color(0xFF3B9B59),
+        const SnackBar(
+          content: Text('Phone number not available for this vet'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final uri = Uri.parse('tel:$phone');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open phone dialer'),
+          backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  /// Handle video call button tap
+  /// Handle video call button tap — show coming soon dialog
   void handleVideoTap() {
-    if (mounted && vet != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Starting video call with ${vet!.name}...'),
-          backgroundColor: const Color(0xFF3B9B59),
+    if (!mounted || vet == null) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Video Consultation'),
+        content: const Text(
+          'Video consultation is coming soon! You can book an in-person or chat appointment in the meantime.',
         ),
-      );
-    }
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
-  /// Handle chat button tap
+  /// Handle chat button tap — prompt to book appointment first
   void handleChatTap() {
-    if (mounted && vet != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Opening chat with ${vet!.name}...'),
-          backgroundColor: const Color(0xFF3B9B59),
+    if (!mounted || vet == null) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Chat with Vet'),
+        content: Text(
+          'Book an appointment first to chat with ${vet!.name}.',
         ),
-      );
-    }
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.pushNamed(
+                context,
+                AppRoutes.bookAppointment,
+                arguments: vet,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+            ),
+            child: const Text('Book Now'),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Handle book appointment button tap — navigate to booking screen

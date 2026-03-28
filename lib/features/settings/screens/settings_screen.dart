@@ -2,8 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/core/mixins/toast_mixin.dart';
 import 'package:flutter_app/features/settings/services/notification_preferences_service.dart';
+import 'package:flutter_app/main.dart';
 import 'package:flutter_app/routes/app_routes.dart';
 import 'package:flutter_app/shared/themes/app_theme.dart';
+import 'package:provider/provider.dart';
 
 /// Settings Screen
 ///
@@ -171,6 +173,36 @@ class _SettingsScreenState extends State<SettingsScreen> with ToastMixin {
                   title: 'profile.language'.tr(),
                   subtitle: 'settings.language_sub'.tr(),
                   onTap: () => Navigator.pushNamed(context, AppRoutes.languageSelection),
+                ),
+                Builder(
+                  builder: (context) {
+                    final themeNotifier = Provider.of<ThemeNotifier>(context);
+                    final mode = themeNotifier.themeMode;
+                    final IconData icon;
+                    final String label;
+                    switch (mode) {
+                      case ThemeMode.light:
+                        icon = Icons.wb_sunny_rounded;
+                        label = 'Light';
+                        break;
+                      case ThemeMode.dark:
+                        icon = Icons.nightlight_round;
+                        label = 'Dark';
+                        break;
+                      case ThemeMode.system:
+                        icon = Icons.brightness_auto_rounded;
+                        label = 'System';
+                        break;
+                    }
+                    return _SettingsTile(
+                      key: const Key('settings_theme_mode'),
+                      icon: icon,
+                      iconColor: Colors.deepPurple,
+                      title: 'Theme',
+                      subtitle: label,
+                      onTap: () => themeNotifier.toggleTheme(),
+                    );
+                  },
                 ),
                 _SettingsTile(
                   key: const Key('settings_clear_cache'),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/core/helpers/common_helper.dart';
 import 'package:flutter_app/data/models/user_model.dart';
 import 'package:flutter_app/features/language/screens/language_selection_screen.dart';
 import 'package:flutter_app/features/settings/screens/settings_screen.dart';
@@ -7,11 +8,11 @@ import 'package:flutter_app/features/auth/screens/otp_verification_page.dart';
 import 'package:flutter_app/features/auth/screens/register_page.dart';
 import 'package:flutter_app/features/auth/screens/sendOtp_page.dart';
 import 'package:flutter_app/features/editprofile/screens/edit_profile_page.dart';
-import 'package:flutter_app/features/forgotpassword/screens/forgot_password_page.dart';
+import 'package:flutter_app/features/forgotPassword/screens/forgot_password_page.dart';
 import 'package:flutter_app/features/home/screens/animal_detail_page.dart';
 import 'package:flutter_app/features/home/screens/main_shell_page.dart';
 import 'package:flutter_app/features/profile/screens/profile_page.dart';
-import 'package:flutter_app/features/resetpassword/screens/reset_password_page.dart';
+import 'package:flutter_app/features/resetPassword/screens/reset_password_page.dart';
 import 'package:flutter_app/features/postlistings/screens/create_farm_page.dart';
 import 'package:flutter_app/features/vet/screens/vet_detail_page.dart';
 import 'package:flutter_app/features/vet/screens/vet_services_page.dart';
@@ -152,48 +153,117 @@ class AppRoutes {
   static const String transportRequesterRequestDetail = '/transport/requester/request-detail';
   static const String transportDeliveryConfirmation = '/transport/requester/delivery-confirmation';
 
+  // ============ Route Guard Definitions ============
+
+  /// Routes that do NOT require authentication (public routes)
+  static const Set<String> _publicRoutes = {
+    login,
+    signup,
+    phoneLogin,
+    // welcome is same as login ('/')
+    emailLogin,
+    forgotPassword,
+    resetPassword,
+    register,
+    otpVerification,
+    languageSelection,
+  };
+
+  /// Routes that require the 'vet' app mode
+  static const Set<String> _vetRoutes = {
+    vetOnboardingCarousel,
+    vetDocumentUpload,
+    vetVerificationStatus,
+    vetDocumentReupload,
+    vetProfile,
+    vetAvailability,
+    vetPricing,
+    vetAppointments,
+    vetApproveAppointment,
+    vetRejectAppointment,
+    vetCompleteAppointment,
+    vetHome,
+    vetDashboardProfile,
+  };
+
+  /// Routes that require the 'transport' app mode
+  static const Set<String> _transportProviderRoutes = {
+    transportDashboard,
+    transportNearbyRequests,
+    transportRequestDetail,
+    transportAcceptRequest,
+    transportTripProgress,
+    transportTripCompletion,
+    transportVehicleList,
+    transportVehicleForm,
+    transportRoleRequest,
+    transportOnboarding,
+    transportPendingApproval,
+    transportLicenseUpload,
+    transportProfile,
+  };
+
+  /// Determine required app mode for a route (null = any authenticated user)
+  static String? _requiredModeForRoute(String? routeName) {
+    if (_vetRoutes.contains(routeName)) return 'vet';
+    if (_transportProviderRoutes.contains(routeName)) return 'transport';
+    return null;
+  }
+
   // ============ Route Generator ============
   static Route<dynamic> generateRoute(RouteSettings settings) {
+    // Build the destination widget from the switch/case
+    final Widget destinationWidget = _resolveWidget(settings);
+
+    // Public routes: no guard needed
+    if (_publicRoutes.contains(settings.name)) {
+      return _buildRoute(destinationWidget, settings);
+    }
+
+    // All other routes: wrap with route guard
+    final requiredMode = _requiredModeForRoute(settings.name);
+    return _buildRoute(
+      _RouteGuard(
+        requiredMode: requiredMode,
+        child: destinationWidget,
+      ),
+      settings,
+    );
+  }
+
+  /// Resolve the destination widget for a route name (original switch logic)
+  static Widget _resolveWidget(RouteSettings settings) {
     switch (settings.name) {
       case languageSelection:
-        return _buildRoute(const LanguageSelectionScreen(), settings);
+        return const LanguageSelectionScreen();
 
       case login:
       case signup:
       case phoneLogin:
         // All these routes go to SendOtpPage (Login screen)
-        return _buildRoute(const SendOtpPage(), settings);
+        return const SendOtpPage();
 
       case emailLogin:
-        return _buildRoute(const EmailLoginPage(), settings);
+        return const EmailLoginPage();
 
       case forgotPassword:
-        return _buildRoute(const ForgotPasswordPage(), settings);
+        return const ForgotPasswordPage();
 
       case resetPassword:
         final args = settings.arguments as Map<String, dynamic>?;
-        return _buildRoute(
-          ResetPasswordPage(token: args?['token'] as String?),
-          settings,
-        );
+        return ResetPasswordPage(token: args?['token'] as String?);
 
       case register:
-        return _buildRoute(const RegisterPage(), settings);
+        return const RegisterPage();
 
       case otpVerification:
         // Extract phone number from arguments
         final args = settings.arguments;
         if (args is String) {
-          return _buildRoute(
-            OtpVerificationPage(mobileNumber: args),
-            settings,
-          );
+          return OtpVerificationPage(mobileNumber: args);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Phone number required for OTP verification')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Phone number required for OTP verification')),
         );
 
       case home:
@@ -203,491 +273,341 @@ class AppRoutes {
         if (args is Map<String, dynamic>) {
           user = args['user'] as UserModel?;
         }
-        return _buildRoute(MainShellPage(user: user), settings);
+        return MainShellPage(user: user);
 
       case '/settings':
-        return _buildRoute(const SettingsScreen(), settings);
+        return const SettingsScreen();
 
       case profile:
-        return _buildRoute(const ProfilePage(), settings);
+        return const ProfilePage();
 
       case editProfile:
         final args = settings.arguments as Map<String, dynamic>?;
-        return _buildRoute(
-          EditProfilePage(
-            initialFullName: args?['fullName'],
-            initialDisplayName: args?['displayName'],
-            initialDob: args?['dob'],
-            initialAddress: args?['address'],
-            initialState: args?['state'],
-            initialDistrict: args?['district'],
-            initialVillage: args?['village'],
-            initialPincode: args?['pincode'],
-            initialLatitude: args?['latitude'],
-            initialLongitude: args?['longitude'],
-            initialAbout: args?['about'],
-            initialProfileImageUrl: args?['profileImageUrl'],
-          ),
-          settings,
+        return EditProfilePage(
+          initialFullName: args?['fullName'],
+          initialDisplayName: args?['displayName'],
+          initialDob: args?['dob'],
+          initialAddress: args?['address'],
+          initialState: args?['state'],
+          initialDistrict: args?['district'],
+          initialVillage: args?['village'],
+          initialPincode: args?['pincode'],
+          initialLatitude: args?['latitude'],
+          initialLongitude: args?['longitude'],
+          initialAbout: args?['about'],
+          initialProfileImageUrl: args?['profileImageUrl'],
         );
 
       case createFarm:
-        return _buildRoute(const CreateFarmPage(), settings);
+        return const CreateFarmPage();
 
       case animalDetail:
         final listingId = settings.arguments as int?;
         if (listingId != null) {
-          return _buildRoute(
-            AnimalDetailPage(listingId: listingId),
-            settings,
-          );
+          return AnimalDetailPage(listingId: listingId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Listing ID required for animal detail')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Listing ID required for animal detail')),
         );
 
       case vetServices:
-        return _buildRoute(const VetServicesPage(), settings);
+        return const VetServicesPage();
 
       case vetDetail:
         final vetId = settings.arguments as int?;
         if (vetId != null) {
-          return _buildRoute(
-            VetDetailPage(vetId: vetId),
-            settings,
-          );
+          return VetDetailPage(vetId: vetId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Vet ID required for vet detail')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Vet ID required for vet detail')),
         );
 
       case vetOnboardingCarousel:
-        return _buildRoute(const VetOnboardingCarouselScreen(), settings);
+        return const VetOnboardingCarouselScreen();
 
       case vetDocumentUpload:
-        return _buildRoute(const VetDocumentUploadScreen(), settings);
+        return const VetDocumentUploadScreen();
 
       case vetVerificationStatus:
-        return _buildRoute(const VetVerificationStatusScreen(), settings);
+        return const VetVerificationStatusScreen();
 
       case vetDocumentReupload:
         final status = settings.arguments as VetVerificationStatusModel?;
         if (status != null) {
-          return _buildRoute(
-            VetDocumentReuploadScreen(verificationStatus: status),
-            settings,
-          );
+          return VetDocumentReuploadScreen(verificationStatus: status);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Verification status required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Verification status required')),
         );
 
       case vetProfile:
-        return _buildRoute(const VetProfileScreen(), settings);
+        return const VetProfileScreen();
 
       case vetAvailability:
-        return _buildRoute(const VetAvailabilityScreen(), settings);
+        return const VetAvailabilityScreen();
 
       case vetPricing:
-        return _buildRoute(const VetPricingScreen(), settings);
+        return const VetPricingScreen();
 
       case bookAppointment:
         final vet = settings.arguments as VetModel?;
         if (vet != null) {
-          return _buildRoute(
-            BookAppointmentScreen(vet: vet),
-            settings,
-          );
+          return BookAppointmentScreen(vet: vet);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Vet info required for booking')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Vet info required for booking')),
         );
 
       case myAppointments:
-        return _buildRoute(const MyAppointmentsScreen(), settings);
+        return const MyAppointmentsScreen();
 
       case appointmentDetail:
         final appointmentId = settings.arguments as int?;
         if (appointmentId != null) {
-          return _buildRoute(
-            AppointmentDetailScreen(appointmentId: appointmentId),
-            settings,
-          );
+          return AppointmentDetailScreen(appointmentId: appointmentId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Appointment ID required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Appointment ID required')),
         );
 
       case vetAppointments:
-        return _buildRoute(const VetAppointmentsScreen(), settings);
+        return const VetAppointmentsScreen();
 
       case vetApproveAppointment:
         final args = settings.arguments as Map<String, dynamic>?;
         final appointment = args?['appointment'] as AppointmentModel?;
         final vetId = args?['vetId'] as int?;
         if (appointment != null && vetId != null) {
-          return _buildRoute(
-            ApproveAppointmentScreen(appointment: appointment, vetId: vetId),
-            settings,
-          );
+          return ApproveAppointmentScreen(appointment: appointment, vetId: vetId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Appointment and vet ID required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Appointment and vet ID required')),
         );
 
       case vetRejectAppointment:
         final appointment = settings.arguments as AppointmentModel?;
         if (appointment != null) {
-          return _buildRoute(
-            RejectAppointmentScreen(appointment: appointment),
-            settings,
-          );
+          return RejectAppointmentScreen(appointment: appointment);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Appointment required for rejection')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Appointment required for rejection')),
         );
 
       case vetCompleteAppointment:
         final appointment = settings.arguments as AppointmentModel?;
         if (appointment != null) {
-          return _buildRoute(
-            CompleteAppointmentScreen(appointment: appointment),
-            settings,
-          );
+          return CompleteAppointmentScreen(appointment: appointment);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Appointment required for completion')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Appointment required for completion')),
         );
 
       case appointmentChat:
         final appointment = settings.arguments as AppointmentModel?;
         if (appointment != null) {
-          return _buildRoute(
-            AppointmentChatScreen(appointment: appointment),
-            settings,
-          );
+          return AppointmentChatScreen(appointment: appointment);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Appointment required for chat')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Appointment required for chat')),
         );
 
       case vetHome:
-        return _buildRoute(const VetHomePage(), settings);
+        return const VetHomePage();
 
       case vetDashboardProfile:
-        return _buildRoute(const VetDashboardProfilePage(), settings);
+        return const VetDashboardProfilePage();
 
       case recentlyViewed:
-        return _buildRoute(const RecentlyViewedPage(), settings);
+        return const RecentlyViewedPage();
 
       case editListingDetails:
         final listingId = settings.arguments is int
             ? settings.arguments as int
             : (settings.arguments as Map<String, dynamic>?)?['listingId'] as int?;
         if (listingId != null) {
-          return _buildRoute(
-            EditListingPage(listingId: listingId),
-            settings,
-          );
+          return EditListingPage(listingId: listingId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Listing ID required for edit')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Listing ID required for edit')),
         );
 
       case conversations:
-        return _buildRoute(const ConversationsPage(), settings);
+        return const ConversationsPage();
 
       case directChat:
         final conversation = settings.arguments as Conversation?;
         if (conversation != null) {
-          return _buildRoute(
-            DirectChatScreen(conversation: conversation),
-            settings,
-          );
+          return DirectChatScreen(conversation: conversation);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Conversation required for chat')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Conversation required for chat')),
         );
 
       case myBids:
-        return _buildRoute(const MyBidsPage(), settings);
+        return const MyBidsPage();
 
       case listingBids:
         final listingId = settings.arguments as int?;
         if (listingId != null) {
-          return _buildRoute(
-            ListingBidsPage(listingId: listingId),
-            settings,
-          );
+          return ListingBidsPage(listingId: listingId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Listing ID required for bids')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Listing ID required for bids')),
         );
 
       case notifications:
-        return _buildRoute(const NotificationScreen(), settings);
+        return const NotificationScreen();
 
       case favouriteListings:
-        return _buildRoute(const FavouriteListingsPage(), settings);
+        return const FavouriteListingsPage();
 
       case chooseIdentity:
         final args = settings.arguments;
-        return _buildRoute(
-          ChooseIdentityPage(user: args is UserModel ? args : null),
-          settings,
-        );
+        return ChooseIdentityPage(user: args is UserModel ? args : null);
 
       // ============ Farmer Transport Routes ============
       case bookTransport:
         final args = settings.arguments as Map<String, dynamic>?;
-        return _buildRoute(
-          BookTransportScreen(
-            listingId: args?['listingId'] as int?,
-            animalName: args?['animalName'] as String?,
-            sellerLocation: args?['sellerLocation'] as String?,
-            sellerLat: args?['sellerLat'] as double?,
-            sellerLng: args?['sellerLng'] as double?,
-            animalSpecies: args?['animalSpecies'] as String?,
-          ),
-          settings,
+        return BookTransportScreen(
+          listingId: args?['listingId'] as int?,
+          animalName: args?['animalName'] as String?,
+          sellerLocation: args?['sellerLocation'] as String?,
+          sellerLat: args?['sellerLat'] as double?,
+          sellerLng: args?['sellerLng'] as double?,
+          animalSpecies: args?['animalSpecies'] as String?,
         );
 
       case myTransportBookings:
-        return _buildRoute(const MyTransportBookingsScreen(), settings);
+        return const MyTransportBookingsScreen();
 
       case farmerTransportDetail:
         final requestId = settings.arguments as int?;
         if (requestId != null) {
-          return _buildRoute(
-            FarmerTransportDetailScreen(requestId: requestId),
-            settings,
-          );
+          return FarmerTransportDetailScreen(requestId: requestId);
         }
-        return _buildRoute(
-          const Scaffold(
-              body: Center(child: Text('Request ID required'))),
-          settings,
-        );
+        return const Scaffold(
+            body: Center(child: Text('Request ID required')));
 
       // ============ Transport Provider Routes ============
       case transportDashboard:
-        return _buildRoute(const TransportDashboardScreen(), settings);
+        return const TransportDashboardScreen();
 
       case transportNearbyRequests:
-        return _buildRoute(const NearbyRequestsScreen(), settings);
+        return const NearbyRequestsScreen();
 
       case transportRequestDetail:
         final request = settings.arguments as TransportRequestModel?;
         if (request != null) {
-          return _buildRoute(
-            RequestDetailScreen(request: request),
-            settings,
-          );
+          return RequestDetailScreen(request: request);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Request data required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Request data required')),
         );
 
       case transportAcceptRequest:
         final request = settings.arguments as TransportRequestModel?;
         if (request != null) {
-          return _buildRoute(
-            AcceptRequestScreen(request: request),
-            settings,
-          );
+          return AcceptRequestScreen(request: request);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Request data required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Request data required')),
         );
 
       case transportTripProgress:
         final requestId = settings.arguments as int?;
         if (requestId != null) {
-          return _buildRoute(
-            TripProgressScreen(requestId: requestId),
-            settings,
-          );
+          return TripProgressScreen(requestId: requestId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Request ID required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Request ID required')),
         );
 
       case transportVehicleList:
-        return _buildRoute(const VehicleListScreen(), settings);
+        return const VehicleListScreen();
 
       case transportRoleRequest:
-        return _buildRoute(const RoleRequestScreen(), settings);
+        return const RoleRequestScreen();
 
       case transportOnboarding:
-        return _buildRoute(const OnboardingFormScreen(), settings);
+        return const OnboardingFormScreen();
 
       case transportPendingApproval:
         final requestId = settings.arguments as int?;
         if (requestId != null) {
-          return _buildRoute(
-            PendingApprovalScreen(requestId: requestId),
-            settings,
-          );
+          return PendingApprovalScreen(requestId: requestId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Request ID required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Request ID required')),
         );
 
       case transportLicenseUpload:
         final requestId = settings.arguments as int?;
         if (requestId != null) {
-          return _buildRoute(
-            LicenseUploadScreen(requestId: requestId),
-            settings,
-          );
+          return LicenseUploadScreen(requestId: requestId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Request ID required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Request ID required')),
         );
 
       case transportProfile:
-        return _buildRoute(const TransportProfileScreen(), settings);
+        return const TransportProfileScreen();
 
       case transportVehicleForm:
         final args = settings.arguments as Map<String, dynamic>?;
         final vehicleId = args?['vehicleId'] as int?;
-        return _buildRoute(
-          VehicleFormScreen(vehicleId: vehicleId),
-          settings,
-        );
+        return VehicleFormScreen(vehicleId: vehicleId);
 
       case transportTripCompletion:
         final requestId = settings.arguments as int?;
         if (requestId != null) {
-          return _buildRoute(
-            TripCompletionScreen(requestId: requestId),
-            settings,
-          );
+          return TripCompletionScreen(requestId: requestId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Request ID required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Request ID required')),
         );
 
       case transportChat:
         final args = settings.arguments;
         if (args is int) {
-          return _buildRoute(
-            TransportChatScreen(requestId: args),
-            settings,
-          );
+          return TransportChatScreen(requestId: args);
         } else if (args is Map<String, dynamic>) {
-          return _buildRoute(
-            TransportChatScreen(
-              requestId: args['requestId'] as int,
-              otherUserName: args['otherUserName'] as String?,
-            ),
-            settings,
+          return TransportChatScreen(
+            requestId: args['requestId'] as int,
+            otherUserName: args['otherUserName'] as String?,
           );
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Request ID required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Request ID required')),
         );
 
       // ============ Transport Requester Routes ============
       case transportCreateRequest:
-        return _buildRoute(const CreateRequestScreen(), settings);
+        return const CreateRequestScreen();
 
       case transportMyRequests:
-        return _buildRoute(const MyRequestsScreen(), settings);
+        return const MyRequestsScreen();
 
       case transportRequesterRequestDetail:
         final requestId = settings.arguments as int?;
         if (requestId != null) {
-          return _buildRoute(
-            RequesterRequestDetailScreen(requestId: requestId),
-            settings,
-          );
+          return RequesterRequestDetailScreen(requestId: requestId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Request ID required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Request ID required')),
         );
 
       case transportDeliveryConfirmation:
         final requestId = settings.arguments as int?;
         if (requestId != null) {
-          return _buildRoute(
-            DeliveryConfirmationScreen(requestId: requestId),
-            settings,
-          );
+          return DeliveryConfirmationScreen(requestId: requestId);
         }
-        return _buildRoute(
-          const Scaffold(
-            body: Center(child: Text('Request ID required')),
-          ),
-          settings,
+        return const Scaffold(
+          body: Center(child: Text('Request ID required')),
         );
 
       default:
-        return _buildRoute(
-          Scaffold(
-            body: Center(child: Text('No route defined for ${settings.name}')),
-          ),
-          settings,
+        return Scaffold(
+          body: Center(child: Text('No route defined for ${settings.name}')),
         );
     }
   }
@@ -732,4 +652,155 @@ class AppRoutes {
   static void goBackWithResult<T>(BuildContext context, T result) {
     Navigator.pop(context, result);
   }
+}
+
+// ============ Route Guard Widget ============
+
+/// Async route guard that checks authentication and app mode before
+/// rendering the child widget. Redirects to login if not authenticated,
+/// or shows an access denied screen if the user's app mode doesn't match.
+///
+/// [requiredMode] - The app mode required to access this route ('vet',
+///   'transport'). If null, any authenticated user can access the route.
+class _RouteGuard extends StatelessWidget {
+  final String? requiredMode;
+  final Widget child;
+
+  const _RouteGuard({
+    required this.requiredMode,
+    required this.child,
+  });
+
+  Future<_GuardResult> _checkAccess() async {
+    final commonHelper = CommonHelper();
+
+    // Check authentication
+    final user = await commonHelper.getLoggedInUser();
+    if (user == null) {
+      return _GuardResult.notAuthenticated;
+    }
+
+    // Check role/mode if required
+    if (requiredMode != null) {
+      final currentMode = await commonHelper.getAppMode();
+      if (currentMode != requiredMode) {
+        return _GuardResult.accessDenied;
+      }
+    }
+
+    return _GuardResult.allowed;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<_GuardResult>(
+      future: _checkAccess(),
+      builder: (context, snapshot) {
+        // While checking auth, show a loading indicator
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        switch (snapshot.data!) {
+          case _GuardResult.notAuthenticated:
+            // Redirect to login after the current frame
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  AppRoutes.login,
+                  (route) => false,
+                );
+              }
+            });
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+
+          case _GuardResult.accessDenied:
+            // Show inline access denied screen
+            final modeLabel = requiredMode == 'vet'
+                ? 'Veterinarian'
+                : requiredMode == 'transport'
+                    ? 'Transport Provider'
+                    : requiredMode ?? 'Unknown';
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Access Denied'),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.home,
+                        (route) => false,
+                      );
+                    }
+                  },
+                ),
+              ),
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.lock_outline,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Access Denied',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'You need the $modeLabel role to access this page.',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          } else {
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              AppRoutes.home,
+                              (route) => false,
+                            );
+                          }
+                        },
+                        child: const Text('Go Back'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+
+          case _GuardResult.allowed:
+            return child;
+        }
+      },
+    );
+  }
+}
+
+/// Result of a route guard check
+enum _GuardResult {
+  allowed,
+  notAuthenticated,
+  accessDenied,
 }

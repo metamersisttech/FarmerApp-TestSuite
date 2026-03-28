@@ -81,6 +81,10 @@ dependencies:
   # Localization
   easy_localization: ^3.0.7
   intl: ^0.20.2
+
+  # PR #43 audit fix dependencies
+  url_launcher: ^6.2.0
+  flutter_image_compress: ^2.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
